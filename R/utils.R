@@ -20,7 +20,7 @@
 #' plot(logit(seq(from=0.01, to=0.99, by=0.01)), type='l', ylab = "LP")
 #' \dontrun{ logit(2) }
 logit <- function(p) {
-  if( any(x < 0 | x > 1) ) stop('p not between 0 and 1')
+  if( any(p < 0 | p > 1) ) stop('p not between 0 and 1')
   log(p / (1 - p))
 }
 
