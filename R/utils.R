@@ -48,3 +48,38 @@ logit <- function(p) {
 inv_logit <- function(x) {
   exp(x) / (1 + exp(x))
 }
+
+
+
+
+#' Create dummy variables for all categorical variables in a data.frame. Can be
+#' used as a pre-processing step before \code{\link{pm_input_info}}.
+#'
+#' @param df a data.frame on which to make dummy variables for each
+#'   categorical/factor variable, based on contrasts.
+#'
+#' @return a data.frame in which the new columns are appended to the \code{df}.
+#'   Naming convention of the new dummy variables is variable_level. For
+#'   example, a factor variable called "colour" with levels "red", "green" and
+#'   "purple" (where "purple" is the reference) will have two new "dummy
+#'   variables" named colour_red and colour_green.
+#' @export
+#'
+#' @examples
+#' dummyvars(data.frame("Colour" = factor(sample(c("red",
+#'                                                 "azure",
+#'                                                 "green",
+#'                                                 "white"),
+#'                                              500,
+#'                                              replace = TRUE))))
+dummyvars <- function(df) {
+  for (j in names(df)[which(sapply(df, is.factor))]) {
+    dummy_mat <- stats::model.matrix(~df[,j])[,-1]
+    colnames(dummy_mat) <- paste(j,
+                                 sub(".*j\\]", "", colnames(dummy_mat)),
+                                 sep="_")
+    df <- cbind(df, dummy_mat)
+    rm(dummy_mat)
+  }
+  df
+}
