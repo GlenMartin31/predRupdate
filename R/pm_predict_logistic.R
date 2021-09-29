@@ -1,5 +1,5 @@
-pm_calculate_logistic <- function(existingcoefs,
-                                  DM) {
+pm_predict_logistic <- function(existingcoefs,
+                                DM) {
   #Calculate the linear predictor
   LP <- as.numeric(DM %*% existingcoefs)
   #Map to predicted risks

@@ -33,8 +33,8 @@ pm_predict.pminfo <- function(x, ...){
     stop("Models of type='survival' are not currently supported")
 
   } else {
-    predictions <- pm_calculate_logistic(existingcoefs = x$coefs,
-                                         DM = x$PredictionData)
+    predictions <- pm_predict_logistic(existingcoefs = x$coefs,
+                                       DM = x$PredictionData)
 
     #return results
     x$LinearPredictor <- predictions$LP
