@@ -206,7 +206,9 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
     # model; if model is survival, no intercept should be created in DM
     if (model_type == "survival") {
       DM <- stats::model.matrix(formula, newdata)
-      DM <- DM[ ,-which(colnames(DM) == "(Intercept)"), drop=FALSE]
+      if (length(which(colnames(DM) == "(Intercept)")) != 0) {
+        DM <- DM[ ,-which(colnames(DM) == "(Intercept)"), drop=FALSE]
+      }
     } else {
       DM <- stats::model.matrix(formula, newdata)
     }
