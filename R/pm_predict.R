@@ -3,8 +3,8 @@
 #'
 #' @param x an object of class "\code{pminfo}" produced by
 #'   \code{\link{pm_input_info}}. This is a 'blueprint' description of the
-#'   existing prediction model.
-#' @param ... Not used.
+#'   existing prediction model, and the newdata on which predictions should be
+#'   made.
 #'
 #' @details This function takes the relevant information about the existing
 #'   prediction model (as supplied by called \code{\link{pm_input_info}}), and
@@ -15,20 +15,20 @@
 #'   \code{newdata}, based on the specified information about the existing
 #'   prediction model
 #' @export
-pm_predict <- function(x, ...) {
+pm_predict <- function(x) {
   UseMethod("pm_predict")
 }
 
 
 #' @export
-pm_predict.default <- function(x, ...) {
+pm_predict.default <- function(x) {
   stop("'x' is not of class 'pminfo'; please see pm_input_info()",
        call. = FALSE)
 }
 
 
 #' @export
-pm_predict.pminfo <- function(x, ...){
+pm_predict.pminfo <- function(x){
   if (x$model_type == "survival") {
     stop("Models of type='survival' are not currently supported")
 
@@ -37,8 +37,8 @@ pm_predict.pminfo <- function(x, ...){
                                        DM = x$PredictionData)
 
     #return results
-    x$LinearPredictor <- predictions$LP
-    x$PredictedRisk <- predictions$PR
-    x
+    out <- list("LinearPredictor" = predictions$LP,
+                "PredictedRisk" = predictions$PR)
+    out
   }
 }

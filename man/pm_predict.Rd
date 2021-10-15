@@ -5,14 +5,13 @@
 \title{Use an existing prediction model to estimate predicted risks in new data,
 given published coefficients}
 \usage{
-pm_predict(x, ...)
+pm_predict(x)
 }
 \arguments{
 \item{x}{an object of class "\code{pminfo}" produced by
 \code{\link{pm_input_info}}. This is a 'blueprint' description of the
-existing prediction model.}
-
-\item{...}{Not used.}
+existing prediction model, and the newdata on which predictions should be
+made.}
 }
 \value{
 Linear predictor and predicted risks for each observation in
