@@ -23,6 +23,20 @@
 #'   steps (using \code{pre_processing}) where needed. See "Details".
 #' @param pre_processing a list where each element is a function that describes
 #'   transformations to apply to columns of \code{newdata}. See "Details".
+#' @param binary_outcome Character variable giving the name of the column in
+#'   \code{newdata} that represents the observed outcomes. Only relevant for
+#'   \code{model_type}="logistic"; leave as default \code{NULL} otherwise. Leave
+#'   as \code{NULL} if \code{newdata} does not contain any outcomes.
+#' @param survivival_time Character variable giving the name of the column in
+#'   \code{newdata} that represents the observed survival times. Only relevant
+#'   for \code{model_type}="survival"; leave as default \code{NULL} otherwise.
+#'   Leave as \code{NULL} if \code{newdata} does not contain any survival
+#'   outcomes.
+#' @param event_indicator Character variable giving the name of the column in
+#'   \code{newdata} that represents the observed survival indicator (1 for
+#'   event, 0 for censoring). Only relevant for \code{model_type}="survival";
+#'   leave as default \code{NULL} otherwise. Leave as \code{NULL} if
+#'   \code{newdata} does not contain any survival outcomes.
 #'
 #' @details This function will structure relevant information about an existing
 #'   prediction model, and a new dataset (on which one wishes to make
@@ -55,7 +69,7 @@
 #'   corresponding name in \code{newdata} (after applying any
 #'   \code{pre_processing} steps). Additionally, each predictor variable
 #'   specified in \code{formula} must have a corresponding named element in
-#'   \code{existingcoefs}.
+#'   \code{existingcoefs}. Only the right hand side of the formula is needed.
 #'
 #'   \code{existingcoefs} should be provided as a named numeric vector, where
 #'   each name directly matches those in \code{formula} and in \code{newdata}
@@ -66,25 +80,38 @@
 #'   existing prediction model. In the case of model_type = "logistic", the
 #'   intercept of the existing prediction model must be named as "(Intercept)".
 #'
+#'   \code{binary_outcome}, \code{survivival_time} and \code{event_indicator}
+#'   are used to specify the outcomes in \code{newdata} if this is relevant. For
+#'   example, if validating the existing model, then these specify the columns
+#'   in \code{newdata} that will be used for assessing predictive performance of
+#'   the predictions in the validation dataset. If the \code{newdata} does not
+#'   contain outcomes (e.g. if simply applying/implementing the existing model
+#'   in \code{newdata}), then leave these to the default of \code{NULL}. If
+#'   \code{model_type} is "logistic" then both \code{survivival_time} and
+#'   \code{event_indicator} should be set to NULL; likewise, if
+#'   \code{model_type} is "survival", then \code{binary_outcome} should be set
+#'   to NULL.
 #'
-#' @return \code{\link{pm_input_info}} returns an object of class "pminfo".
-#'   This is a standardised format, such that it can be used with other
-#'   functions in the package. An object of class "pminfo" is a list containing
-#'   at least the following components: \itemize{\item{model_type = this is the
-#'   type of analytical model that the existing prediction model is based upon:
-#'   either "logistic" or "survival"} \item{coefs = this is the list of
-#'   (previously estimated) coefficients for each predictor included in the
-#'   existing prediction model} \item{coef_names = gives the names of each
-#'   predictor variable, with corresponding coefficient specified in coefs}
+#'
+#' @return \code{\link{pm_input_info}} returns an object of class "pminfo". This
+#'   is a standardised format, such that it can be used with other functions in
+#'   the package. An object of class "pminfo" is a list containing at least the
+#'   following components: \itemize{\item{model_type = this is the type of
+#'   analytical model that the existing prediction model is based upon: either
+#'   "logistic" or "survival"} \item{coefs = this is the list of (previously
+#'   estimated) coefficients for each predictor included in the existing
+#'   prediction model} \item{coef_names = gives the names of each predictor
+#'   variable, with corresponding coefficient specified in coefs}
 #'   \item{PredictionData = this is the design matrix formed by mapping the
 #'   specified \code{pre_processing} steps and functional form of the existing
 #'   prediction model specified in \code{formula} onto \code{newdata}; any
-#'   predictions will be upon such data}}
+#'   predictions will be upon such data.}} More items might be required
+#'   depending on the inputs to the function.
 #'
 #' @export
 #'
 #' @examples
-#' #Example 1
+#' #Example 1 - basic usage
 #' pm_input_info(model_type = "logistic",
 #'               existingcoefs = c("(Intercept)" = -2, "X" = 0.5),
 #'               baselinehazard = NULL,
@@ -139,21 +166,34 @@
 #'
 #' #Example 5 - showing use of pre_processing
 #' pm_input_info(model_type = "logistic",
-#'               existingcoefs = c("(Intercept)" = -2,
-#'                                 "Age" = 5,
-#'                                 "Age_squared" = 0.05,
-#'                                 "Age_logged" = 0.06),
+#'               existingcoefs = c("(Intercept)" = -5,
+#'                                 "Age" = 0.05,
+#'                                 "Age_squared" = 0.0005,
+#'                                 "Age_logged" = 0.006),
 #'               formula = ~Age + Age_squared + Age_logged,
 #'               newdata = data.frame("Age" = rnorm(100, 50, 0.5)),
 #'               pre_processing = list("Age_squared" = function(df) df$Age^2,
 #'                                     "Age_logged" = function(df) log(df$Age)))
 #'
+#' #Example 6 - showing specification of outcome columns in newdata
+#' pm_input_info(model_type = "logistic",
+#'               existingcoefs = c("(Intercept)" = -5,
+#'                                 "Age" = 0.05,
+#'                                 "Age_squared" = 0.0005,
+#'                                 "Age_logged" = 0.006),
+#'               formula = ~Age + Age_squared + Age_logged,
+#'               newdata = data.frame("Y" = rbinom(100, 1, 0.2),
+#'                                    "Age" = rnorm(100, 50, 0.5)),
+#'               pre_processing = list("Age_squared" = function(df) df$Age^2,
+#'                                     "Age_logged" = function(df) log(df$Age)),
+#'               binary_outcome = "Y")
 #'
-#' #Example 6 - survival model example
+#'
+#' #Example 7 - survival model example
 #' pm_input_info(model_type = "survival",
-#'               existingcoefs = c("Age" = 5,
-#'                                 "Age_squared" = 0.05,
-#'                                 "Age_logged" = 0.06),
+#'               existingcoefs = c("Age" = 0.05,
+#'                                 "Age_squared" = 0.0005,
+#'                                 "Age_logged" = 0.006),
 #'               formula = ~Age + Age_squared + Age_logged,
 #'               newdata = data.frame("Age" = rnorm(100, 50, 0.5)),
 #'               baselinehazard = data.frame("t" = c(1,2),
@@ -165,9 +205,13 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
                           baselinehazard = NULL,
                           formula,
                           newdata,
-                          pre_processing = NULL) {
+                          pre_processing = NULL,
+                          binary_outcome = NULL,
+                          survivival_time = NULL,
+                          event_indicator = NULL) {
 
   ########################## INPUT CHECKING ########################
+
   model_type <- match.arg(model_type)
 
   #Check that 'existingcoefs' is supplied as a named numeric vector
@@ -190,8 +234,48 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
          call. = FALSE)
   }
 
+  ########## EXTRACT OUTCOMES FROM NEWDATA IF NEEDED ###############
 
-  ####################### SET PM INFO ##############################
+  if (model_type == "logistic") {
+    if (!is.null(survivival_time)) {
+      stop("'survivival_time' should be set to NULL if model_type=logistic",
+           call. = FALSE)
+    }else if (!is.null(event_indicator)) {
+      stop("'event_indicator' should be set to NULL if model_type=logistic",
+           call. = FALSE)
+    }else if (is.null(binary_outcome)) {
+      Outcomes <- NULL
+    }else {
+      if(binary_outcome %in% names(newdata)) {
+        Outcomes <- newdata[,binary_outcome]
+      }else{
+        stop("'binary_outcome' not found in 'newdata'", call. = FALSE)
+      }
+    }
+  }
+  if (model_type == "survival") {
+    if (!is.null(binary_outcome)) {
+      stop("'binary_outcome' should be set to NULL if model_type=survival",
+           call. = FALSE)
+    }else if (!is.null(survivival_time) & !is.null(event_indicator)) {
+      if(survivival_time %in% names(newdata) &
+         event_indicator %in% names(newdata)) {
+        Outcomes <- survival::Surv(newdata[,survivival_time],
+                                   newdata[,event_indicator])
+      }else{
+        stop("'survivival_time' and/or 'event_indicator' not found in 'newdata'", call. = FALSE)
+      }
+    }else if (is.null(survivival_time) & is.null(event_indicator)) {
+      Outcomes <- NULL
+    }else {
+      stop("'survivival_time' and 'event_indicator' should either both be NULL or both have values supplied for model_type == 'survival'",
+           call. = FALSE)
+    }
+  }
+
+
+  ####################### SET DM INFO ##############################
+
   ##Define the design matrix, with/without pre-processing steps as defined by
   ##pre_processing:
   if (is.null(pre_processing)) {
@@ -264,6 +348,9 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
     }
   }
 
+
+  ################# SET EXISTING COEF INFO #########################
+
   #Check that each column of the design matrix produced by user-supplied
   #formula is included as an element of 'existingcoefs', and vice versa:
   if (all(names(existingcoefs) %in% colnames(DM)) == FALSE) {
@@ -296,12 +383,14 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
                       coefs = as.numeric(existingcoefs),
                       coef_names = names(existingcoefs),
                       baselinehazard = baselinehazard,
-                      PredictionData = DM)
+                      PredictionData = DM,
+                      Outcomes = Outcomes)
   } else {
     info_vals <- list(model_type = model_type,
                       coefs = as.numeric(existingcoefs),
                       coef_names = names(existingcoefs),
-                      PredictionData = DM)
+                      PredictionData = DM,
+                      Outcomes = Outcomes)
   }
 
   class(info_vals) <- "pminfo"
@@ -322,7 +411,7 @@ print.pminfo <- function(x, ...) {
     cat("Data on which predictions will be made has dimension",
         nrow(x$PredictionData), "by", ncol(x$PredictionData), ":\n")
     print(utils::head(x$PredictionData))
-    cat("...plus",  nrow(x$PredictionData)-6, "other rows")
+    cat("...plus",  nrow(x$PredictionData)-6, "other rows \n")
   }
 
   if (x$model_type == "survival") {
@@ -334,7 +423,11 @@ print.pminfo <- function(x, ...) {
       cat("\n Baseline hazard data has dimension",
           nrow(x$baselinehazard), "by", ncol(x$baselinehazard), ":\n")
       print(utils::head(x$baselinehazard))
-      cat("...plus",  nrow(x$baselinehazard)-6, "other rows")
+      cat("...plus",  nrow(x$baselinehazard)-6, "other rows \n")
     }
+  }
+
+  if (!is.null(x$Outcomes)) {
+    cat("Outcomes are avaliable for model validation")
   }
 }

@@ -38,7 +38,8 @@ pm_predict.pminfo <- function(x){
 
     #return results
     out <- list("LinearPredictor" = predictions$LP,
-                "PredictedRisk" = predictions$PR)
+                "PredictedRisk" = predictions$PR,
+                "Outcomes" = x$Outcomes)
     out
   }
 }
