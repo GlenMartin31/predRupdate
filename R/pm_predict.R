@@ -14,6 +14,9 @@
 #' @return Linear predictor and predicted risks for each observation in
 #'   \code{newdata}, based on the specified information about the existing
 #'   prediction model
+#'
+#' @seealso \code{\link{pm_input_info}}
+#'
 #' @export
 pm_predict <- function(x) {
   UseMethod("pm_predict")
