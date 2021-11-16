@@ -28,3 +28,6 @@ prediction model (as supplied by called \code{\link{pm_input_info}}), and
 returns the predicted risks for each individual/observation in
 \code{newdata}. See \code{\link{pm_input_info}}) for more details.
 }
+\seealso{
+\code{\link{pm_input_info}}
+}
