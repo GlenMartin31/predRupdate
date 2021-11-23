@@ -27,7 +27,7 @@
 #'   \code{newdata} that represents the observed outcomes. Only relevant for
 #'   \code{model_type}="logistic"; leave as default \code{NULL} otherwise. Leave
 #'   as \code{NULL} if \code{newdata} does not contain any outcomes.
-#' @param survivival_time Character variable giving the name of the column in
+#' @param survival_time Character variable giving the name of the column in
 #'   \code{newdata} that represents the observed survival times. Only relevant
 #'   for \code{model_type}="survival"; leave as default \code{NULL} otherwise.
 #'   Leave as \code{NULL} if \code{newdata} does not contain any survival
@@ -80,14 +80,14 @@
 #'   existing prediction model. In the case of model_type = "logistic", the
 #'   intercept of the existing prediction model must be named as "(Intercept)".
 #'
-#'   \code{binary_outcome}, \code{survivival_time} and \code{event_indicator}
+#'   \code{binary_outcome}, \code{survival_time} and \code{event_indicator}
 #'   are used to specify the outcomes in \code{newdata} if this is relevant. For
 #'   example, if validating the existing model, then these specify the columns
 #'   in \code{newdata} that will be used for assessing predictive performance of
 #'   the predictions in the validation dataset. If the \code{newdata} does not
 #'   contain outcomes (e.g. if simply applying/implementing the existing model
 #'   in \code{newdata}), then leave these to the default of \code{NULL}. If
-#'   \code{model_type} is "logistic" then both \code{survivival_time} and
+#'   \code{model_type} is "logistic" then both \code{survival_time} and
 #'   \code{event_indicator} should be set to NULL; likewise, if
 #'   \code{model_type} is "survival", then \code{binary_outcome} should be set
 #'   to NULL.
@@ -207,7 +207,7 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
                           newdata,
                           pre_processing = NULL,
                           binary_outcome = NULL,
-                          survivival_time = NULL,
+                          survival_time = NULL,
                           event_indicator = NULL) {
 
   ########################## INPUT CHECKING ########################
@@ -237,8 +237,8 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
   ########## EXTRACT OUTCOMES FROM NEWDATA IF NEEDED ###############
 
   if (model_type == "logistic") {
-    if (!is.null(survivival_time)) {
-      stop("'survivival_time' should be set to NULL if model_type=logistic",
+    if (!is.null(survival_time)) {
+      stop("'survival_time' should be set to NULL if model_type=logistic",
            call. = FALSE)
     }else if (!is.null(event_indicator)) {
       stop("'event_indicator' should be set to NULL if model_type=logistic",
@@ -257,18 +257,18 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
     if (!is.null(binary_outcome)) {
       stop("'binary_outcome' should be set to NULL if model_type=survival",
            call. = FALSE)
-    }else if (!is.null(survivival_time) & !is.null(event_indicator)) {
-      if(survivival_time %in% names(newdata) &
+    }else if (!is.null(survival_time) & !is.null(event_indicator)) {
+      if(survival_time %in% names(newdata) &
          event_indicator %in% names(newdata)) {
-        Outcomes <- survival::Surv(newdata[,survivival_time],
+        Outcomes <- survival::Surv(newdata[,survival_time],
                                    newdata[,event_indicator])
       }else{
-        stop("'survivival_time' and/or 'event_indicator' not found in 'newdata'", call. = FALSE)
+        stop("'survival_time' and/or 'event_indicator' not found in 'newdata'", call. = FALSE)
       }
-    }else if (is.null(survivival_time) & is.null(event_indicator)) {
+    }else if (is.null(survival_time) & is.null(event_indicator)) {
       Outcomes <- NULL
     }else {
-      stop("'survivival_time' and 'event_indicator' should either both be NULL or both have values supplied for model_type == 'survival'",
+      stop("'survival_time' and 'event_indicator' should either both be NULL or both have values supplied for model_type == 'survival'",
            call. = FALSE)
     }
   }
