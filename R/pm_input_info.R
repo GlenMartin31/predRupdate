@@ -80,8 +80,8 @@
 #'   existing prediction model. In the case of model_type = "logistic", the
 #'   intercept of the existing prediction model must be named as "(Intercept)".
 #'
-#'   \code{binary_outcome}, \code{survival_time} and \code{event_indicator}
-#'   are used to specify the outcomes in \code{newdata} if this is relevant. For
+#'   \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
+#'   used to specify the outcomes in \code{newdata} if this is relevant. For
 #'   example, if validating the existing model, then these specify the columns
 #'   in \code{newdata} that will be used for assessing predictive performance of
 #'   the predictions in the validation dataset. If the \code{newdata} does not
@@ -144,24 +144,55 @@
 #'          }
 #'
 #'
-#' #Example 4 - shows how to handle categorical variables - must first turn into
-#' # dummy variables before passing to pm_input_info
-#' test_df <- dummyvars(data.frame("X" = rnorm(500),
-#'                                 "Colour" = factor(sample(c("red",
-#'                                                            "azure",
-#'                                                            "green",
-#'                                                            "white"),
-#'                                                           500,
-#'                                                           replace = TRUE))))
+#' #Example 4 - shows how to handle categorical variables - can either call
+#' #pmupdate::dummyvars() within the pre_processing input, or incorporate
+#' #user-defined functions to handle the categorical variables
 #' pm_input_info(model_type = "logistic",
 #'               existingcoefs = c("X" = 0.5,
+#'                                 "X_Squared" = 0.005,
+#'                                 "(Intercept)" = -2,
+#'                                 "Colour_green" = 0.5,
+#'                                 "Colour_red" = 0.95,
+#'                                 "Colour_white" = 2,
+#'                                 "Sex_Male" = 0.6),
+#'               formula = ~X + X_Squared + Colour_green + Colour_red + Colour_white + Sex_Male,
+#'               newdata = data.frame("X" = rnorm(500),
+#'                                    "Colour" = factor(sample(c("red",
+#'                                                               "azure",
+#'                                                               "green",
+#'                                                               "white"),
+#'                                                               500,
+#'                                                               replace = TRUE)),
+#'                                    "Sex" = factor(sample(c("Male",
+#'                                                            "Female"),
+#'                                                            500,
+#'                                                            replace = TRUE))),
+#'               pre_processing = list("X_Squared" = function(df){df$X^2},
+#'                                     function(df) {dummyvars(df)}))
+#' ###....alternatively:
+#' pm_input_info(model_type = "logistic",
+#'               existingcoefs = c("X" = 0.5,
+#'                                 "X_Squared" = 0.005,
 #'                                 "(Intercept)" = -2,
 #'                                 "Colour_green" = 0.5,
 #'                                 "Colour_red" = 0.95,
 #'                                 "Colour_white" = 2),
-#'               formula = ~X + Colour_green + Colour_red + Colour_white,
-#'               newdata = test_df,
-#'               pre_processing = NULL)
+#'               formula = ~X + X_Squared + Colour_green + Colour_red + Colour_white,
+#'               newdata = data.frame("X" = rnorm(500),
+#'                                    "Colour" = factor(sample(c("red",
+#'                                                               "azure",
+#'                                                               "green",
+#'                                                               "white"),
+#'                                                               500,
+#'                                                               replace = TRUE)),
+#'                                    "Sex" = factor(sample(c("Male",
+#'                                                            "Female"),
+#'                                                            500,
+#'                                                            replace = TRUE))),
+#'               pre_processing = list("X_Squared" = function(df){df$X^2},
+#'                                     "Colour_green" = function(df) {ifelse(df$Colour == "Green", 1, 0)},
+#'                                     "Colour_white" = function(df) {ifelse(df$Colour == "White", 1, 0)},
+#'                                     "Colour_red" = function(df) {ifelse(df$Colour == "Red", 1, 0)}))
 #'
 #'
 #' #Example 5 - showing use of pre_processing
@@ -324,6 +355,12 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
              call. = FALSE)
       }
     )
+    #convert the results of the pre_processing functions to be a list where each
+    #element is a transformed/pre-processed variable:
+    transformed_vars <- lapply(rapply(transformed_vars, enquote, how="unlist"),
+                               eval)
+    #Test to make sure that each transformed/pre-processed variable is the
+    #correct length to column-bind with newdata
     if (any(sapply(transformed_vars, length) != nrow(newdata))) {
       stop("Length of output returned by some elements of 'pre_processing' does not match nrow(newdata)",
            call. = FALSE)
@@ -331,7 +368,6 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
 
     #Merge the transformation/pre-processing variables into the dataset
     newdata_processed <- cbind(newdata, transformed_vars)
-
     #Now pre-processing has been completed, check that all predictor
     #variables specified in 'formula' are also in 'newdata_processed'
     if (all(all.vars(formula) %in% names(newdata_processed)) == FALSE) {
