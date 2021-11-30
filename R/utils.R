@@ -80,13 +80,19 @@ inv_logit <- function(x) {
 #'                                              500,
 #'                                              replace = TRUE))))
 dummyvars <- function(df) {
-  output <- NULL
-  for (j in names(df)[which(sapply(df, is.factor))]) {
-    dummy_mat <- stats::model.matrix(~-1 + df[,j])
-    colnames(dummy_mat) <- paste(j,
-                                 sub(".*j\\]", "", colnames(dummy_mat)),
-                                 sep="_")
-    output <- cbind(output, dummy_mat)
+
+  #Check that df contains at least one factor variable
+  if (all(sapply(df, is.factor)==FALSE)) {
+    stop("data.frame contains no factor variables to convert to dummy variables")
+  } else{
+    output <- NULL
+    for (j in names(df)[which(sapply(df, is.factor))]) {
+      dummy_mat <- stats::model.matrix(~-1 + df[,j])
+      colnames(dummy_mat) <- paste(j,
+                                   sub(".*j\\]", "", colnames(dummy_mat)),
+                                   sep="_")
+      output <- cbind(output, dummy_mat)
+    }
+    as.list(as.data.frame(output))
   }
-  as.list(as.data.frame(output))
 }
