@@ -2,8 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{dummyvars}
 \alias{dummyvars}
-\title{Create dummy variables for all categorical variables in a data.frame. Can be
-used as a pre-processing function within \code{\link{pm_input_info}}.}
+\title{Create dummy variables for all categorical variables in a data.frame}
 \usage{
 dummyvars(df)
 }

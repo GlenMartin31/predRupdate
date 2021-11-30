@@ -51,7 +51,8 @@ inv_logit <- function(x) {
 
 
 
-
+#' Create dummy variables for all categorical variables in a data.frame
+#'
 #' Create dummy variables for all categorical variables in a data.frame. Can be
 #' used as a pre-processing function within \code{\link{pm_input_info}}.
 #'
