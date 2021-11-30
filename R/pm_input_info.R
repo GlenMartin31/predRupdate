@@ -1,3 +1,5 @@
+#' Input information about an existing prediction model
+#'
 #' Input relevant information about an existing prediction model (i.e. the
 #' functional form and published coefficients), and a new dataset, to create a
 #' standardised 'blueprint' for further evaluation.
@@ -379,7 +381,7 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
                    is.function)) == FALSE){
       stop("'pre_processing' should be a list where each element of the list is a function", call. = FALSE)
     }
-browser()
+
     #Apply the list of transformation/pre-processing steps to the dataset. Will
     #check that the user-supplied functions in 'pre_processing' can be evaluated
     #safely. Will also check that results from functions in 'pre_processing' are

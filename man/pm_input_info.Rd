@@ -2,9 +2,7 @@
 % Please edit documentation in R/pm_input_info.R
 \name{pm_input_info}
 \alias{pm_input_info}
-\title{Input relevant information about an existing prediction model (i.e. the
-functional form and published coefficients), and a new dataset, to create a
-standardised 'blueprint' for further evaluation.}
+\title{Input information about an existing prediction model}
 \usage{
 pm_input_info(
   model_type = c("logistic", "survival"),
