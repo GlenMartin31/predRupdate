@@ -399,32 +399,45 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
              call. = FALSE)
       }
     )
-    #convert the results of the pre_processing functions to be a list where each
-    #element is a transformed/pre-processed variable:
-    transformed_vars <- lapply(rapply(transformed_vars, enquote, how="unlist"),
-                               eval)
-    #Test to make sure that each transformed/pre-processed variable is the
-    #correct length to column-bind with newdata
-    if (any(sapply(transformed_vars, length) != nrow(newdata))) {
-      stop("Length of output returned by some elements of 'pre_processing' does not match nrow(newdata)",
-           call. = FALSE)
+    #Check if all of the functions within pre_processing return empty/no values,
+    #then proceed without any pre-processing steps
+    if (all(lapply(transformed_vars, length) == 0) == TRUE) {
+      warning("All functions supplied in pre_processing return empty results - proceeding without pre-processing data.")
+    } else{
+      #check whether any of the functions within pre_processing return empty/no
+      #values, returning a warning if so
+      if (any(lapply(transformed_vars, length) == 0) == TRUE) {
+        warning("Some functions supplied in pre_processing return empty result - removing these steps from pre-processing.")
+      }
+
+      #convert the results of the pre_processing functions to be a list where
+      #each element is a transformed/pre-processed variable:
+      transformed_vars <- lapply(rapply(transformed_vars, enquote, how="unlist"),
+                                 eval)
+      #Test to make sure that each transformed/pre-processed variable is the
+      #correct length to column-bind with newdata
+      if (any(sapply(transformed_vars, length) != nrow(newdata))) {
+        stop("Length of output returned by some elements of 'pre_processing' does not match nrow(newdata)",
+             call. = FALSE)
+      }
+      #Merge the transformation/pre-processing variables into the dataset
+      newdata <- cbind(newdata, transformed_vars)
     }
-    #Merge the transformation/pre-processing variables into the dataset
-    newdata_processed <- cbind(newdata, transformed_vars)
+
 
     #Now pre-processing has been completed, check that all predictor
-    #variables specified in 'formula' are also in 'newdata_processed'
-    if (all(all.vars(formula) %in% names(newdata_processed)) == FALSE) {
+    #variables specified in 'formula' are also in 'newdata'
+    if (all(all.vars(formula) %in% names(newdata)) == FALSE) {
       stop("Ensure that all predictor variables specified in 'formula' are also in 'newdata' after pre-processing steps",
            call. = FALSE)
     }
     #Define a design matrix given the provided functional form of the existing
     # model; if model is survival, no intercept should be created in DM
     if (model_type == "survival") {
-      DM <- stats::model.matrix(formula, newdata_processed)
+      DM <- stats::model.matrix(formula, newdata)
       DM <- DM[ ,-which(colnames(DM) == "(Intercept)"), drop=FALSE]
     } else {
-      DM <- stats::model.matrix(formula, newdata_processed)
+      DM <- stats::model.matrix(formula, newdata)
     }
   }
 
