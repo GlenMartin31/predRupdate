@@ -36,7 +36,7 @@ character string that can be coerced to that class). This specifies the
 functional form description of the existing prediction model. The details
 of the model specification are given under "Details".}
 
-\item{newdata}{data frame which will be used to make predictions on using
+\item{newdata}{data.frame which will be used to make predictions on using
 the existing prediction model. Variable names must match those in
 \code{existingcoefs} and \code{formula}, after applying any pre-processing
 steps (using \code{pre_processing}) where needed. See "Details".}
