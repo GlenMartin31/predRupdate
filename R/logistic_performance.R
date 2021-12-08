@@ -1,3 +1,11 @@
+#' Calculate predictive performance of a logistic regression model
+#'
+#' @param ObservedOutcome a vector of N binary observations, denoting if the
+#'   outcome was observed (1) or not observed (0) for each individual in the
+#'   validation dataset
+#' @param LinearPredictor a vector of N observations where each is the
+#'   calculated linear predictor from the existing model that is being evaluated
+#' @noRd
 logistic_performance <- function(ObservedOutcome,
                                  LinearPredictor){
 

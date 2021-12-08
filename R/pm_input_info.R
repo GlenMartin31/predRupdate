@@ -1,3 +1,5 @@
+#' Input information about an existing prediction model
+#'
 #' Input relevant information about an existing prediction model (i.e. the
 #' functional form and published coefficients), and a new dataset, to create a
 #' standardised 'blueprint' for further evaluation.
@@ -17,7 +19,7 @@
 #'   character string that can be coerced to that class). This specifies the
 #'   functional form description of the existing prediction model. The details
 #'   of the model specification are given under "Details".
-#' @param newdata  data frame which will be used to make predictions on using
+#' @param newdata  data.frame which will be used to make predictions on using
 #'   the existing prediction model. Variable names must match those in
 #'   \code{existingcoefs} and \code{formula}, after applying any pre-processing
 #'   steps (using \code{pre_processing}) where needed. See "Details".
@@ -50,17 +52,23 @@
 #'   variables/columns should match those provided in \code{formula} and
 #'   \code{existingcoefs}.
 #'
-#'   If the \code{newdata} contains factor/categorical variables, then these
-#'   need to be converted to "dummy" variables prior to calling
-#'   \code{\link{pm_input_info}}. The function \code{\link{dummyvars}} can
-#'   assist with this.
-#'
-#'   Other variable transformations (e.g. interaction terms, non-linear terms or
-#'   splines) can be created within \code{\link{pm_input_info}} by passing
-#'   functions into \code{pre_processing}. \code{pre_processing} should be a
-#'   list of functions, where each element in the list is named (which will
-#'   become the new variable name) with a function that describes what steps to
-#'   apply to \code{newdata}. See "Examples" below.
+#'   Variable transformations/ pre-processing-steps to apply to \code{newdata}
+#'   (e.g. interaction terms, non-linear terms or splines) can be created within
+#'   \code{\link{pm_input_info}} by specifying \code{pre_processing}.
+#'   \code{pre_processing} should be a list of functions that apply the desired
+#'   transformations/ pre-processing step  - the functions should have one input
+#'   only; that is the \code{newdata}. Specifically, usually, each element of
+#'   \code{pre_processing} will be named with the corresponding function
+#'   applying a transformation to a single variable in \code{newdata} and
+#'   returning a vector of length equal to the number of rows of \code{newdata};
+#'   here, the name of the list element becomes the new/transformed variable
+#'   name in \code{newdata}. See "Examples" below. Alternatively,
+#'   \code{pre_processing} can take a function that applies multiple
+#'   transformations/ pre-processing-steps to \code{newdata} and returns a
+#'   data.frame or list of results. For example, if the \code{newdata} contains
+#'   factor/categorical variables, then "dummy" variables of these
+#'   factor/categorical variables can be created by specifying the function
+#'   \code{\link{dummyvars}} as a list element; see "Examples" below.
 #'
 #'   \code{formula} describes the functional form of the existing prediction
 #'   model. For example, if the existing prediction model included "age" and
@@ -80,8 +88,8 @@
 #'   existing prediction model. In the case of model_type = "logistic", the
 #'   intercept of the existing prediction model must be named as "(Intercept)".
 #'
-#'   \code{binary_outcome}, \code{survival_time} and \code{event_indicator}
-#'   are used to specify the outcomes in \code{newdata} if this is relevant. For
+#'   \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
+#'   used to specify the outcomes in \code{newdata} if this is relevant. For
 #'   example, if validating the existing model, then these specify the columns
 #'   in \code{newdata} that will be used for assessing predictive performance of
 #'   the predictions in the validation dataset. If the \code{newdata} does not
@@ -144,36 +152,104 @@
 #'          }
 #'
 #'
-#' #Example 4 - shows how to handle categorical variables - must first turn into
-#' # dummy variables before passing to pm_input_info
-#' test_df <- dummyvars(data.frame("X" = rnorm(500),
-#'                                 "Colour" = factor(sample(c("red",
-#'                                                            "azure",
-#'                                                            "green",
-#'                                                            "white"),
-#'                                                           500,
-#'                                                           replace = TRUE))))
+#' #Example 4 - shows how to handle categorical variables - can either call
+#' #pmupdate::dummyvars() within the pre_processing input, or incorporate
+#' #user-defined functions to handle the categorical variables
 #' pm_input_info(model_type = "logistic",
 #'               existingcoefs = c("X" = 0.5,
+#'                                 "X_Squared" = 0.005,
+#'                                 "(Intercept)" = -2,
+#'                                 "Colour_green" = 0.5,
+#'                                 "Colour_red" = 0.95,
+#'                                 "Colour_white" = 2,
+#'                                 "Sex_Male" = 0.6),
+#'               formula = ~X + X_Squared + Colour_green + Colour_red + Colour_white + Sex_Male,
+#'               newdata = data.frame("X" = rnorm(500),
+#'                                    "Colour" = factor(sample(c("red",
+#'                                                               "azure",
+#'                                                               "green",
+#'                                                               "white"),
+#'                                                               500,
+#'                                                               replace = TRUE)),
+#'                                    "Sex" = factor(sample(c("Male",
+#'                                                            "Female"),
+#'                                                            500,
+#'                                                            replace = TRUE))),
+#'               pre_processing = list("X_Squared" = function(df){df$X^2},
+#'                                     function(df) {dummyvars(df)}))
+#' ###....alternatively:
+#' pm_input_info(model_type = "logistic",
+#'               existingcoefs = c("X" = 0.5,
+#'                                 "X_Squared" = 0.005,
 #'                                 "(Intercept)" = -2,
 #'                                 "Colour_green" = 0.5,
 #'                                 "Colour_red" = 0.95,
 #'                                 "Colour_white" = 2),
-#'               formula = ~X + Colour_green + Colour_red + Colour_white,
-#'               newdata = test_df,
-#'               pre_processing = NULL)
+#'               formula = ~X + X_Squared + Colour_green + Colour_red + Colour_white,
+#'               newdata = data.frame("X" = rnorm(500),
+#'                                    "Colour" = factor(sample(c("red",
+#'                                                               "azure",
+#'                                                               "green",
+#'                                                               "white"),
+#'                                                               500,
+#'                                                               replace = TRUE)),
+#'                                    "Sex" = factor(sample(c("Male",
+#'                                                            "Female"),
+#'                                                            500,
+#'                                                            replace = TRUE))),
+#'               pre_processing = list("X_Squared" = function(df){df$X^2},
+#'                                     "Colour_green" = function(df) {
+#'                                     ifelse(df$Colour == "Green", 1, 0)
+#'                                     },
+#'                                     "Colour_white" = function(df) {
+#'                                     ifelse(df$Colour == "White", 1, 0)
+#'                                     },
+#'                                     "Colour_red" = function(df) {
+#'                                     ifelse(df$Colour == "Red", 1, 0)
+#'                                     }
+#'                                     ))
 #'
 #'
-#' #Example 5 - showing use of pre_processing
+#' #Example 5 - showing use of pre_processing - the following are all valid ways
+#' #            of specifying elements of pre_processing
 #' pm_input_info(model_type = "logistic",
 #'               existingcoefs = c("(Intercept)" = -5,
 #'                                 "Age" = 0.05,
 #'                                 "Age_squared" = 0.0005,
-#'                                 "Age_logged" = 0.006),
-#'               formula = ~Age + Age_squared + Age_logged,
-#'               newdata = data.frame("Age" = rnorm(100, 50, 0.5)),
+#'                                 "BMI_logged" = 0.006),
+#'               formula = ~Age + Age_squared + BMI_logged,
+#'               newdata = data.frame("Age" = rnorm(100, 50, 0.5),
+#'                                    "BMI" = rnorm(100, 25, 0.5)),
 #'               pre_processing = list("Age_squared" = function(df) df$Age^2,
-#'                                     "Age_logged" = function(df) log(df$Age)))
+#'                                     "BMI_logged" = function(df) log(df$BMI)))
+#' pm_input_info(model_type = "logistic",
+#'               existingcoefs = c("(Intercept)" = -5,
+#'                                 "Age" = 0.05,
+#'                                 "Age_squared" = 0.0005,
+#'                                 "BMI_logged" = 0.006),
+#'               formula = ~Age + Age_squared + BMI_logged,
+#'               newdata = data.frame("Age" = rnorm(100, 50, 0.5),
+#'                                    "BMI" = rnorm(100, 25, 0.5)),
+#'               pre_processing = list(function(df) {
+#'                 Age_squared <- df$Age^2
+#'                 BMI_logged <- log(df$BMI)
+#'                 return(list("Age_squared" = Age_squared,
+#'                             "BMI_logged" = BMI_logged))
+#'               }))
+#' pm_input_info(model_type = "logistic",
+#'               existingcoefs = c("(Intercept)" = -5,
+#'                                 "Age" = 0.05,
+#'                                 "Age_squared" = 0.0005,
+#'                                 "BMI_logged" = 0.006),
+#'               formula = ~Age + Age_squared + BMI_logged,
+#'               newdata = data.frame("Age" = rnorm(100, 50, 0.5),
+#'                                    "BMI" = rnorm(100, 25, 0.5)),
+#'               pre_processing = list(function(df) {
+#'                 df$Age_squared <- df$Age^2
+#'                 df$BMI_logged <- log(df$BMI)
+#'                 return(df)
+#'               }))
+#'
 #'
 #' #Example 6 - showing specification of outcome columns in newdata
 #' pm_input_info(model_type = "logistic",
@@ -278,74 +354,26 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
 
   ##Define the design matrix, with/without pre-processing steps as defined by
   ##pre_processing:
-  if (is.null(pre_processing)) {
-    #If no pre_processing steps are specified, check that all predictor
-    #variables specified in 'formula' are also in 'newdata'
-    if (all(all.vars(formula) %in% names(newdata)) == FALSE) {
-      stop("Ensure that all predictor variables specified in 'formula' are also in 'newdata'",
-           call. = FALSE)
-    }
+  if (!is.null(pre_processing)) {
+    newdata <- apply_pre_processing(newdata = newdata,
+                                    pre_processing = pre_processing)
+  }
 
-    #Define a design matrix given the provided functional form of the existing
-    # model; if model is survival, no intercept should be created in DM
-    if (model_type == "survival") {
-      DM <- stats::model.matrix(formula, newdata)
-      if (length(which(colnames(DM) == "(Intercept)")) != 0) {
-        DM <- DM[ ,-which(colnames(DM) == "(Intercept)"), drop=FALSE]
-      }
-    } else {
-      DM <- stats::model.matrix(formula, newdata)
-    }
-
-  } else{
-    #Run some input checks on structure of user-supplied 'pre_processing'
-    if (!is.list(pre_processing)) {
-      stop("'pre_processing' should be a list", call. = FALSE)
-    }
-    if (all(sapply(pre_processing,
-                   is.function)) == FALSE){
-      stop("'pre_processing' should be a list where each element of the list is a function", call. = FALSE)
-    }
-
-    #Apply the list of transformation/pre-processing steps to the dataset. Will
-    #check that the user-supplied functions in 'pre_processing' can be evaluated
-    #safely. Will also check that results from functions in 'pre_processing' are
-    #of the correct length/dim to merge with newdata:
-    transformed_vars <- tryCatch(
-      {
-        lapply(pre_processing, function(f) f(newdata))
-      },
-      error = function(cond){
-        stop(paste("Some elements of pre_processing causes the following issue: \n", cond),
-             call. = FALSE)
-      },
-      warning = function(cond){
-        stop(paste("Some elements of pre_processing causes the following issue: \n", cond),
-             call. = FALSE)
-      }
-    )
-    if (any(sapply(transformed_vars, length) != nrow(newdata))) {
-      stop("Length of output returned by some elements of 'pre_processing' does not match nrow(newdata)",
-           call. = FALSE)
-    }
-
-    #Merge the transformation/pre-processing variables into the dataset
-    newdata_processed <- cbind(newdata, transformed_vars)
-
-    #Now pre-processing has been completed, check that all predictor
-    #variables specified in 'formula' are also in 'newdata_processed'
-    if (all(all.vars(formula) %in% names(newdata_processed)) == FALSE) {
-      stop("Ensure that all predictor variables specified in 'formula' are also in 'newdata' after pre-processing steps",
-           call. = FALSE)
-    }
-    #Define a design matrix given the provided functional form of the existing
-    # model; if model is survival, no intercept should be created in DM
-    if (model_type == "survival") {
-      DM <- stats::model.matrix(formula, newdata_processed)
+  #Check that all predictor variables specified in 'formula' are also included
+  #in the 'newdata'
+  if (all(all.vars(formula) %in% names(newdata)) == FALSE) {
+    stop("Ensure that all predictor variables specified in 'formula' are also in 'newdata'",
+         call. = FALSE)
+  }
+  #Define a design matrix given the provided functional form of the existing
+  # model; if model is survival, no intercept should be created in DM
+  if (model_type == "survival") {
+    DM <- stats::model.matrix(formula, newdata)
+    if (length(which(colnames(DM) == "(Intercept)")) != 0) {
       DM <- DM[ ,-which(colnames(DM) == "(Intercept)"), drop=FALSE]
-    } else {
-      DM <- stats::model.matrix(formula, newdata_processed)
     }
+  } else {
+    DM <- stats::model.matrix(formula, newdata)
   }
 
 
