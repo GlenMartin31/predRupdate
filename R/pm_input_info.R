@@ -101,20 +101,21 @@
 #'   to NULL.
 #'
 #'
-#' @return \code{\link{pm_input_info}} returns an object of class "pminfo". This
-#'   is a standardised format, such that it can be used with other functions in
-#'   the package. An object of class "pminfo" is a list containing at least the
-#'   following components: \itemize{\item{model_type = this is the type of
-#'   analytical model that the existing prediction model is based upon: either
-#'   "logistic" or "survival"} \item{coefs = this is the list of (previously
-#'   estimated) coefficients for each predictor included in the existing
-#'   prediction model} \item{coef_names = gives the names of each predictor
-#'   variable, with corresponding coefficient specified in coefs}
-#'   \item{PredictionData = this is the design matrix formed by mapping the
-#'   specified \code{pre_processing} steps and functional form of the existing
-#'   prediction model specified in \code{formula} onto \code{newdata}; any
-#'   predictions will be upon such data.}} More items might be required
-#'   depending on the inputs to the function.
+#' @return \code{\link{pm_input_info}} returns an object of class "pminfo", with
+#'   child classes per model_type. This is a standardised format, such that it
+#'   can be used with other functions in the package. An object of class
+#'   "pminfo" is a list containing at least the following components:
+#'   \itemize{\item{model_type = this is the type of analytical model that the
+#'   existing prediction model is based upon: either "logistic" or "survival"}
+#'   \item{coefs = this is the list of (previously estimated) coefficients for
+#'   each predictor included in the existing prediction model} \item{coef_names
+#'   = gives the names of each predictor variable, with corresponding
+#'   coefficient specified in coefs} \item{PredictionData = this is the design
+#'   matrix formed by mapping the specified \code{pre_processing} steps and
+#'   functional form of the existing prediction model specified in
+#'   \code{formula} onto \code{newdata}; any predictions will be upon such
+#'   data.}} More items might be required depending on the inputs to the
+#'   function.
 #'
 #' @export
 #'
@@ -287,7 +288,6 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
                           event_indicator = NULL) {
 
   ########################## INPUT CHECKING ########################
-
   model_type <- match.arg(model_type)
 
   #Check that 'existingcoefs' is supplied as a named numeric vector
@@ -310,8 +310,7 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
          call. = FALSE)
   }
 
-  ########## EXTRACT OUTCOMES FROM NEWDATA IF NEEDED ###############
-
+  #Check any specification of outcome variable names
   if (model_type == "logistic") {
     if (!is.null(survival_time)) {
       stop("'survival_time' should be set to NULL if model_type=logistic",
@@ -319,109 +318,34 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
     }else if (!is.null(event_indicator)) {
       stop("'event_indicator' should be set to NULL if model_type=logistic",
            call. = FALSE)
-    }else if (is.null(binary_outcome)) {
-      Outcomes <- NULL
-    }else {
-      if(binary_outcome %in% names(newdata)) {
-        Outcomes <- newdata[,binary_outcome]
-      }else{
-        stop("'binary_outcome' not found in 'newdata'", call. = FALSE)
-      }
     }
-  }
-  if (model_type == "survival") {
+  }else if (model_type == "survival") {
     if (!is.null(binary_outcome)) {
       stop("'binary_outcome' should be set to NULL if model_type=survival",
            call. = FALSE)
-    }else if (!is.null(survival_time) & !is.null(event_indicator)) {
-      if(survival_time %in% names(newdata) &
-         event_indicator %in% names(newdata)) {
-        Outcomes <- survival::Surv(newdata[,survival_time],
-                                   newdata[,event_indicator])
-      }else{
-        stop("'survival_time' and/or 'event_indicator' not found in 'newdata'", call. = FALSE)
-      }
-    }else if (is.null(survival_time) & is.null(event_indicator)) {
-      Outcomes <- NULL
-    }else {
-      stop("'survival_time' and 'event_indicator' should either both be NULL or both have values supplied for model_type == 'survival'",
-           call. = FALSE)
     }
   }
 
 
-  ####################### SET DM INFO ##############################
-
-  ##Define the design matrix, with/without pre-processing steps as defined by
-  ##pre_processing:
-  if (!is.null(pre_processing)) {
-    newdata <- apply_pre_processing(newdata = newdata,
-                                    pre_processing = pre_processing)
+  ########## EXTRACT INFORMATION BY MODEL TYPE ###############
+  if (model_type == "logistic") {
+    info_vals <- pm_input_info_logistic(model_type = model_type,
+                                        existingcoefs = existingcoefs,
+                                        formula = formula,
+                                        newdata = newdata,
+                                        pre_processing = pre_processing,
+                                        binary_outcome = binary_outcome)
+  } else if (model_type == "survival") {
+    info_vals <- pm_input_info_survival(model_type = model_type,
+                                        existingcoefs = existingcoefs,
+                                        baselinehazard = baselinehazard,
+                                        formula = formula,
+                                        newdata = newdata,
+                                        pre_processing = pre_processing,
+                                        survival_time = survival_time,
+                                        event_indicator = event_indicator)
   }
 
-  #Check that all predictor variables specified in 'formula' are also included
-  #in the 'newdata'
-  if (all(all.vars(formula) %in% names(newdata)) == FALSE) {
-    stop("Ensure that all predictor variables specified in 'formula' are also in 'newdata'",
-         call. = FALSE)
-  }
-  #Define a design matrix given the provided functional form of the existing
-  # model; if model is survival, no intercept should be created in DM
-  if (model_type == "survival") {
-    DM <- stats::model.matrix(formula, newdata)
-    if (length(which(colnames(DM) == "(Intercept)")) != 0) {
-      DM <- DM[ ,-which(colnames(DM) == "(Intercept)"), drop=FALSE]
-    }
-  } else {
-    DM <- stats::model.matrix(formula, newdata)
-  }
-
-
-  ################# SET EXISTING COEF INFO #########################
-
-  #Check that each column of the design matrix produced by user-supplied
-  #formula is included as an element of 'existingcoefs', and vice versa:
-  if (all(names(existingcoefs) %in% colnames(DM)) == FALSE) {
-    stop(paste(paste("Variable",
-                     names(existingcoefs)[which(names(existingcoefs) %in%
-                                                  colnames(DM) == FALSE)],
-                     "in 'existingcoefs' is not found in 'formula'. \n",
-                     collapse = " "),
-               "Check that 'formula', 'existingcoefs' and 'newdata' are compatible"),
-         call. = FALSE)
-  } else if (all(colnames(DM) %in% names(existingcoefs)) == FALSE) {
-    stop(paste(paste("Predictor variable",
-                     colnames(DM)[which(colnames(DM) %in%
-                                          names(existingcoefs) == FALSE)],
-                     "in 'formula' is not found in 'existingcoefs'. \n",
-                     collapse = " "),
-               "Check that 'formula', 'existingcoefs' and 'newdata' are compatible"),
-         call. = FALSE)
-  }
-  #Ensure that order of 'existingcoefs' matches the design matrix that is
-  #produced by 'formula':
-  existingcoefs <- existingcoefs[colnames(DM)]
-
-
-
-  ############## SET CLASS AND RETURN RESULTS ######################
-  #The 'blueprint' of the existing prediction model:
-  if (model_type == "survival") {
-    info_vals <- list(model_type = model_type,
-                      coefs = as.numeric(existingcoefs),
-                      coef_names = names(existingcoefs),
-                      baselinehazard = baselinehazard,
-                      PredictionData = DM,
-                      Outcomes = Outcomes)
-  } else {
-    info_vals <- list(model_type = model_type,
-                      coefs = as.numeric(existingcoefs),
-                      coef_names = names(existingcoefs),
-                      PredictionData = DM,
-                      Outcomes = Outcomes)
-  }
-
-  class(info_vals) <- "pminfo"
   info_vals
 }
 
@@ -459,3 +383,162 @@ print.pminfo <- function(x, ...) {
     cat("Outcomes are avaliable for model validation")
   }
 }
+
+
+
+
+# Internals for pm_input_info() -------------------------------------------
+
+pm_input_info_logistic <- function(model_type,
+                                   existingcoefs,
+                                   formula,
+                                   newdata,
+                                   pre_processing,
+                                   binary_outcome) {
+
+  ##Extract the Outcomes from newdata if specified by user:
+  if (is.null(binary_outcome)) {
+    Outcomes <- NULL
+  }else {
+    if(binary_outcome %in% names(newdata)) {
+      Outcomes <- newdata[,binary_outcome]
+    }else{
+      stop("'binary_outcome' not found in 'newdata'",
+           call. = FALSE)
+    }
+  }
+
+  ##Define the design matrix given user inputs:
+  DM <- define_design_matrix(formula = formula,
+                             newdata = newdata,
+                             pre_processing = pre_processing)
+
+  #Standardise the supplied existing coefficients according to the DM, running
+  #checks to ensure that each column of DM has a specified existing coefficient
+  #and vice versa:
+  existingcoefs <- set_existing_coefs(existingcoefs = existingcoefs,
+                                      DM = DM)
+
+  #Set the S3 class  and return the 'blueprint'
+  info_vals <- list(model_type = model_type,
+                    coefs = as.numeric(existingcoefs),
+                    coef_names = names(existingcoefs),
+                    PredictionData = DM,
+                    Outcomes = Outcomes)
+  class(info_vals) <- c("pminfo_logistic", "pminfo")
+  info_vals
+}
+
+
+
+pm_input_info_survival <- function(model_type,
+                                   existingcoefs,
+                                   baselinehazard,
+                                   formula,
+                                   newdata,
+                                   pre_processing,
+                                   survival_time,
+                                   event_indicator) {
+
+  ##Extract the Outcomes from newdata if specified by user:
+  if (!is.null(survival_time) & !is.null(event_indicator)) {
+    if(survival_time %in% names(newdata) &
+       event_indicator %in% names(newdata)) {
+      Outcomes <- survival::Surv(newdata[,survival_time],
+                                 newdata[,event_indicator])
+    }else{
+      stop("'survival_time' and/or 'event_indicator' not found in 'newdata'",
+           call. = FALSE)
+    }
+  }else if (is.null(survival_time) & is.null(event_indicator)) {
+    Outcomes <- NULL
+  }else {
+    stop("'survival_time' and 'event_indicator' should either both be NULL or both have values supplied for model_type == 'survival'",
+         call. = FALSE)
+  }
+
+  ##Define the design matrix given user inputs:
+  DM <- define_design_matrix(formula = formula,
+                             newdata = newdata,
+                             pre_processing = pre_processing)
+  #for survivial model, remove the intercept column that is created in DM:
+  DM <- DM[ ,-which(colnames(DM) == "(Intercept)"), drop=FALSE]
+
+  #Standardise the supplied existing coefficients according to the DM, running
+  #checks to ensure that each column of DM has a specified existing coefficient
+  #and vice versa:
+  existingcoefs <- set_existing_coefs(existingcoefs = existingcoefs,
+                                      DM = DM)
+
+  #Set the S3 class  and return the 'blueprint'
+  info_vals <- list(model_type = model_type,
+                    coefs = as.numeric(existingcoefs),
+                    coef_names = names(existingcoefs),
+                    baselinehazard = baselinehazard,
+                    PredictionData = DM,
+                    Outcomes = Outcomes)
+  class(info_vals) <- c("pminfo_survival", "pminfo")
+  info_vals
+}
+
+
+
+
+define_design_matrix <- function(formula,
+                                 newdata,
+                                 pre_processing) {
+
+  ##Define the design matrix, with or without pre-processing steps as defined by
+  ##pre_processing:
+  if (!is.null(pre_processing)) {
+    newdata <- apply_pre_processing(newdata = newdata,
+                                    pre_processing = pre_processing)
+  }
+
+  #Check that all predictor variables specified in 'formula' are also included
+  #in the 'newdata':
+  if (all(all.vars(formula) %in% names(newdata)) == FALSE) {
+    stop("Ensure that all predictor variables specified in 'formula' are also in 'newdata'",
+         call. = FALSE)
+  }
+
+  #Define a design matrix given the provided functional form of the existing
+  #model:
+  DM <- stats::model.matrix(formula, newdata)
+  DM
+}
+
+
+set_existing_coefs <- function(existingcoefs,
+                               DM) {
+
+  #Check that each column of the design matrix produced by user-supplied
+  #formula is included as an element of 'existingcoefs', and vice versa:
+  if (all(names(existingcoefs) %in% colnames(DM)) == FALSE) {
+    stop(paste(paste("Variable",
+                     names(existingcoefs)[which(names(existingcoefs) %in%
+                                                  colnames(DM) == FALSE)],
+                     "in 'existingcoefs' is not found in 'formula'. \n",
+                     collapse = " "),
+               "Check that 'formula', 'existingcoefs' and 'newdata' are compatible"),
+         call. = FALSE)
+  } else if (all(colnames(DM) %in% names(existingcoefs)) == FALSE) {
+    stop(paste(paste("Predictor variable",
+                     colnames(DM)[which(colnames(DM) %in%
+                                          names(existingcoefs) == FALSE)],
+                     "in 'formula' is not found in 'existingcoefs'. \n",
+                     collapse = " "),
+               "Check that 'formula', 'existingcoefs' and 'newdata' are compatible"),
+         call. = FALSE)
+  }
+  #Ensure that order of 'existingcoefs' matches the design matrix that is
+  #produced by 'formula':
+  existingcoefs <- existingcoefs[colnames(DM)]
+  existingcoefs
+}
+
+
+
+
+
+
