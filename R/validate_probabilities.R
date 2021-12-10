@@ -1,32 +1,59 @@
-#' Calculate predictive performance of a logistic regression model
+#' Validate predicted probabilities against binary outcome
+#'
+#' This function is used to validate predicted probabilities (usually from an
+#' existing/ previously developed logistic regression model) against binary
+#' outcomes. It takes a vector of predicted risks (or the log odds - the linear
+#' predictor) and a vector of binary observed probabilities (not used to develop
+#' the model that generates the predictions). From which, the function
+#' calculates metrics of calibration, discrimination and overall accuracy.
 #'
 #' @param ObservedOutcome a vector of N binary observations, denoting if the
 #'   outcome was observed (1) or not observed (0) for each individual in the
 #'   validation dataset
-#' @param LinearPredictor a vector of N observations where each is the
-#'   calculated linear predictor from the existing model that is being evaluated
-#' @noRd
-logistic_performance <- function(ObservedOutcome,
-                                 LinearPredictor){
+#' @param Prob a vector of N predicted probabilities from the model. Specify
+#'   either \code{Prob} or \code{Logit}.
+#' @param Logit a vector of N observations where each is the calculated linear
+#'   predictor (log-odds) from the existing model that is being evaluated.
+#'   Specify either \code{Prob} or \code{Logit}.
+#'
+#' @details TO ADD
+#'
+#' @return Returns a list of the performance metrics and associated 95%
+#'   confidence intervals, where appropriate.
+#'
+#' @seealso \code{\link{pm_validate}}
+#'
+#' @export
+validate_probabilities <- function(ObservedOutcome,
+                                   Prob,
+                                   Logit) {
+
+  if (missing(Prob)) {
+    Prob <- pmupdate::inv_logit(Logit)
+  } else if (missing(Logit)) {
+    Logit <- pmupdate::logit(Prob)
+  } else{
+    stop("one of 'Prob' or 'Logit' must be specified",
+         call. = FALSE)
+  }
 
   #Estimate calibration intercept (i.e. calibration-in-the-large)
-  CITL_mod <- stats::glm(ObservedOutcome ~ stats::offset(LinearPredictor),
+  CITL_mod <- stats::glm(ObservedOutcome ~ stats::offset(Logit),
                          family = stats::binomial(link = "logit"))
   CITL <- as.numeric(stats::coef(CITL_mod)[1])
   CITLSE <- sqrt(stats::vcov(CITL_mod)[1,1])
 
 
   #Estimate calibration slope
-  CalSlope_mod <- stats::glm(ObservedOutcome ~ LinearPredictor,
+  CalSlope_mod <- stats::glm(ObservedOutcome ~ Logit,
                              family = stats::binomial(link = "logit"))
   CalSlope <- as.numeric(stats::coef(CalSlope_mod)[2])
   CalSlopeSE <- sqrt(stats::vcov(CalSlope_mod)[2,2])
 
 
   #Discrimination
-  PredictedRisk <- pmupdate::inv_logit(LinearPredictor)
   roc_curve <- pROC::roc(response = ObservedOutcome,
-                         predictor = PredictedRisk,
+                         predictor = Prob,
                          direction = "<",
                          levels = c(0,1),
                          ci = TRUE)
@@ -42,7 +69,7 @@ logistic_performance <- function(ObservedOutcome,
 
   #Brier Score
   BrierScore <- 1/length(ObservedOutcome) *
-    (sum((PredictedRisk - ObservedOutcome)^2))
+    (sum((Prob - ObservedOutcome)^2))
 
 
   #Return results
@@ -63,4 +90,5 @@ logistic_performance <- function(ObservedOutcome,
 
               "R2" = R2_coxsnell,
               "BrierScore" = BrierScore)
+  out
 }
