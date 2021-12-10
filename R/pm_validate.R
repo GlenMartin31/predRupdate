@@ -3,10 +3,7 @@
 #' Validate an existing prediction model, to calculate the predictive
 #' performance against a new (validation) dataset.
 #'
-#' @param x an object used to select a method - should be of class "pminfo" or
-#'   "data.frame". If a data.frame this should include the linear predictor of
-#'   the existing prediction model and the observed outcomes to validate this
-#'   model against.
+#' @param x an object of class "pminfo"
 #' @param ... further arguments passed to other methods
 #'
 #' @return TO ADD
@@ -23,64 +20,10 @@ pm_validate <- function(x, ...) {
 
 #' @export
 pm_validate.default <- function(x, ...) {
-  stop("'x' is not of class 'pminfo' or 'data.frame'",
+  stop("'x' is not of class 'pminfo'",
        call. = FALSE)
 }
 
-
-#' @rdname pm_validate
-#' @param model_type specifies the type of model that the existing prediction
-#'   model is based on; possible options are: \itemize{ \item {\code{"logistic"}
-#'   indicates that the existing model was based on a logistic regression model
-#'   (default)} \item {\code{"survival"} indicates that the existing model was
-#'   based on a survival regression model} }
-#' @param LinearPredictor character variable specifying the column of \code{x}
-#'   that stores the linear predictor of the model to be validated
-#' @param binary_outcome Character variable giving the name of the column in
-#'   \code{x} that represents the observed binary outcomes. Only relevant for
-#'   \code{model_type}="logistic"; leave as default \code{NULL} otherwise.
-#' @param survival_time Character variable giving the name of the column in
-#'   \code{x} that represents the observed survival times. Only relevant for
-#'   \code{model_type}="survival"; leave as default \code{NULL} otherwise.
-#' @param event_indicator Character variable giving the name of the column in
-#'   \code{x} that represents the observed survival indicator (1 for event, 0
-#'   for censoring). Only relevant for \code{model_type}="survival"; leave as
-#'   default \code{NULL} otherwise.
-#'
-#' @export
-pm_validate.data.frame <- function(x,
-                                   model_type = c("logistic", "survival"),
-                                   LinearPredictor = NULL,
-                                   binary_outcome = NULL,
-                                   survival_time = NULL,
-                                   event_indicator = NULL,
-                                   ...) {
-  model_type <- match.arg(model_type)
-
-  if (model_type == "logistic") {
-    ### Test inputs
-    if(is.null(LinearPredictor) | is.null(binary_outcome)) {
-      stop("When x is a data.frame, 'LinearPredictor' and 'binary_outcome' must be supplied for model_type = logistic",
-           call. = FALSE)
-    }
-    if(LinearPredictor %in% names(x) == FALSE) {
-      stop("Specified 'LinearPredictor' is not found in x")
-    }else if(binary_outcome %in% names(x) == FALSE) {
-      stop("Specified 'binary_outcome' is not found in x")
-    }
-
-    ### VALIDATION OF THE EXISTING MODEL
-    performance <- logistic_performance(ObservedOutcome = x[,binary_outcome],
-                                        LinearPredictor = x[,LinearPredictor])
-    class(performance) <- c("pmperformance_logistic", "pmperformance")
-    performance
-  }
-
-  else if (model_type == "survival") {
-    stop("Models of type='survival' are not currently supported")
-  }
-
-}
 
 
 #' @export
@@ -96,8 +39,8 @@ pm_validate.pminfo_logistic <- function(x, ...){
   predictions <- pmupdate::pm_predict(x)
 
   ### VALIDATION OF THE EXISTING MODEL
-  performance <- logistic_performance(ObservedOutcome = predictions$Outcomes,
-                                      LinearPredictor = predictions$LinearPredictor)
+  performance <- pmupdate::validate_probabilities(ObservedOutcome = predictions$Outcomes,
+                                                  Logit = predictions$LinearPredictor)
 
   class(performance) <- c("pmperformance_logistic", "pmperformance")
   performance
