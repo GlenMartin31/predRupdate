@@ -27,25 +27,25 @@ model against.}
 
 \item{model_type}{specifies the type of model that the existing prediction
 model is based on; possible options are: \itemize{ \item {\code{"logistic"}
-indicates that the existing model was based on a logistic regression model}
-\item {\code{"survival"} indicates that the existing model was based on a
-survival regression model} }}
+indicates that the existing model was based on a logistic regression model
+(default)} \item {\code{"survival"} indicates that the existing model was
+based on a survival regression model} }}
 
-\item{LinearPredictor}{character variable specifying the column of \code{x} that
-stores the linear predictor of the model to be validated}
+\item{LinearPredictor}{character variable specifying the column of \code{x}
+that stores the linear predictor of the model to be validated}
 
 \item{binary_outcome}{Character variable giving the name of the column in
 \code{x} that represents the observed binary outcomes. Only relevant for
 \code{model_type}="logistic"; leave as default \code{NULL} otherwise.}
 
 \item{survival_time}{Character variable giving the name of the column in
-\code{x} that represents the observed survival times. Only relevant
-for \code{model_type}="survival"; leave as default \code{NULL} otherwise.}
+\code{x} that represents the observed survival times. Only relevant for
+\code{model_type}="survival"; leave as default \code{NULL} otherwise.}
 
 \item{event_indicator}{Character variable giving the name of the column in
-\code{x} that represents the observed survival indicator (1 for
-event, 0 for censoring). Only relevant for \code{model_type}="survival";
-leave as default \code{NULL} otherwise.}
+\code{x} that represents the observed survival indicator (1 for event, 0
+for censoring). Only relevant for \code{model_type}="survival"; leave as
+default \code{NULL} otherwise.}
 }
 \value{
 TO ADD

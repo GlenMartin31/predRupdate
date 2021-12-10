@@ -19,9 +19,9 @@ pm_input_info(
 \arguments{
 \item{model_type}{specifies the type of model that the existing prediction
 model is based on; possible options are: \itemize{ \item {\code{"logistic"}
-indicates that the existing model was based on a logistic regression model}
-\item {\code{"survival"} indicates that the existing model was based on a
-survival regression model} }}
+indicates that the existing model was based on a logistic regression model
+(default)} \item {\code{"survival"} indicates that the existing model was
+based on a survival regression model} }}
 
 \item{existingcoefs}{a named vector of coefficients, taken exactly as
 published from the existing prediction model. Names much match those in
