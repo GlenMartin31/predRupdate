@@ -62,20 +62,21 @@ leave as default \code{NULL} otherwise. Leave as \code{NULL} if
 \code{newdata} does not contain any survival outcomes.}
 }
 \value{
-\code{\link{pm_input_info}} returns an object of class "pminfo". This
-is a standardised format, such that it can be used with other functions in
-the package. An object of class "pminfo" is a list containing at least the
-following components: \itemize{\item{model_type = this is the type of
-analytical model that the existing prediction model is based upon: either
-"logistic" or "survival"} \item{coefs = this is the list of (previously
-estimated) coefficients for each predictor included in the existing
-prediction model} \item{coef_names = gives the names of each predictor
-variable, with corresponding coefficient specified in coefs}
-\item{PredictionData = this is the design matrix formed by mapping the
-specified \code{pre_processing} steps and functional form of the existing
-prediction model specified in \code{formula} onto \code{newdata}; any
-predictions will be upon such data.}} More items might be required
-depending on the inputs to the function.
+\code{\link{pm_input_info}} returns an object of class "pminfo", with
+child classes per model_type. This is a standardised format, such that it
+can be used with other functions in the package. An object of class
+"pminfo" is a list containing at least the following components:
+\itemize{\item{model_type = this is the type of analytical model that the
+existing prediction model is based upon: either "logistic" or "survival"}
+\item{coefs = this is the list of (previously estimated) coefficients for
+each predictor included in the existing prediction model} \item{coef_names
+= gives the names of each predictor variable, with corresponding
+coefficient specified in coefs} \item{PredictionData = this is the design
+matrix formed by mapping the specified \code{pre_processing} steps and
+functional form of the existing prediction model specified in
+\code{formula} onto \code{newdata}; any predictions will be upon such
+data.}} More items might be required depending on the inputs to the
+function.
 }
 \description{
 Input relevant information about an existing prediction model (i.e. the
