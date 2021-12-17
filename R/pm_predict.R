@@ -31,18 +31,31 @@ pm_predict.default <- function(x) {
 
 
 #' @export
-pm_predict.pminfo <- function(x){
-  if (x$model_type == "survival") {
-    stop("Models of type='survival' are not currently supported")
+pm_predict.pminfo_logistic <- function(x){
+  #Gather information from the pminfo blueprint:
+  existingcoefs <- x$coefs
+  DM <- x$PredictionData
 
-  } else {
-    predictions <- pm_predict_logistic(existingcoefs = x$coefs,
-                                       DM = x$PredictionData)
-
-    #return results
-    out <- list("LinearPredictor" = predictions$LP,
-                "PredictedRisk" = predictions$PR,
-                "Outcomes" = x$Outcomes)
-    out
+  #Double-check dimensions:
+  if (ncol(DM) != length(existingcoefs)) {
+    stop("Existing coefficients of the model and new data to make predictions on are non-conformable",
+         call. = FALSE)
   }
+
+  #Calculate the linear predictor
+  LP <- as.numeric(DM %*% existingcoefs)
+  #Map to predicted risks
+  PR <- pmupdate::inv_logit(LP)
+
+  #return results
+  out <- list("LinearPredictor" = LP,
+              "PredictedRisk" = PR,
+              "Outcomes" = x$Outcomes)
+  out
+}
+
+
+#' @export
+pm_predict.pminfo_survival <- function(x){
+  stop("Models of type='survival' are not currently supported")
 }
