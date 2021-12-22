@@ -274,7 +274,7 @@
 #'               formula = ~Age + Age_squared + Age_logged,
 #'               newdata = data.frame("Age" = rnorm(100, 50, 0.5)),
 #'               baselinehazard = data.frame("t" = c(1,2),
-#'                                           "h" = c(0.5, 0.6)),
+#'                                           "h" = c(0.005, 0.006)),
 #'               pre_processing = list("Age_squared" = function(df) df$Age^2,
 #'                                     "Age_logged" = function(df) log(df$Age)))
 pm_input_info <- function(model_type = c("logistic", "survival"),
@@ -324,6 +324,22 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
       stop("'binary_outcome' should be set to NULL if model_type=survival",
            call. = FALSE)
     }
+  }
+
+  #check baseline hazard specification
+  if(sum(duplicated(baselinehazard[,1])) > 0){
+    stop("all baseline hazard times must be unique",
+         call. = FALSE)
+  }
+
+  if(min(baselinehazard[,1]) <= 0){
+    stop("all baseline hazard times must be positive",
+         call. = FALSE)
+  }
+
+  if(min(baselinehazard[,2]) < 0){
+    stop("all baseline hazards must be nonnegative",
+         call. = FALSE)
   }
 
 
@@ -461,7 +477,7 @@ pm_input_info_survival <- function(model_type,
   DM <- define_design_matrix(formula = formula,
                              newdata = newdata,
                              pre_processing = pre_processing)
-  #for survivial model, remove the intercept column that is created in DM:
+  #for survival model, remove the intercept column that is created in DM:
   DM <- DM[ ,-which(colnames(DM) == "(Intercept)"), drop=FALSE]
 
   #Standardise the supplied existing coefficients according to the DM, running
