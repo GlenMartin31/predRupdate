@@ -9,7 +9,10 @@ pm_validate(x, ...)
 \arguments{
 \item{x}{an object of class "pminfo"}
 
-\item{...}{further arguments passed to other methods}
+\item{...}{further arguments passed to other methods. See
+\code{\link{validate_probabilities}} and
+INSERT_SURVIVAL_VALIDATION_FUNCTION for more details of arguments that can
+be passed}
 }
 \value{
 TO ADD
@@ -17,6 +20,9 @@ TO ADD
 \description{
 Validate an existing prediction model, to calculate the predictive
 performance against a new (validation) dataset.
+}
+\details{
+TO ADD
 }
 \examples{
 #TO ADD

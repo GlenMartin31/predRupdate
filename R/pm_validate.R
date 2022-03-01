@@ -4,7 +4,12 @@
 #' performance against a new (validation) dataset.
 #'
 #' @param x an object of class "pminfo"
-#' @param ... further arguments passed to other methods
+#' @param ... further arguments passed to other methods. See
+#'   \code{\link{validate_probabilities}} and
+#'   INSERT_SURVIVAL_VALIDATION_FUNCTION for more details of arguments that can
+#'   be passed
+#'
+#' @details TO ADD
 #'
 #' @return TO ADD
 #'
@@ -40,7 +45,8 @@ pm_validate.pminfo_logistic <- function(x, ...){
 
   ### VALIDATION OF THE EXISTING MODEL
   performance <- pmupdate::validate_probabilities(ObservedOutcome = predictions$Outcomes,
-                                                  Logit = predictions$LinearPredictor)
+                                                  LP = predictions$LinearPredictor,
+                                                  ...)
 
   class(performance) <- c("pmperformance_logistic", "pmperformance")
   performance
