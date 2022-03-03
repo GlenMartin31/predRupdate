@@ -7,7 +7,7 @@
 validate_probabilities(
   ObservedOutcome,
   Prob,
-  Logit,
+  LP,
   CalPlot = c("smooth_ncs", "smooth_loess", "grouped", FALSE),
   groups = NULL,
   xlab = "Predicted Probability",
@@ -22,11 +22,11 @@ outcome was observed (1) or not observed (0) for each individual in the
 validation dataset}
 
 \item{Prob}{a vector of N predicted probabilities from the model. Specify
-either \code{Prob} or \code{Logit}.}
+either \code{Prob} or \code{LP}.}
 
-\item{Logit}{a vector of N observations where each is the calculated linear
+\item{LP}{a vector of N observations where each is the calculated linear
 predictor (log-odds) from the existing model that is being evaluated.
-Specify either \code{Prob} or \code{Logit}.}
+Specify either \code{Prob} or \code{LP}.}
 
 \item{CalPlot}{Indicates whether a calibration plot should be produced, and
 the method for doing so. Set to smooth_ncs (default) if a flexible

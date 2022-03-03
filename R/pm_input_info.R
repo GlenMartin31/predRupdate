@@ -160,11 +160,11 @@
 #'               existingcoefs = c("X" = 0.5,
 #'                                 "X_Squared" = 0.005,
 #'                                 "(Intercept)" = -2,
-#'                                 "Colour_green" = 0.5,
-#'                                 "Colour_red" = 0.95,
-#'                                 "Colour_white" = 2,
-#'                                 "Sex_Male" = 0.6),
-#'               formula = ~X + X_Squared + Colour_green + Colour_red + Colour_white + Sex_Male,
+#'                                 "Colourgreen" = 0.5,
+#'                                 "Colourred" = 0.95,
+#'                                 "Colourwhite" = 2,
+#'                                 "SexMale" = 0.6),
+#'               formula = ~X + X_Squared + Colourgreen + Colourred + Colourwhite + SexMale,
 #'               newdata = data.frame("X" = rnorm(500),
 #'                                    "Colour" = factor(sample(c("red",
 #'                                                               "azure",
@@ -252,31 +252,34 @@
 #'               }))
 #'
 #'
-#' #Example 6 - showing specification of outcome columns in newdata
+#' #Example 6 - showing specification of outcome columns in newdata; uses built in dataset
+#' existing_coefs <- as.numeric(unlist(strsplit(
+#' synthetic_df_pmupdate$Existing_models$Coeffs[1], split = "\\|")))
+#' names(existing_coefs) <- gsub(' ', '', unlist(strsplit(
+#' synthetic_df_pmupdate$Existing_models$Variables[1], split = "\\|")))
 #' pm_input_info(model_type = "logistic",
-#'               existingcoefs = c("(Intercept)" = -5,
-#'                                 "Age" = 0.05,
-#'                                 "Age_squared" = 0.0005,
-#'                                 "Age_logged" = 0.006),
-#'               formula = ~Age + Age_squared + Age_logged,
-#'               newdata = data.frame("Y" = rbinom(100, 1, 0.2),
-#'                                    "Age" = rnorm(100, 50, 0.5)),
-#'               pre_processing = list("Age_squared" = function(df) df$Age^2,
-#'                                     "Age_logged" = function(df) log(df$Age)),
+#'               existingcoefs = existing_coefs,
+#'               formula = formula(synthetic_df_pmupdate$Existing_models$Formula[1]),
+#'               newdata = synthetic_df_pmupdate$ValidationData,
+#'               pre_processing = list(function(df) {dummyvars(df)}),
 #'               binary_outcome = "Y")
 #'
 #'
 #' #Example 7 - survival model example
 #' pm_input_info(model_type = "survival",
-#'               existingcoefs = c("Age" = 0.05,
-#'                                 "Age_squared" = 0.0005,
-#'                                 "Age_logged" = 0.006),
-#'               formula = ~Age + Age_squared + Age_logged,
-#'               newdata = data.frame("Age" = rnorm(100, 50, 0.5)),
-#'               baselinehazard = data.frame("t" = c(1,2),
-#'                                           "h" = c(0.5, 0.6)),
-#'               pre_processing = list("Age_squared" = function(df) df$Age^2,
-#'                                     "Age_logged" = function(df) log(df$Age)))
+#'               existingcoefs = c("SEX" = 0.53,
+#'                                 "AGE" = -0.05,
+#'                                 "SYSTBP" = -0.0055,
+#'                                 "BMIO" = 0.0325,
+#'                                 "CARDIAC" = -0.126,
+#'                                 "DIABETES" = -0.461),
+#'               formula = ~ SEX + AGE + SYSTBP + BMIO + CARDIAC + DIABETES,
+#'               newdata = SMART,
+#'               baselinehazard = data.frame("t" = 0:5,
+#'                                           "h" = c(0, 0.12, 0.20, 0.26, 0.33, 0.38)),
+#'               survival_time = "TEVENT",
+#'               event_indicator = "EVENT")
+
 pm_input_info <- function(model_type = c("logistic", "survival"),
                           existingcoefs,
                           baselinehazard = NULL,
@@ -514,21 +517,17 @@ set_existing_coefs <- function(existingcoefs,
 
   #Check that each column of the design matrix produced by user-supplied
   #formula is included as an element of 'existingcoefs', and vice versa:
-  if (all(names(existingcoefs) %in% colnames(DM)) == FALSE) {
-    stop(paste(paste("Variable",
-                     names(existingcoefs)[which(names(existingcoefs) %in%
-                                                  colnames(DM) == FALSE)],
-                     "in 'existingcoefs' is not found in 'formula'. \n",
-                     collapse = " "),
-               "Check that 'formula', 'existingcoefs' and 'newdata' are compatible"),
-         call. = FALSE)
-  } else if (all(colnames(DM) %in% names(existingcoefs)) == FALSE) {
-    stop(paste(paste("Predictor variable",
-                     colnames(DM)[which(colnames(DM) %in%
-                                          names(existingcoefs) == FALSE)],
-                     "in 'formula' is not found in 'existingcoefs'. \n",
-                     collapse = " "),
-               "Check that 'formula', 'existingcoefs' and 'newdata' are compatible"),
+  if (all(names(existingcoefs) %in% colnames(DM)) == FALSE |
+      all(colnames(DM) %in% names(existingcoefs)) == FALSE) {
+    stop(paste("existingcoefs and design matrix are inconsistent. Variables in existingcoefs are: \n",
+               paste(names(existingcoefs), collapse = ", "),
+               "\n
+               While variables in the design matrix (produced by applying 'formula' to 'newdata' arguments) are: \n",
+               paste(colnames(DM), collapse = " ,"),
+               "\n
+               Check for inconsistencies in 'existingcoefs', 'formula' and 'newdata'.
+               Pay particular attention to any factor variables in 'newdata', and compare the result of applying stats::model.matrix(formula, newdata) to produce the design matrix with names of 'existingcoefs'.",
+               sep = ''),
          call. = FALSE)
   }
   #Ensure that order of 'existingcoefs' matches the design matrix that is
