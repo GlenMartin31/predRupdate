@@ -275,8 +275,8 @@
 #'                                 "DIABETES" = -0.461),
 #'               formula = ~ SEX + AGE + SYSTBP + BMIO + CARDIAC + DIABETES,
 #'               newdata = SMART,
-#'               baselinehazard = data.frame("t" = 0:5,
-#'                                           "h" = c(0, 0.12, 0.20, 0.26, 0.33, 0.38)),
+#'               baselinehazard = data.frame("t" = 1:5,
+#'                                           "h" = c(0.12, 0.20, 0.26, 0.33, 0.38)),
 #'               survival_time = "TEVENT",
 #'               event_indicator = "EVENT")
 

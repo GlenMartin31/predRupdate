@@ -78,7 +78,7 @@ pm_predict.pminfo_survival <- function(x, time_horizon = NULL){
          call. = FALSE)
   }
 
-  if(length(time_horizon > 1)){
+  if(length(time_horizon) > 1){
     stop("only one time_horizon can be specified",
          call. = FALSE)
   }
