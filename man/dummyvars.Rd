@@ -13,11 +13,11 @@ categorical/factor variable, based on contrasts.}
 \value{
 a list in which each element is a dummy variable for each categorical
 variable in \code{df}. All combinations of dummy variable are returned.
-Naming convention of the new dummy variables is variable_level. For
+Naming convention of the new dummy variables is variablelevel. For
 example, a factor variable in \code{df} named "colour" with levels "red",
 "green" and "purple" (where "purple" is the reference) will produce a list
-with two elements (the new dummy variables), named colour_red and
-colour_green, respectively.
+with two elements (the new dummy variables), named colourred and
+colourgreen, respectively.
 }
 \description{
 Create dummy variables for all categorical variables in a data.frame. Can be
