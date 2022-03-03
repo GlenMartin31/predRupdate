@@ -4,7 +4,17 @@
 \alias{validate_probabilities}
 \title{Validate predicted probabilities against binary outcome}
 \usage{
-validate_probabilities(ObservedOutcome, Prob, Logit)
+validate_probabilities(
+  ObservedOutcome,
+  Prob,
+  LP,
+  CalPlot = c("smooth_ncs", "smooth_loess", "grouped", FALSE),
+  groups = NULL,
+  xlab = "Predicted Probability",
+  ylab = "Observed Probability",
+  xlim = c(0, 1),
+  ylim = c(0, 1)
+)
 }
 \arguments{
 \item{ObservedOutcome}{a vector of N binary observations, denoting if the
@@ -12,11 +22,27 @@ outcome was observed (1) or not observed (0) for each individual in the
 validation dataset}
 
 \item{Prob}{a vector of N predicted probabilities from the model. Specify
-either \code{Prob} or \code{Logit}.}
+either \code{Prob} or \code{LP}.}
 
-\item{Logit}{a vector of N observations where each is the calculated linear
+\item{LP}{a vector of N observations where each is the calculated linear
 predictor (log-odds) from the existing model that is being evaluated.
-Specify either \code{Prob} or \code{Logit}.}
+Specify either \code{Prob} or \code{LP}.}
+
+\item{CalPlot}{Indicates whether a calibration plot should be produced, and
+the method for doing so. Set to smooth_ncs (default) if a flexible
+calibration plot should be produced using natural cubic splines, set to
+smooth_loess if a flexible calibration plot should be produced using a
+loess smoother, set to grouped if a grouped/binned calibration plot should
+be produced, and set to FALSE if no calibration plot should be produced. If
+set to grouped then \code{groups} specifies the number of groups to
+produce.}
+
+\item{groups}{Specifies the number of groups to use for a grouped/binned
+calibration plot. Leave as default (NULL) if either no calibration plot or
+a flexible calibration plot is selected.}
+
+\item{xlab, ylab, xlim, ylim}{Specifies plotting characteristics for the
+calibration plot, if relevant.}
 }
 \value{
 Returns a list of the performance metrics and associated 95\%

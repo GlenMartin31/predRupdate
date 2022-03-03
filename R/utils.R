@@ -61,11 +61,11 @@ inv_logit <- function(x) {
 #'
 #' @return a list in which each element is a dummy variable for each categorical
 #'   variable in \code{df}. All combinations of dummy variable are returned.
-#'   Naming convention of the new dummy variables is variable_level. For
+#'   Naming convention of the new dummy variables is variablelevel. For
 #'   example, a factor variable in \code{df} named "colour" with levels "red",
 #'   "green" and "purple" (where "purple" is the reference) will produce a list
-#'   with two elements (the new dummy variables), named colour_red and
-#'   colour_green, respectively.
+#'   with two elements (the new dummy variables), named colourred and
+#'   colourgreen, respectively.
 #' @export
 #'
 #' @seealso \code{\link{pm_input_info}}
@@ -90,7 +90,7 @@ dummyvars <- function(df) {
       dummy_mat <- stats::model.matrix(~-1 + df[,j])
       colnames(dummy_mat) <- paste(j,
                                    sub(".*j\\]", "", colnames(dummy_mat)),
-                                   sep="_")
+                                   sep="")
       output <- cbind(output, dummy_mat)
     }
     as.list(as.data.frame(output))
