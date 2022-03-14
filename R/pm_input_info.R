@@ -291,7 +291,7 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
                           survival_time = NULL,
                           event_indicator = NULL) {
 
-  ########################## INPUT CHECKING ########################
+  ########################## INPUT CHECKING #############################
   model_type <- match.arg(model_type)
 
   #Check that 'existingcoefs' is supplied as a named numeric vector
@@ -310,7 +310,20 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
   }
 
 
-  ########## EXTRACT INFORMATION BY MODEL TYPE ###############
+  ########### APPLY PRE-PROCESSING TO NEWDATA AS NEEDED ##################
+  if (!is.null(pre_processing)) {
+    newdata <- apply_pre_processing(newdata = newdata,
+                                    pre_processing = pre_processing)
+  }
+  #now any pre-processing is complete, check that all predictor variables
+  # specified in 'formula' are also included in the 'newdata':
+  if (all(all.vars(formula) %in% names(newdata)) == FALSE) {
+    stop("Ensure that all predictor variables specified in 'formula' are also in 'newdata'",
+         call. = FALSE)
+  }
+
+
+  ############### EXTRACT INFORMATION BY MODEL TYPE ######################
   if (model_type == "logistic") {
 
     #Check any specification of outcome variable names
@@ -326,12 +339,24 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
            call. = FALSE)
     }
 
+    # Remove rows of newdata that have missing data in relevant columns:
+    if(any(stats::complete.cases(newdata[,c(binary_outcome,
+                                            all.vars(formula)), drop = FALSE]) == FALSE)) {
+      newdata <- newdata[stats::complete.cases(newdata[,c(binary_outcome,
+                                                          all.vars(formula)), drop = FALSE])
+                         , , drop = FALSE]
+      warning(paste("Some rows of newdata have been removed due to missing data in either the outcome variables and/or variables specified in 'formula'.  \n",
+                    "Complete case may not be appropriate - consider alternative methods of handling missing data in newdata prior to calling pm_input_info()",
+                    sep = ''),
+              call. = FALSE)
+    }
+
     info_vals <- pm_input_info_logistic(model_type = model_type,
                                         existingcoefs = existingcoefs,
                                         formula = formula,
                                         newdata = newdata,
-                                        pre_processing = pre_processing,
                                         binary_outcome = binary_outcome)
+
   } else if (model_type == "survival") {
 
     #Check any specification of outcome variable names
@@ -356,12 +381,25 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
            call. = FALSE)
     }
 
+    # Remove rows of newdata that have missing data in relevant columns:
+    if(any(stats::complete.cases(newdata[,c(survival_time,
+                                            event_indicator,
+                                            all.vars(formula)), drop = FALSE]) == FALSE)) {
+      newdata <- newdata[stats::complete.cases(newdata[,c(survival_time,
+                                                          event_indicator,
+                                                          all.vars(formula)), drop = FALSE])
+                         , , drop = FALSE]
+      warning(paste("Some rows of newdata have been removed due to missing data in either the outcome variables and/or variables specified in 'formula'.  \n",
+                    "Complete case may not be appropriate - consider alternative methods of handling missing data in newdata prior to calling pm_input_info()",
+                    sep = ''),
+              call. = FALSE)
+    }
+
     info_vals <- pm_input_info_survival(model_type = model_type,
                                         existingcoefs = existingcoefs,
                                         baselinehazard = baselinehazard,
                                         formula = formula,
                                         newdata = newdata,
-                                        pre_processing = pre_processing,
                                         survival_time = survival_time,
                                         event_indicator = event_indicator)
   }
@@ -415,7 +453,6 @@ pm_input_info_logistic <- function(model_type,
                                    existingcoefs,
                                    formula,
                                    newdata,
-                                   pre_processing,
                                    binary_outcome) {
 
   ##Extract the Outcomes from newdata if specified by user:
@@ -430,10 +467,9 @@ pm_input_info_logistic <- function(model_type,
     }
   }
 
-  ##Define the design matrix given user inputs:
-  DM <- define_design_matrix(formula = formula,
-                             newdata = newdata,
-                             pre_processing = pre_processing)
+  ##Define the design matrix given the provided functional form of the existing
+  #model:
+  DM <- stats::model.matrix(formula, newdata)
 
   #Standardise the supplied existing coefficients according to the DM, running
   #checks to ensure that each column of DM has a specified existing coefficient
@@ -458,7 +494,6 @@ pm_input_info_survival <- function(model_type,
                                    baselinehazard,
                                    formula,
                                    newdata,
-                                   pre_processing,
                                    survival_time,
                                    event_indicator) {
 
@@ -479,10 +514,9 @@ pm_input_info_survival <- function(model_type,
          call. = FALSE)
   }
 
-  ##Define the design matrix given user inputs:
-  DM <- define_design_matrix(formula = formula,
-                             newdata = newdata,
-                             pre_processing = pre_processing)
+  ##Define the design matrix given the provided functional form of the existing
+  #model:
+  DM <- stats::model.matrix(formula, newdata)
   #for survival model, remove the intercept column that is created in DM:
   DM <- DM[ ,-which(colnames(DM) == "(Intercept)"), drop=FALSE]
 
@@ -506,34 +540,8 @@ pm_input_info_survival <- function(model_type,
 
 
 
-define_design_matrix <- function(formula,
-                                 newdata,
-                                 pre_processing) {
-
-  ##Define the design matrix, with or without pre-processing steps as defined by
-  ##pre_processing:
-  if (!is.null(pre_processing)) {
-    newdata <- apply_pre_processing(newdata = newdata,
-                                    pre_processing = pre_processing)
-  }
-
-  #Check that all predictor variables specified in 'formula' are also included
-  #in the 'newdata':
-  if (all(all.vars(formula) %in% names(newdata)) == FALSE) {
-    stop("Ensure that all predictor variables specified in 'formula' are also in 'newdata'",
-         call. = FALSE)
-  }
-
-  #Define a design matrix given the provided functional form of the existing
-  #model:
-  DM <- stats::model.matrix(formula, newdata)
-  DM
-}
-
-
 set_existing_coefs <- function(existingcoefs,
                                DM) {
-
   #Check that each column of the design matrix produced by user-supplied
   #formula is included as an element of 'existingcoefs', and vice versa:
   if (all(names(existingcoefs) %in% colnames(DM)) == FALSE |
