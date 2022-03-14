@@ -101,18 +101,19 @@ Variable transformations/ pre-processing-steps to apply to \code{newdata}
 \code{\link{pm_input_info}} by specifying \code{pre_processing}.
 \code{pre_processing} should be a list of functions that apply the desired
 transformations/ pre-processing step  - the functions should have one input
-only; that is the \code{newdata}. Specifically, usually, each element of
-\code{pre_processing} will be named with the corresponding function
-applying a transformation to a single variable in \code{newdata} and
-returning a vector of length equal to the number of rows of \code{newdata};
-here, the name of the list element becomes the new/transformed variable
-name in \code{newdata}. See "Examples" below. Alternatively,
+(\code{newdata}) and each return a single transformed variable. Usually,
+each element of \code{pre_processing} will be named with the corresponding
+function applying a transformation to a single variable in \code{newdata}
+and returning a vector of length equal to the number of rows of
+\code{newdata}; here, the name of the list element becomes the
+new/transformed variable name in \code{newdata}. Alternatively,
 \code{pre_processing} can take a function that applies multiple
 transformations/ pre-processing-steps to \code{newdata} and returns a
-data.frame or list of results. For example, if the \code{newdata} contains
-factor/categorical variables, then "dummy" variables of these
-factor/categorical variables can be created by specifying the function
-\code{\link{dummyvars}} as a list element; see "Examples" below.
+data.frame or list giving the set of transformed variable outputs. For
+example, if the \code{newdata} contains factor/categorical variables, then
+"dummy" variables of these factor/categorical variables can be created by
+specifying the function \code{\link{dummyvars}} as a list element. See
+"Examples" below.
 
 \code{formula} describes the functional form of the existing prediction
 model. For example, if the existing prediction model included "age" and

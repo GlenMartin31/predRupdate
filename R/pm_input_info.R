@@ -57,18 +57,19 @@
 #'   \code{\link{pm_input_info}} by specifying \code{pre_processing}.
 #'   \code{pre_processing} should be a list of functions that apply the desired
 #'   transformations/ pre-processing step  - the functions should have one input
-#'   only; that is the \code{newdata}. Specifically, usually, each element of
-#'   \code{pre_processing} will be named with the corresponding function
-#'   applying a transformation to a single variable in \code{newdata} and
-#'   returning a vector of length equal to the number of rows of \code{newdata};
-#'   here, the name of the list element becomes the new/transformed variable
-#'   name in \code{newdata}. See "Examples" below. Alternatively,
+#'   (\code{newdata}) and each return a single transformed variable. Usually,
+#'   each element of \code{pre_processing} will be named with the corresponding
+#'   function applying a transformation to a single variable in \code{newdata}
+#'   and returning a vector of length equal to the number of rows of
+#'   \code{newdata}; here, the name of the list element becomes the
+#'   new/transformed variable name in \code{newdata}. Alternatively,
 #'   \code{pre_processing} can take a function that applies multiple
 #'   transformations/ pre-processing-steps to \code{newdata} and returns a
-#'   data.frame or list of results. For example, if the \code{newdata} contains
-#'   factor/categorical variables, then "dummy" variables of these
-#'   factor/categorical variables can be created by specifying the function
-#'   \code{\link{dummyvars}} as a list element; see "Examples" below.
+#'   data.frame or list giving the set of transformed variable outputs. For
+#'   example, if the \code{newdata} contains factor/categorical variables, then
+#'   "dummy" variables of these factor/categorical variables can be created by
+#'   specifying the function \code{\link{dummyvars}} as a list element. See
+#'   "Examples" below.
 #'
 #'   \code{formula} describes the functional form of the existing prediction
 #'   model. For example, if the existing prediction model included "age" and
@@ -308,13 +309,11 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
     stop("'newdata' should be a data.frame", call. = FALSE)
   }
 
-  if (model_type == "logistic" & !is.null(baselinehazard)) {
-    stop("'baselinehazard' should be set to NULL if model_type=logistic",
-         call. = FALSE)
-  }
 
-  #Check any specification of outcome variable names
+  ########## EXTRACT INFORMATION BY MODEL TYPE ###############
   if (model_type == "logistic") {
+
+    #Check any specification of outcome variable names
     if (!is.null(survival_time)) {
       stop("'survival_time' should be set to NULL if model_type=logistic",
            call. = FALSE)
@@ -322,32 +321,11 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
       stop("'event_indicator' should be set to NULL if model_type=logistic",
            call. = FALSE)
     }
-  }else if (model_type == "survival") {
-    if (!is.null(binary_outcome)) {
-      stop("'binary_outcome' should be set to NULL if model_type=survival",
+    if (!is.null(baselinehazard)) {
+      stop("'baselinehazard' should be set to NULL if model_type=logistic",
            call. = FALSE)
     }
-  }
 
-  #check baseline hazard specification
-  if(sum(duplicated(baselinehazard[,1])) > 0){
-    stop("all baseline hazard times must be unique",
-         call. = FALSE)
-  }
-
-  if(min(baselinehazard[,1]) <= 0){
-    stop("all baseline hazard times must be positive",
-         call. = FALSE)
-  }
-
-  if(min(baselinehazard[,2]) < 0){
-    stop("all baseline hazards must be nonnegative",
-         call. = FALSE)
-  }
-
-
-  ########## EXTRACT INFORMATION BY MODEL TYPE ###############
-  if (model_type == "logistic") {
     info_vals <- pm_input_info_logistic(model_type = model_type,
                                         existingcoefs = existingcoefs,
                                         formula = formula,
@@ -355,6 +333,29 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
                                         pre_processing = pre_processing,
                                         binary_outcome = binary_outcome)
   } else if (model_type == "survival") {
+
+    #Check any specification of outcome variable names
+    if (!is.null(binary_outcome)) {
+      stop("'binary_outcome' should be set to NULL if model_type=survival",
+           call. = FALSE)
+    }
+
+    #check baseline hazard specification
+    if(sum(duplicated(baselinehazard[,1])) > 0){
+      stop("all baseline hazard times must be unique",
+           call. = FALSE)
+    }
+
+    if(min(baselinehazard[,1]) <= 0){
+      stop("all baseline hazard times must be positive",
+           call. = FALSE)
+    }
+
+    if(min(baselinehazard[,2]) < 0){
+      stop("all baseline hazards must be nonnegative",
+           call. = FALSE)
+    }
+
     info_vals <- pm_input_info_survival(model_type = model_type,
                                         existingcoefs = existingcoefs,
                                         baselinehazard = baselinehazard,
@@ -399,7 +400,9 @@ print.pminfo <- function(x, ...) {
   }
 
   if (!is.null(x$Outcomes)) {
-    cat("Outcomes are avaliable for model validation")
+    cat("Outcomes are avaliable for model validation: \n")
+    print(utils::head(x$Outcomes))
+    cat("...plus",  length(x$Outcomes)-6, "other rows \n")
   }
 }
 

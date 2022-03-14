@@ -60,6 +60,13 @@ apply_pre_processing <- function(newdata,
       stop("Length of output returned by some elements of 'pre_processing' does not match nrow(newdata)",
            call. = FALSE)
     }
+
+    #Remove any duplicate columns/variables that are in transformed_vars but
+    # already included in newdata:
+    transformed_vars <- transformed_vars[
+      which(sapply(transformed_vars, function(s)
+        any(apply(newdata, 2, function(x) all(x==s)))) == FALSE)
+      ]
     #Merge the transformation/pre-processing variables into the dataset
     newdata <- cbind(newdata, transformed_vars)
   }
