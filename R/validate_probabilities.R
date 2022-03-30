@@ -2,10 +2,9 @@
 #'
 #' This function is used to validate predicted probabilities (usually from an
 #' existing/ previously developed logistic regression model) against binary
-#' outcomes. It takes a vector of predicted risks (or the log odds - the linear
-#' predictor) and a vector of binary observed probabilities (not used to develop
-#' the model that generates the predictions). From which, the function
-#' calculates metrics of calibration, discrimination and overall accuracy.
+#' outcomes. It takes a vector of predicted risks (or the linear predictor) and
+#' a vector of binary observed outcomes, from which the function calculates
+#' metrics of calibration, discrimination and overall accuracy.
 #'
 #' @param ObservedOutcome a vector of N binary observations, denoting if the
 #'   outcome was observed (1) or not observed (0) for each individual in the
@@ -29,12 +28,28 @@
 #' @param xlab,ylab,xlim,ylim Specifies plotting characteristics for the
 #'   calibration plot, if relevant.
 #'
-#' @details TO ADD
+#' @details This function assesses the predictive performance of predicted risks
+#'   against an observed binary outcome. Various metrics of calibration
+#'   (agreement between the observed risk and the predicted risks, across the
+#'   full risk range) and discrimination (ability of the model to distinguish
+#'   between those who develop the outcome and those who do not). For
+#'   calibration, a calibration plot is produced, using either flexible methods
+#'   or the binned/grouped approach. Calibration-in-the-large (CITL) and
+#'   calibration slopes are also estimated. For CITL, we estimate the intercept
+#'   by fitting a logistic regression model to the observed binary outcomes,
+#'   with the linear predictor of the model as an offset. For calibration slope,
+#'   a logistic regression model is fit to the observed binary outcome with the
+#'   linear predictor from the model as the only covariate. For discrimination,
+#'   we estimate the area under the receiver operating characteristic curve
+#'   (AUC). Various other metrics are also calculated to assess overall accuracy
+#'   (Brier score, Cox-Snell R2).
 #'
 #' @return Returns a list of the performance metrics and associated 95%
 #'   confidence intervals, where appropriate.
 #'
-#' @seealso \code{\link{pm_validate}}
+#' @seealso \code{\link{pm_validate}},
+#' \code{\link{pm_predict}},
+#' \code{\link{pm_input_info}}
 #'
 #' @export
 validate_probabilities <- function(ObservedOutcome,
