@@ -10,128 +10,151 @@
 #'   (default)} \item {\code{"survival"} indicates that the existing model was
 #'   based on a survival regression model} }
 #' @param existingcoefs a named vector of coefficients, taken exactly as
-#'   published from the existing prediction model. Names much match those in
-#'   \code{newdata}. See "Details".
-#' @param baselinehazard A data.frame with two columns: (1) time, and (2)
-#'   estimated baseline hazard at that time. Only relevant if \code{model_type}
-#'   is "survival"; must be NULL otherwise.
+#'   published from the existing prediction model. Names much match variables in
+#'   \code{newdata} (after any \code{pre_processing}). There should be one
+#'   coefficient for each predictor variable in the model. If \code{model_type}
+#'   is "logistic", then an intercept should be provided. See "Details".
 #' @param formula an object of class "\code{\link[stats]{formula}}" (or a
 #'   character string that can be coerced to that class). This specifies the
-#'   functional form description of the existing prediction model. The details
-#'   of the model specification are given under "Details".
-#' @param newdata  data.frame which will be used to make predictions on using
-#'   the existing prediction model. Variable names must match those in
-#'   \code{existingcoefs} and \code{formula}, after applying any pre-processing
-#'   steps (using \code{pre_processing}) where needed. See "Details".
+#'   functional form of the existing prediction model. See "Details".
+#' @param newdata  data.frame upon which the prediction model should be applied
+#'   (for subsequent validation/model updating/model aggregation). Variable
+#'   names must match those in \code{existingcoefs} and \code{formula} (after
+#'   any \code{pre_processing}). See "Details".
+#' @param baselinehazard A data.frame with two columns: (1) time, and (2)
+#'   estimated baseline hazard at that time. Only relevant if \code{model_type}
+#'   is "survival"; leave as NULL otherwise.
 #' @param pre_processing a list where each element is a function that describes
 #'   transformations to apply to columns of \code{newdata}. See "Details".
 #' @param binary_outcome Character variable giving the name of the column in
 #'   \code{newdata} that represents the observed outcomes. Only relevant for
-#'   \code{model_type}="logistic"; leave as default \code{NULL} otherwise. Leave
-#'   as \code{NULL} if \code{newdata} does not contain any outcomes.
+#'   \code{model_type}="logistic"; leave as \code{NULL} otherwise. Leave as
+#'   \code{NULL} if \code{newdata} does not contain any outcomes.
 #' @param survival_time Character variable giving the name of the column in
 #'   \code{newdata} that represents the observed survival times. Only relevant
-#'   for \code{model_type}="survival"; leave as default \code{NULL} otherwise.
-#'   Leave as \code{NULL} if \code{newdata} does not contain any survival
-#'   outcomes.
+#'   for \code{model_type}="survival"; leave as \code{NULL} otherwise. Leave as
+#'   \code{NULL} if \code{newdata} does not contain any survival outcomes.
 #' @param event_indicator Character variable giving the name of the column in
 #'   \code{newdata} that represents the observed survival indicator (1 for
 #'   event, 0 for censoring). Only relevant for \code{model_type}="survival";
-#'   leave as default \code{NULL} otherwise. Leave as \code{NULL} if
-#'   \code{newdata} does not contain any survival outcomes.
+#'   leave as \code{NULL} otherwise. Leave as \code{NULL} if \code{newdata} does
+#'   not contain any survival outcomes.
 #'
-#' @details This function will structure relevant information about an existing
-#'   prediction model, and a new dataset (on which one wishes to make
-#'   predictions using the existing model), into a standardised format, such
-#'   that it can be used with other functions in the package.
+#' @details This function will structure the relevant information about an
+#'   existing prediction model and a new dataset (on which one wishes to make
+#'   predictions/ apply model updating/ apply model aggregation) into a
+#'   standardised format, such that it can be used with other functions in the
+#'   package.
 #'
-#'   \code{newdata} should be a data.frame, where each row is an observation
-#'   (e.g. patient) on which predictions will be made. Each variable/column of
-#'   \code{newdata} should include (as a minimum) all of the predictor variables
-#'   that are included in the existing prediction model. The names of these
-#'   variables/columns should match those provided in \code{formula} and
-#'   \code{existingcoefs}.
+#'   The new dataset might be a validation dataset (to test the performance of
+#'   the existing prediction model) and/or it might be the dataset on which one
+#'   wishes to apply model updating methods to 'tweak' the model. In any case,
+#'   this should be specified in \code{newdata} as a data.frame. Each row should
+#'   be an observation (e.g. patient) and each variable/column should be a
+#'   predictor variable. The predictor variables need to include (as a minimum)
+#'   all of the predictor variables that are included in the existing prediction
+#'   model (as specified in \code{formula} and \code{existingcoefs}).
 #'
-#'   Variable transformations/ pre-processing-steps to apply to \code{newdata}
-#'   (e.g. interaction terms, non-linear terms or splines) can be created within
-#'   \code{\link{pm_input_info}} by specifying \code{pre_processing}.
-#'   \code{pre_processing} should be a list of functions that apply the desired
-#'   transformations/ pre-processing step  - the functions should have one input
-#'   (\code{newdata}) and each return a single transformed variable. Usually,
-#'   each element of \code{pre_processing} will be named with the corresponding
-#'   function applying a transformation to a single variable in \code{newdata}
-#'   and returning a vector of length equal to the number of rows of
-#'   \code{newdata}; here, the name of the list element becomes the
-#'   new/transformed variable name in \code{newdata}. Alternatively,
-#'   \code{pre_processing} can take a function that applies multiple
-#'   transformations/ pre-processing-steps to \code{newdata} and returns a
-#'   data.frame or list giving the set of transformed variable outputs. For
-#'   example, if the \code{newdata} contains factor/categorical variables, then
-#'   "dummy" variables of these factor/categorical variables can be created by
-#'   specifying the function \code{\link{dummyvars}} as a list element. See
-#'   "Examples" below.
+#'   Sometimes, it is necessary to transform some variables in the dataset prior
+#'   to applying the model (e.g., if the existing model includes splines, or
+#'   non-linear variable transformations, such as squared terms).
+#'   \code{\link{pm_input_info}} provides mechanisms for applying such
+#'   transformations by specifying \code{pre_processing}. \code{pre_processing}
+#'   should be a list where each element is a function that applies the desired
+#'   transformations/ pre-processing steps. Each function (list element) should
+#'   have one input (the new data) and return either a single transformed
+#'   variable (vector) or a data.frame/ list of multiple transformed variables.
+#'   In the case of returning a vector, the list element can be named such that
+#'   the name of the list element becomes the new variable name; if returning a
+#'   data.frame/list, then each new variable should be named internally within
+#'   the function. See "Examples" below.
 #'
-#'   \code{formula} describes the functional form of the existing prediction
-#'   model. For example, if the existing prediction model included "age" and
-#'   "BMI" as predictor variables, then \code{formula} would be entered as
-#'   \code{~ age + BMI}. Each variable name in \code{formula} must have a
-#'   corresponding name in \code{newdata} (after applying any
-#'   \code{pre_processing} steps). Additionally, each predictor variable
-#'   specified in \code{formula} must have a corresponding named element in
-#'   \code{existingcoefs}. Only the right hand side of the formula is needed.
+#'   The existing prediction model will have a functional form (i.e. the linear
+#'   predictor of the model); this should be specified in \code{formula}. For
+#'   example, if the existing prediction model included "age" and "BMI" as the
+#'   predictor variables, then \code{formula} would be entered as "\code{~ age +
+#'   BMI}". Each variable name in \code{formula} must have a corresponding name
+#'   in \code{newdata} (after applying any \code{pre_processing} steps).
+#'   Additionally, each predictor variable specified in \code{formula} must have
+#'   a corresponding named element in \code{existingcoefs}. Only the right hand
+#'   side of the formula is needed.
 #'
+#'   Each of the predictor variables included in the existing prediction model
+#'   will have a published coefficient (e.g. log-odds-ratio or
+#'   log-hazard-ratio), which should each be specified in \code{existingcoefs}.
 #'   \code{existingcoefs} should be provided as a named numeric vector, where
 #'   each name directly matches those in \code{formula} and in \code{newdata}
 #'   (after applying any \code{pre_processing} steps). The values are the
 #'   corresponding coefficient estimates taken \strong{exactly} as published by
-#'   the existing model. These coefficients should not be re-evaluated in the
-#'   current data, if the \code{newdata} is being used for validation of the
-#'   existing prediction model. In the case of model_type = "logistic", the
-#'   intercept of the existing prediction model must be named as "(Intercept)".
+#'   the existing model. Note, these coefficients should not normally be
+#'   re-evaluated in the current data, especially if the \code{newdata} is being
+#'   used for validation of the existing prediction model. In the case of
+#'   \code{model_type} = "logistic", the intercept of the existing prediction
+#'   model must be named as "(Intercept)". If \code{model_type} = "survival",
+#'   then \code{baselinehazard} should be provided.
 #'
 #'   \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
-#'   used to specify the outcomes in \code{newdata} if this is relevant. For
-#'   example, if validating the existing model, then these specify the columns
-#'   in \code{newdata} that will be used for assessing predictive performance of
-#'   the predictions in the validation dataset. If the \code{newdata} does not
-#'   contain outcomes (e.g. if simply applying/implementing the existing model
-#'   in \code{newdata}), then leave these to the default of \code{NULL}. If
-#'   \code{model_type} is "logistic" then both \code{survival_time} and
-#'   \code{event_indicator} should be set to NULL; likewise, if
-#'   \code{model_type} is "survival", then \code{binary_outcome} should be set
-#'   to NULL.
-#'
+#'   used to specify the outcome variable(s) within \code{newdata}, if relevant
+#'   (use \code{binary_outcome} if \code{model_type} = "logistic", or use
+#'   \code{survival_time} and \code{event_indicator} if \code{model_type} =
+#'   "survival"). For example, if validating an existing model, then these
+#'   inputs specify the columns of \code{newdata} that will be used for
+#'   assessing predictive performance of the predictions in the validation
+#'   dataset. If \code{newdata} does not contain outcomes, then leave
+#'   these inputs to the default of \code{NULL}.
 #'
 #' @return \code{\link{pm_input_info}} returns an object of class "pminfo", with
 #'   child classes per model_type. This is a standardised format, such that it
 #'   can be used with other functions in the package. An object of class
 #'   "pminfo" is a list containing at least the following components:
-#'   \itemize{\item{model_type = this is the type of analytical model that the
-#'   existing prediction model is based upon: either "logistic" or "survival"}
-#'   \item{coefs = this is the list of (previously estimated) coefficients for
-#'   each predictor included in the existing prediction model} \item{coef_names
-#'   = gives the names of each predictor variable, with corresponding
-#'   coefficient specified in coefs} \item{PredictionData = this is the design
-#'   matrix formed by mapping the specified \code{pre_processing} steps and
-#'   functional form of the existing prediction model specified in
-#'   \code{formula} onto \code{newdata}; any predictions will be upon such
-#'   data.}} More items might be required depending on the inputs to the
-#'   function.
-#'
-#' @export
+#'   \itemize{
+#'      \item{model_type = this is the type of analytical model that the
+#'      existing prediction model is based upon ("logistic" or "survival")}
+#'      \item{coefs = this is the list of (previously estimated) coefficients
+#'      for each predictor variable}
+#'      \item{coef_names = gives the names of each predictor variable}
+#'      \item{PredictionData = this is the design matrix formed by mapping the
+#'      specified \code{pre_processing} steps (if relevant) and functional form
+#'      of the existing prediction model specified in \code{formula} onto
+#'      \code{newdata}; any subsequent predictions/model updating/
+#'      model aggregation will be based on this data.}
+#'      \item{Outcomes = vector of outcomes/endpoints (if specified in the
+#'      input).}
+#'      }
 #'
 #' @examples
-#' #Example 1 - basic usage
+#' #Example 1 - logistic regression existing model, with outcome specified, and
+#' #            handling of categorical variable in 'pre_processing'; uses
+#' #            package dataset
 #' pm_input_info(model_type = "logistic",
-#'               existingcoefs = c("(Intercept)" = -2, "X" = 0.5),
-#'               baselinehazard = NULL,
-#'               formula = ~X,
-#'               newdata = data.frame("X" = rnorm(100)),
-#'               pre_processing = NULL)
+#'               existingcoefs = c("(Intercept)" = -6.6252554,
+#'                                 "Age" = 0.1136751,
+#'                                 "SexM" = 0.2304344,
+#'                                 "Smoking_Status" = 0.6873743,
+#'                                 "Diabetes" = 0.4306382),
+#'               formula = formula(SYNPM$Existing_models$Formula[1]),
+#'               newdata = SYNPM$ValidationData,
+#'               pre_processing = list(function(df) {dummyvars(df)}),
+#'               binary_outcome = "Y")
+#'
+#' #Example 2 - survival model example; uses package dataset
+#' pm_input_info(model_type = "survival",
+#'               existingcoefs = c("SEX" = 0.53,
+#'                                 "AGE" = -0.05,
+#'                                 "SYSTBP" = -0.0055,
+#'                                 "BMIO" = 0.0325,
+#'                                 "CARDIAC" = -0.126,
+#'                                 "DIABETES" = -0.461),
+#'               formula = ~ SEX + AGE + SYSTBP + BMIO + CARDIAC + DIABETES,
+#'               newdata = SMART,
+#'               baselinehazard = data.frame("t" = 1:5,
+#'                                           "h" = c(0.12, 0.20, 0.26, 0.33, 0.38)),
+#'               survival_time = "TEVENT",
+#'               event_indicator = "EVENT")
 #'
 #'
-#' #Example 2 - here, the intercept in existingcoefs is incorrectly named; will
-#' # return error
+#' #Example 3 - example of incorrect specification; here, the intercept in
+#' #            'existingcoefs' is incorrectly named; will return an error
 #' \dontrun{
 #' pm_input_info(model_type = "logistic",
 #'               existingcoefs = c("Intercept" = -2, "X" = 0.5),
@@ -141,10 +164,10 @@
 #'          }
 #'
 #'
-#' #Example 3 - here, the existing prediction model is specified as having a
-#' # functional form of X+Z (in 'formula') with corresponding existingcoefs, but
-#' # Z does not exist in newdata (even after any pre_processing); will
-#' # return an error
+#' #Example 4 - example of incorrect specification; here, the existing
+#' #            prediction model is specified as having a functional form of
+#' #            X+Z (in 'formula') with corresponding 'existingcoefs', but Z does
+#' #            not exist in 'newdata'; will return an error
 #' \dontrun{
 #' pm_input_info(model_type = "logistic",
 #'               existingcoefs = c("(Intercept)" = -2, "X" = 0.5, "Z" = 0.9),
@@ -154,66 +177,8 @@
 #'          }
 #'
 #'
-#' #Example 4 - shows how to handle categorical variables - can either call
-#' #pmupdate::dummyvars() within the pre_processing input, or incorporate
-#' #user-defined functions to handle the categorical variables
-#' pm_input_info(model_type = "logistic",
-#'               existingcoefs = c("X" = 0.5,
-#'                                 "X_Squared" = 0.005,
-#'                                 "(Intercept)" = -2,
-#'                                 "Colourgreen" = 0.5,
-#'                                 "Colourred" = 0.95,
-#'                                 "Colourwhite" = 2,
-#'                                 "SexMale" = 0.6),
-#'               formula = ~X + X_Squared + Colourgreen + Colourred + Colourwhite + SexMale,
-#'               newdata = data.frame("X" = rnorm(500),
-#'                                    "Colour" = factor(sample(c("red",
-#'                                                               "azure",
-#'                                                               "green",
-#'                                                               "white"),
-#'                                                               500,
-#'                                                               replace = TRUE)),
-#'                                    "Sex" = factor(sample(c("Male",
-#'                                                            "Female"),
-#'                                                            500,
-#'                                                            replace = TRUE))),
-#'               pre_processing = list("X_Squared" = function(df){df$X^2},
-#'                                     function(df) {dummyvars(df)}))
-#' ###....alternatively:
-#' pm_input_info(model_type = "logistic",
-#'               existingcoefs = c("X" = 0.5,
-#'                                 "X_Squared" = 0.005,
-#'                                 "(Intercept)" = -2,
-#'                                 "Colour_green" = 0.5,
-#'                                 "Colour_red" = 0.95,
-#'                                 "Colour_white" = 2),
-#'               formula = ~X + X_Squared + Colour_green + Colour_red + Colour_white,
-#'               newdata = data.frame("X" = rnorm(500),
-#'                                    "Colour" = factor(sample(c("red",
-#'                                                               "azure",
-#'                                                               "green",
-#'                                                               "white"),
-#'                                                               500,
-#'                                                               replace = TRUE)),
-#'                                    "Sex" = factor(sample(c("Male",
-#'                                                            "Female"),
-#'                                                            500,
-#'                                                            replace = TRUE))),
-#'               pre_processing = list("X_Squared" = function(df){df$X^2},
-#'                                     "Colour_green" = function(df) {
-#'                                     ifelse(df$Colour == "Green", 1, 0)
-#'                                     },
-#'                                     "Colour_white" = function(df) {
-#'                                     ifelse(df$Colour == "White", 1, 0)
-#'                                     },
-#'                                     "Colour_red" = function(df) {
-#'                                     ifelse(df$Colour == "Red", 1, 0)
-#'                                     }
-#'                                     ))
-#'
-#'
-#' #Example 5 - showing use of pre_processing - the following are all valid ways
-#' #            of specifying elements of pre_processing
+#' #Example 5 - showing use of 'pre_processing' - the following are all valid ways
+#' #            of specifying elements of 'pre_processing'
 #' pm_input_info(model_type = "logistic",
 #'               existingcoefs = c("(Intercept)" = -5,
 #'                                 "Age" = 0.05,
@@ -252,40 +217,12 @@
 #'                 return(df)
 #'               }))
 #'
-#'
-#' #Example 6 - showing specification of outcome columns in newdata; uses built in dataset
-#' existing_coefs <- as.numeric(unlist(strsplit(
-#' SYNPM$Existing_models$Coeffs[1], split = "\\|")))
-#' names(existing_coefs) <- gsub(' ', '', unlist(strsplit(
-#' SYNPM$Existing_models$Variables[1], split = "\\|")))
-#' pm_input_info(model_type = "logistic",
-#'               existingcoefs = existing_coefs,
-#'               formula = formula(SYNPM$Existing_models$Formula[1]),
-#'               newdata = SYNPM$ValidationData,
-#'               pre_processing = list(function(df) {dummyvars(df)}),
-#'               binary_outcome = "Y")
-#'
-#'
-#' #Example 7 - survival model example
-#' pm_input_info(model_type = "survival",
-#'               existingcoefs = c("SEX" = 0.53,
-#'                                 "AGE" = -0.05,
-#'                                 "SYSTBP" = -0.0055,
-#'                                 "BMIO" = 0.0325,
-#'                                 "CARDIAC" = -0.126,
-#'                                 "DIABETES" = -0.461),
-#'               formula = ~ SEX + AGE + SYSTBP + BMIO + CARDIAC + DIABETES,
-#'               newdata = SMART,
-#'               baselinehazard = data.frame("t" = 1:5,
-#'                                           "h" = c(0.12, 0.20, 0.26, 0.33, 0.38)),
-#'               survival_time = "TEVENT",
-#'               event_indicator = "EVENT")
-
+#' @export
 pm_input_info <- function(model_type = c("logistic", "survival"),
                           existingcoefs,
-                          baselinehazard = NULL,
                           formula,
                           newdata,
+                          baselinehazard = NULL,
                           pre_processing = NULL,
                           binary_outcome = NULL,
                           survival_time = NULL,
