@@ -20,6 +20,8 @@ test_that("pm_input_info() outputs required info for model implementation", {
   expect_equal(pminfo_test1$coefs, c(-2.00, 5.00, 0.05, 0.06))
   expect_equal(pminfo_test1$coef_names,
                c("(Intercept)", "Age", "Age_squared", "Age_logged"))
+  expect_equal(nrow(pminfo_test1$PredictionData), 4)
+  expect_equal(ncol(pminfo_test1$PredictionData), 4)
   expect_s3_class(pminfo_test1, class = "pminfo")
   expect_snapshot(pminfo_test1)
 })
