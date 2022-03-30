@@ -1,23 +1,42 @@
-#' Use an existing prediction model to estimate predicted risks in new data,
-#' given published coefficients
+#' Make predictions from an existing prediction model
 #'
-#' @param x an object of class "\code{pminfo}" produced by
+#' Use an existing prediction model to estimate predicted risks of the outcome
+#' for each observation in a new dataset.
+#'
+#' @param x an object of class "\code{pminfo}" produced by calling
 #'   \code{\link{pm_input_info}}. This is a 'blueprint' description of the
-#'   existing prediction model, and the newdata on which predictions should be
+#'   existing prediction model, and the new data on which predictions will be
 #'   made.
 #'
-#' @param time_horizon for survival models, an integer giving the time horizon at
-#'   which a prediction is required.
-#'   Currently, must match a time in x$baselinehazard.
+#' @param time_horizon for survival models, an integer giving the time horizon
+#'   (post baseline/time of prediction) at which a prediction is required.
+#'   Currently, this must match a time in x$baselinehazard.
 #'
 #' @details This function takes the relevant information about the existing
-#'   prediction model (as supplied by called \code{\link{pm_input_info}}), and
+#'   prediction model (as supplied by calling \code{\link{pm_input_info}}), and
 #'   returns the predicted risks for each individual/observation in
 #'   \code{newdata}. See \code{\link{pm_input_info}}) for more details.
 #'
-#' @return Linear predictor and predicted risks for each observation in
-#'   \code{newdata}, based on the specified information about the existing
-#'   prediction model
+#'   If the existing prediction model is based on logistic regression (i.e., if
+#'   x$model_type == "logistic"), this will be the predicted probability of the
+#'   binary outcome conditional on the predictor variables in the newdatas
+#'   (i.e., \eqn{P(Y=1 | X)}). If the existing prediction model is based on a
+#'   time-to-event/survival model (i.e., if x$model_type == "survival"), this
+#'   will be one minus the survival probability (i.e.,
+#'   \eqn{1 - S(T>time_horizon | X)}).
+#'
+#' @return \code{\link{pm_predict}} returns a list containing the following
+#'   components:
+#'   \itemize{
+#'      \item{LinearPredictor = the linear predictor for each observation in
+#'      the new data (i.e., the linear combination of the models predictor
+#'      variables and their corresponding coefficients)}
+#'      \item{PredictedRisk = the predicted risk for each observation in the new
+#'      data}
+#'      \item{TimeHorizon = for survival models, an integer giving the time
+#'      horizon at which a prediction is made}
+#'      \item{Outcomes = vector of outcomes/endpoints (if avaliable).}
+#'      }
 #'
 #' @seealso \code{\link{pm_input_info}}
 #'

@@ -2,35 +2,51 @@
 % Please edit documentation in R/pm_predict.R
 \name{pm_predict}
 \alias{pm_predict}
-\title{Use an existing prediction model to estimate predicted risks in new data,
-given published coefficients}
+\title{Make predictions from an existing prediction model}
 \usage{
 pm_predict(x, time_horizon = NULL)
 }
 \arguments{
-\item{x}{an object of class "\code{pminfo}" produced by
+\item{x}{an object of class "\code{pminfo}" produced by calling
 \code{\link{pm_input_info}}. This is a 'blueprint' description of the
-existing prediction model, and the newdata on which predictions should be
+existing prediction model, and the new data on which predictions will be
 made.}
 
-\item{time_horizon}{for survival models, an integer giving the time horizon at
-which a prediction is required.
-Currently, must match a time in x$baselinehazard.}
+\item{time_horizon}{for survival models, an integer giving the time horizon
+(post baseline/time of prediction) at which a prediction is required.
+Currently, this must match a time in x$baselinehazard.}
 }
 \value{
-Linear predictor and predicted risks for each observation in
-\code{newdata}, based on the specified information about the existing
-prediction model
+\code{\link{pm_predict}} returns a list containing the following
+components:
+\itemize{
+\item{LinearPredictor = the linear predictor for each observation in
+the new data (i.e., the linear combination of the models predictor
+variables and their corresponding coefficients)}
+\item{PredictedRisk = the predicted risk for each observation in the new
+data}
+\item{TimeHorizon = for survival models, an integer giving the time
+horizon at which a prediction is made}
+\item{Outcomes = vector of outcomes/endpoints (if avaliable).}
+}
 }
 \description{
-Use an existing prediction model to estimate predicted risks in new data,
-given published coefficients
+Use an existing prediction model to estimate predicted risks of the outcome
+for each observation in a new dataset.
 }
 \details{
 This function takes the relevant information about the existing
-prediction model (as supplied by called \code{\link{pm_input_info}}), and
+prediction model (as supplied by calling \code{\link{pm_input_info}}), and
 returns the predicted risks for each individual/observation in
 \code{newdata}. See \code{\link{pm_input_info}}) for more details.
+
+If the existing prediction model is based on logistic regression (i.e., if
+x$model_type == "logistic"), this will be the predicted probability of the
+binary outcome conditional on the predictor variables in the newdatas
+(i.e., \eqn{P(Y=1 | X)}). If the existing prediction model is based on a
+time-to-event/survival model (i.e., if x$model_type == "survival"), this
+will be one minus the survival probability (i.e.,
+\eqn{1 - S(T>time_horizon | X)}).
 }
 \seealso{
 \code{\link{pm_input_info}}
