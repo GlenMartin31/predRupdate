@@ -1,6 +1,6 @@
 test_that("apply_pre_processing() returns dataframe of correct dimention", {
 
-  new_df <- synthetic_df_pmupdate$ValidationData
+  new_df <- SYNPM$ValidationData
 
   #Test across different ways of specifying pre_processing: approach 1
   pre_proc_function <- function(df) {

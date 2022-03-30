@@ -255,13 +255,13 @@
 #'
 #' #Example 6 - showing specification of outcome columns in newdata; uses built in dataset
 #' existing_coefs <- as.numeric(unlist(strsplit(
-#' synthetic_df_pmupdate$Existing_models$Coeffs[1], split = "\\|")))
+#' SYNPM$Existing_models$Coeffs[1], split = "\\|")))
 #' names(existing_coefs) <- gsub(' ', '', unlist(strsplit(
-#' synthetic_df_pmupdate$Existing_models$Variables[1], split = "\\|")))
+#' SYNPM$Existing_models$Variables[1], split = "\\|")))
 #' pm_input_info(model_type = "logistic",
 #'               existingcoefs = existing_coefs,
-#'               formula = formula(synthetic_df_pmupdate$Existing_models$Formula[1]),
-#'               newdata = synthetic_df_pmupdate$ValidationData,
+#'               formula = formula(SYNPM$Existing_models$Formula[1]),
+#'               newdata = SYNPM$ValidationData,
 #'               pre_processing = list(function(df) {dummyvars(df)}),
 #'               binary_outcome = "Y")
 #'

@@ -123,9 +123,9 @@ ValidationData$Age <- round(ValidationData$Age)
 ## Save the data for external use within the package
 ####-------------------------------------------------------------------------------------------------------
 
-synthetic_df_pmupdate <- list("Existing_models" = Existing_models,
-                              "ValidationData" = ValidationData)
+SYNPM <- list("Existing_models" = Existing_models,
+              "ValidationData" = ValidationData)
 
-usethis::use_data(synthetic_df_pmupdate,
+usethis::use_data(SYNPM,
                   overwrite = TRUE)
 

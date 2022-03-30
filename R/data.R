@@ -1,9 +1,9 @@
-#' Synthetic Validation dataset and some existing models
+#' SYNthetic Prediction Models (SYNPM) and Validation dataset
 #'
-#' A list containing information on some (synthetic) existing prediction models
+#' A list containing: (1) information on some (synthetic) existing prediction models
 #' (representing those available/published, which we want to validate in another
-#' independent dataset), and a (synthetic) dataset that we wish to validate said
-#' models in.
+#' independent dataset); and (2) a synthetic dataset that we wish to validate the
+#' models on.
 #'
 #' @format A list with two elements.
 #' \enumerate{\item{The first element is a data frame with 4
@@ -34,7 +34,7 @@
 #'            }
 #' }
 #' @source \url{https://github.com/GlenMartin31/pmupdate}
-"synthetic_df_pmupdate"
+"SYNPM"
 
 
 #' Second Manifestations of ARTerial disease (SMART) dataset
