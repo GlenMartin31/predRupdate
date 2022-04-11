@@ -8,7 +8,7 @@ validate_probabilities(
   ObservedOutcome,
   Prob,
   LP,
-  CalPlot = c("smooth_ncs", "smooth_loess", "grouped", FALSE),
+  CalPlot = c("smooth_ncs", "grouped", "none"),
   groups = NULL,
   xlab = "Predicted Probability",
   ylab = "Observed Probability",
@@ -31,11 +31,9 @@ Specify either \code{Prob} or \code{LP}.}
 \item{CalPlot}{Indicates whether a calibration plot should be produced, and
 the method for doing so. Set to smooth_ncs (default) if a flexible
 calibration plot should be produced using natural cubic splines, set to
-smooth_loess if a flexible calibration plot should be produced using a
-loess smoother, set to grouped if a grouped/binned calibration plot should
-be produced, and set to FALSE if no calibration plot should be produced. If
-set to grouped then \code{groups} specifies the number of groups to
-produce.}
+grouped if a grouped/binned calibration plot should be produced, and set to
+none if no calibration plot should be produced. If set to grouped then
+\code{groups} specifies the number of groups to produce.}
 
 \item{groups}{Specifies the number of groups to use for a grouped/binned
 calibration plot. Leave as default (NULL) if either no calibration plot or
@@ -73,7 +71,6 @@ we estimate the area under the receiver operating characteristic curve
 (Brier score, Cox-Snell R2).
 }
 \seealso{
-\code{\link{pm_validate}},
-\code{\link{pm_predict}},
+\code{\link{pm_validate}}, \code{\link{pm_predict}},
 \code{\link{pm_input_info}}
 }
