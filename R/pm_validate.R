@@ -48,7 +48,7 @@ pm_validate.pminfo_logistic <- function(x, ...){
                                                   LP = predictions$LinearPredictor,
                                                   ...)
 
-  class(performance) <- c("pmperformance_logistic", "pmperformance")
+  class(performance) <- c("pmvalidate_logistic", "pmvalidate")
   performance
 }
 
@@ -61,17 +61,16 @@ pm_validate.pminfo_survival <- function(x, ...){
 
 
 #' @export
-print.pmperformance_logistic <- function(x, ...) {
-  results <- matrix(NA, ncol = 4, nrow = 5)
+print.pmvalidate_logistic <- function(x, ...) {
+  cat("Calibration Measures \n",
+      "================================= \n", sep = "")
+  results <- matrix(NA, ncol = 4, nrow = 2)
   colnames(results) <- c("Estimate",
                          "Std. Err",
                          "Lower 95% Confidence Interval",
                          "Upper 95% Confidence Interval")
   rownames(results) <- c("Calibration-in-the-large",
-                         "Calibration Slope",
-                         "AUC",
-                         "Cox-Snell R-squared",
-                         "Brier Score")
+                         "Calibration Slope")
   results[1,] <- c(round(x$CITL, 4),
                    round(x$CITL_SE, 4),
                    round(x$CITL_Lower, 4),
@@ -80,18 +79,27 @@ print.pmperformance_logistic <- function(x, ...) {
                    round(x$CalSlope_SE, 4),
                    round(x$CalSlope_Lower, 4),
                    round(x$CalSlope_Upper, 4))
-  results[3,] <- c(round(x$AUC, 4),
+  print(results)
+  cat("\n Also examine the calibration plot, if produced. \n")
+  cat("\nDiscrimination Measures \n",
+      "================================= \n", sep = "")
+  results <- matrix(NA, ncol = 4, nrow = 1)
+  colnames(results) <- c("Estimate",
+                         "Std. Err",
+                         "Lower 95% Confidence Interval",
+                         "Upper 95% Confidence Interval")
+  rownames(results) <- c("AUC")
+  results[1,] <- c(round(x$AUC, 4),
                    round(x$AUC_SE, 4),
                    round(x$AUC_Lower, 4),
                    round(x$AUC_Upper, 4))
-  results[4,] <- c(round(x$R2, 4),
-                   NA,
-                   NA,
-                   NA)
-  results[5,] <- c(round(x$BrierScore, 4),
-                   NA,
-                   NA,
-                   NA)
-
   print(results)
+  cat("\n")
+  cat("\nOverall Performance Measures \n",
+      "================================= \n", sep = "")
+  cat("Cox-Snell R-squared: ", round(x$R2_CoxSnell, 4), "\n", sep = "")
+  cat("Nagelkerke R-squared: ", round(x$R2_Nagelkerke, 4), "\n", sep = "")
+  cat("Brier Score: ", round(x$BrierScore, 4), "\n", sep = "")
+
+  cat("\n Also examine the histogram of predicted risks. \n")
 }
