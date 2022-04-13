@@ -8,7 +8,7 @@ validate_probabilities(
   ObservedOutcome,
   Prob,
   LP,
-  CalPlot = c("smooth_ncs", "grouped", "none"),
+  CalPlot = c("smooth", "grouped", "none"),
   groups = NULL,
   xlab = "Predicted Probability",
   ylab = "Observed Probability",
@@ -29,7 +29,7 @@ predictor (log-odds) from the existing model that is being evaluated.
 Specify either \code{Prob} or \code{LP}.}
 
 \item{CalPlot}{Indicates whether a calibration plot should be produced, and
-the method for doing so. Set to smooth_ncs (default) if a flexible
+the method for doing so. Set to smooth (default) if a flexible (smooth)
 calibration plot should be produced using natural cubic splines, set to
 grouped if a grouped/binned calibration plot should be produced, and set to
 none if no calibration plot should be produced. If set to grouped then
