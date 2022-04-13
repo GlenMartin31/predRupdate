@@ -228,23 +228,19 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
                           survival_time = NULL,
                           event_indicator = NULL) {
 
-  ########################## INPUT CHECKING #############################
   model_type <- match.arg(model_type)
-
-  #Check that 'existingcoefs' is supplied as a named numeric vector
-  if (!is.vector(existingcoefs) |
-      !is.numeric(existingcoefs) |
-      is.null(names(existingcoefs))) {
-    stop("'existingcoefs' should be a named numeric vector", call. = FALSE)
-  }
-
-  #Convert formula to formula class if needed
   formula <- stats::as.formula(formula)
 
-  #Check that supplied 'newdata' is a data.frame
-  if (!is.data.frame(newdata)) {
-    stop("'newdata' should be a data.frame", call. = FALSE)
-  }
+  ########################## INPUT CHECKING #############################
+  pm_input_info_input_checks(model_type = model_type,
+                             existingcoefs = existingcoefs,
+                             formula = formula,
+                             newdata = newdata,
+                             baselinehazard = baselinehazard,
+                             pre_processing = pre_processing,
+                             binary_outcome = binary_outcome,
+                             survival_time = survival_time,
+                             event_indicator = event_indicator)
 
 
   ########### APPLY PRE-PROCESSING TO NEWDATA AS NEEDED ##################
@@ -260,85 +256,82 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
   }
 
 
+  ##################### HANDLE MISSING DATA ############################
+  # Perform complete case analysis across relevant columns:
+  if(any(stats::complete.cases(newdata[,c(binary_outcome,
+                                          survival_time,
+                                          event_indicator,
+                                          all.vars(formula)), drop = FALSE]) == FALSE)) {
+    newdata <- newdata[stats::complete.cases(newdata[,c(binary_outcome,
+                                                        survival_time,
+                                                        event_indicator,
+                                                        all.vars(formula)), drop = FALSE])
+                       , , drop = FALSE]
+    warning(paste("Some rows of newdata have been removed due to missing data in either the outcome variables and/or variables specified in 'formula'.  \n",
+                  "Complete case may not be appropriate - consider alternative methods of handling missing data in newdata prior to calling pm_input_info()",
+                  sep = ''),
+            call. = FALSE)
+  }
+
+
   ############### EXTRACT INFORMATION BY MODEL TYPE ######################
   if (model_type == "logistic") {
 
-    #Check any specification of outcome variable names
-    if (!is.null(survival_time)) {
-      stop("'survival_time' should be set to NULL if model_type=logistic",
-           call. = FALSE)
-    }else if (!is.null(event_indicator)) {
-      stop("'event_indicator' should be set to NULL if model_type=logistic",
-           call. = FALSE)
-    }
-    if (!is.null(baselinehazard)) {
-      stop("'baselinehazard' should be set to NULL if model_type=logistic",
-           call. = FALSE)
+    ##### Extract the Outcomes from newdata if specified by user:
+    if (is.null(binary_outcome)) {
+      Outcomes <- NULL
+    }else {
+      Outcomes <- newdata[,binary_outcome]
     }
 
-    # Remove rows of newdata that have missing data in relevant columns:
-    if(any(stats::complete.cases(newdata[,c(binary_outcome,
-                                            all.vars(formula)), drop = FALSE]) == FALSE)) {
-      newdata <- newdata[stats::complete.cases(newdata[,c(binary_outcome,
-                                                          all.vars(formula)), drop = FALSE])
-                         , , drop = FALSE]
-      warning(paste("Some rows of newdata have been removed due to missing data in either the outcome variables and/or variables specified in 'formula'.  \n",
-                    "Complete case may not be appropriate - consider alternative methods of handling missing data in newdata prior to calling pm_input_info()",
-                    sep = ''),
-              call. = FALSE)
-    }
+    ##Define the design matrix given the provided functional form of the existing
+    #model:
+    DM <- stats::model.matrix(formula, newdata)
 
-    info_vals <- pm_input_info_logistic(model_type = model_type,
-                                        existingcoefs = existingcoefs,
-                                        formula = formula,
-                                        newdata = newdata,
-                                        binary_outcome = binary_outcome)
+    #Standardise the supplied existing coefficients according to the DM, running
+    #checks to ensure that each column of DM has a specified existing coefficient
+    #and vice versa:
+    existingcoefs <- set_existing_coefs(existingcoefs = existingcoefs,
+                                        DM = DM)
+
+    #Set the S3 class  and return the 'blueprint'
+    info_vals <- list(model_type = model_type,
+                      coefs = as.numeric(existingcoefs),
+                      coef_names = names(existingcoefs),
+                      PredictionData = DM,
+                      Outcomes = Outcomes)
+    class(info_vals) <- c("pminfo_logistic", "pminfo")
 
   } else if (model_type == "survival") {
 
-    #Check any specification of outcome variable names
-    if (!is.null(binary_outcome)) {
-      stop("'binary_outcome' should be set to NULL if model_type=survival",
-           call. = FALSE)
+    ##### Extract the Outcomes from newdata if specified by user:
+    if (!is.null(survival_time) & !is.null(event_indicator)) {
+      Outcomes <- survival::Surv(newdata[,survival_time],
+                                   newdata[,event_indicator])
+    }else{
+        Outcomes <- NULL
     }
 
-    #check baseline hazard specification
-    if(sum(duplicated(baselinehazard[,1])) > 0){
-      stop("all baseline hazard times must be unique",
-           call. = FALSE)
-    }
+    ##Define the design matrix given the provided functional form of the existing
+    #model:
+    DM <- stats::model.matrix(formula, newdata)
+    #for survival model, remove the intercept column that is created in DM:
+    DM <- DM[ ,-which(colnames(DM) == "(Intercept)"), drop=FALSE]
 
-    if(min(baselinehazard[,1]) <= 0){
-      stop("all baseline hazard times must be positive",
-           call. = FALSE)
-    }
+    #Standardise the supplied existing coefficients according to the DM, running
+    #checks to ensure that each column of DM has a specified existing coefficient
+    #and vice versa:
+    existingcoefs <- set_existing_coefs(existingcoefs = existingcoefs,
+                                        DM = DM)
 
-    if(min(baselinehazard[,2]) < 0){
-      stop("all baseline hazards must be nonnegative",
-           call. = FALSE)
-    }
-
-    # Remove rows of newdata that have missing data in relevant columns:
-    if(any(stats::complete.cases(newdata[,c(survival_time,
-                                            event_indicator,
-                                            all.vars(formula)), drop = FALSE]) == FALSE)) {
-      newdata <- newdata[stats::complete.cases(newdata[,c(survival_time,
-                                                          event_indicator,
-                                                          all.vars(formula)), drop = FALSE])
-                         , , drop = FALSE]
-      warning(paste("Some rows of newdata have been removed due to missing data in either the outcome variables and/or variables specified in 'formula'.  \n",
-                    "Complete case may not be appropriate - consider alternative methods of handling missing data in newdata prior to calling pm_input_info()",
-                    sep = ''),
-              call. = FALSE)
-    }
-
-    info_vals <- pm_input_info_survival(model_type = model_type,
-                                        existingcoefs = existingcoefs,
-                                        baselinehazard = baselinehazard,
-                                        formula = formula,
-                                        newdata = newdata,
-                                        survival_time = survival_time,
-                                        event_indicator = event_indicator)
+    #Set the S3 class  and return the 'blueprint'
+    info_vals <- list(model_type = model_type,
+                      coefs = as.numeric(existingcoefs),
+                      coef_names = names(existingcoefs),
+                      baselinehazard = baselinehazard,
+                      PredictionData = DM,
+                      Outcomes = Outcomes)
+    class(info_vals) <- c("pminfo_survival", "pminfo")
   }
 
   info_vals
@@ -384,97 +377,92 @@ print.pminfo <- function(x, ...) {
 
 
 
-# Internals for pm_input_info() -------------------------------------------
+# Internal functions for pm_input_info() ---------------------------------------
 
-pm_input_info_logistic <- function(model_type,
-                                   existingcoefs,
-                                   formula,
-                                   newdata,
-                                   binary_outcome) {
-
-  ##Extract the Outcomes from newdata if specified by user:
-  if (is.null(binary_outcome)) {
-    Outcomes <- NULL
-  }else {
-    if(binary_outcome %in% names(newdata)) {
-      Outcomes <- newdata[,binary_outcome]
-    }else{
-      stop("'binary_outcome' not found in 'newdata'",
-           call. = FALSE)
-    }
+pm_input_info_input_checks <- function(model_type,
+                                       existingcoefs,
+                                       formula,
+                                       newdata,
+                                       baselinehazard,
+                                       pre_processing,
+                                       binary_outcome,
+                                       survival_time,
+                                       event_indicator) {
+  # Check that 'existingcoefs' is supplied as a named numeric vector
+  if (!is.vector(existingcoefs) |
+      !is.numeric(existingcoefs) |
+      is.null(names(existingcoefs))) {
+    stop("'existingcoefs' should be a named numeric vector", call. = FALSE)
   }
 
-  ##Define the design matrix given the provided functional form of the existing
-  #model:
-  DM <- stats::model.matrix(formula, newdata)
-
-  #Standardise the supplied existing coefficients according to the DM, running
-  #checks to ensure that each column of DM has a specified existing coefficient
-  #and vice versa:
-  existingcoefs <- set_existing_coefs(existingcoefs = existingcoefs,
-                                      DM = DM)
-
-  #Set the S3 class  and return the 'blueprint'
-  info_vals <- list(model_type = model_type,
-                    coefs = as.numeric(existingcoefs),
-                    coef_names = names(existingcoefs),
-                    PredictionData = DM,
-                    Outcomes = Outcomes)
-  class(info_vals) <- c("pminfo_logistic", "pminfo")
-  info_vals
-}
-
-
-
-pm_input_info_survival <- function(model_type,
-                                   existingcoefs,
-                                   baselinehazard,
-                                   formula,
-                                   newdata,
-                                   survival_time,
-                                   event_indicator) {
-
-  ##Extract the Outcomes from newdata if specified by user:
-  if (!is.null(survival_time) & !is.null(event_indicator)) {
-    if(survival_time %in% names(newdata) &
-       event_indicator %in% names(newdata)) {
-      Outcomes <- survival::Surv(newdata[,survival_time],
-                                 newdata[,event_indicator])
-    }else{
-      stop("'survival_time' and/or 'event_indicator' not found in 'newdata'",
-           call. = FALSE)
-    }
-  }else if (is.null(survival_time) & is.null(event_indicator)) {
-    Outcomes <- NULL
-  }else {
-    stop("'survival_time' and 'event_indicator' should either both be NULL or both have values supplied for model_type == 'survival'",
-         call. = FALSE)
+  # Check that supplied 'newdata' is a data.frame
+  if (!is.data.frame(newdata)) {
+    stop("'newdata' should be a data.frame", call. = FALSE)
   }
 
-  ##Define the design matrix given the provided functional form of the existing
-  #model:
-  DM <- stats::model.matrix(formula, newdata)
-  #for survival model, remove the intercept column that is created in DM:
-  DM <- DM[ ,-which(colnames(DM) == "(Intercept)"), drop=FALSE]
+  # Check that any supplied outcome variables are contained in 'newdata' and that
+  # they are specified correctly
+  if (model_type == "logistic") {
 
-  #Standardise the supplied existing coefficients according to the DM, running
-  #checks to ensure that each column of DM has a specified existing coefficient
-  #and vice versa:
-  existingcoefs <- set_existing_coefs(existingcoefs = existingcoefs,
-                                      DM = DM)
+    if (!is.null(survival_time)) {
+      stop("'survival_time' should be set to NULL if model_type=logistic",
+           call. = FALSE)
+    }
+    if (!is.null(event_indicator)) {
+      stop("'event_indicator' should be set to NULL if model_type=logistic",
+           call. = FALSE)
+    }
+    if (!is.null(baselinehazard)) {
+      stop("'baselinehazard' should be set to NULL if model_type=logistic",
+           call. = FALSE)
+    }
+    if(!is.null(binary_outcome)) { #if binary_outcome is supplied, check in newdata
+      if(binary_outcome %in% names(newdata) == FALSE) {
+        stop("'binary_outcome' not found in 'newdata'",
+             call. = FALSE)
+      }
+    }
 
-  #Set the S3 class  and return the 'blueprint'
-  info_vals <- list(model_type = model_type,
-                    coefs = as.numeric(existingcoefs),
-                    coef_names = names(existingcoefs),
-                    baselinehazard = baselinehazard,
-                    PredictionData = DM,
-                    Outcomes = Outcomes)
-  class(info_vals) <- c("pminfo_survival", "pminfo")
-  info_vals
+  } else if (model_type == "survival") {
+
+    if (!is.null(binary_outcome)) {
+      stop("'binary_outcome' should be set to NULL if model_type=survival",
+           call. = FALSE)
+    }
+    if (!is.null(survival_time) & !is.null(event_indicator)) {
+      #if survival_time & event_indicator are supplied, check in newdata
+      if(survival_time %in% names(newdata) == FALSE |
+         event_indicator %in% names(newdata) == FALSE) {
+        stop("'survival_time' and/or 'event_indicator' not found in 'newdata'",
+             call. = FALSE)
+      }
+    }
+    if ((!is.null(survival_time) & is.null(event_indicator)) |
+        (is.null(survival_time) & !is.null(event_indicator))) {
+      stop("'survival_time' and 'event_indicator' should either both be NULL or both have values supplied for model_type == 'survival'",
+           call. = FALSE)
+    }
+    #check baseline hazard specification
+    if (is.null(baselinehazard)) {
+      stop("'baselinehazard' should be provided if model_type=survival",
+           call. = FALSE)
+    }
+    if(sum(duplicated(baselinehazard[,1])) > 0){
+      stop("all baseline hazard times must be unique",
+           call. = FALSE)
+    }
+    if(min(baselinehazard[,1]) <= 0){
+      stop("all baseline hazard times must be positive",
+           call. = FALSE)
+    }
+    if(min(baselinehazard[,2]) < 0){
+      stop("all baseline hazards must be nonnegative",
+           call. = FALSE)
+    }
+
+  }
+
 }
-
-
 
 
 set_existing_coefs <- function(existingcoefs,
