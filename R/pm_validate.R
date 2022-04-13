@@ -5,19 +5,46 @@
 #'
 #' @param x an object of class "pminfo"
 #' @param ... further arguments passed to other methods. See
-#'   \code{\link{validate_probabilities}} and
-#'   INSERT_SURVIVAL_VALIDATION_FUNCTION for more details of arguments that can
+#'   \code{\link{validate_probabilities}} for more details of arguments that can
 #'   be passed
 #'
-#' @details TO ADD
+#' @details This function takes an existing prediction model formatted according
+#'   to \code{\link{pm_input_info}}, and calculates measures of predictive
+#'   performance on new data (e.g., within an external validation study). The
+#'   information about the existing prediction model should first be inputted by
+#'   calling \code{\link{pm_input_info}}, before passing the resulting object to
+#'   \code{pm_validate}.
 #'
-#' @return TO ADD
+#'   In the case of validating a logistic regression model, \code{pm_validate}
+#'   internally calls \code{\link{validate_probabilities}}. See this function
+#'   for details on the performance metrics that are estimated.
+#'
+#'   In the case of validating a survival prediction model,...
+#'
+#' @return A list of performance metrics, estimated by applying the existing
+#'   prediction model to the newdata.
 #'
 #' @export
 #'
-#' @examples #TO ADD
+#' @examples
+#' # Example 1 - logistic regression example
+#' existing_cpm_info <- pm_input_info(model_type = "logistic",
+#'                                    existingcoefs = c("(Intercept)" = -3.0893961710923,
+#'                                                      "Age" = 0.0230955938292795,
+#'                                                      "SexM" = 0.263578567485447,
+#'                                                      "Smoking_Status" = 0.689825139075564,
+#'                                                      "Diabetes" = 0.387810349702088,
+#'                                                      "CKD" = 0.56129156010678),
+#'                                    formula = formula(SYNPM$Existing_models$Formula[2]),
+#'                                    newdata = SYNPM$ValidationData,
+#'                                    pre_processing = list(function(df) {dummyvars(df)}),
+#'                                    binary_outcome = "Y")
+#' pm_validate(existing_cpm_info)
 #'
-#' @seealso \code{\link{pm_input_info}}
+#' # Example 2 - survival example
+#' #TO ADD
+#'
+#' @seealso \code{\link{pm_input_info}} \code{\link{validate_probabilities}}
 pm_validate <- function(x, ...) {
   UseMethod("pm_validate")
 }
