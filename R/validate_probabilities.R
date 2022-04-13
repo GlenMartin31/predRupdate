@@ -15,7 +15,7 @@
 #'   predictor (log-odds) from the existing model that is being evaluated.
 #'   Specify either \code{Prob} or \code{LP}.
 #' @param CalPlot Indicates whether a calibration plot should be produced, and
-#'   the method for doing so. Set to smooth_ncs (default) if a flexible
+#'   the method for doing so. Set to smooth (default) if a flexible (smooth)
 #'   calibration plot should be produced using natural cubic splines, set to
 #'   grouped if a grouped/binned calibration plot should be produced, and set to
 #'   none if no calibration plot should be produced. If set to grouped then
@@ -52,7 +52,7 @@
 validate_probabilities <- function(ObservedOutcome,
                                    Prob,
                                    LP,
-                                   CalPlot = c("smooth_ncs",
+                                   CalPlot = c("smooth",
                                                "grouped",
                                                "none"),
                                    groups = NULL,
@@ -222,7 +222,7 @@ validate_probabilities <- function(ObservedOutcome,
          ylab = ylab)
     graphics::clip(xlim[1],xlim[2],ylim[1],ylim[2])
     graphics::abline(0,1)
-    if (CalPlot == "smooth_ncs") {
+    if (CalPlot == "smooth") {
       spline_model <- stats::glm(ObservedOutcome ~ splines::ns(LP, df = 3),
                                  family = stats::binomial(link = "logit"))
       spline_preds <- stats::predict(spline_model, type = "response", se = T)
@@ -259,19 +259,10 @@ validate_probabilities <- function(ObservedOutcome,
   #Return results
   out <- list("CITL" = CITL,
               "CITL_SE" = CITLSE,
-              "CITL_Lower" = CITL - (stats::qnorm(0.975)*CITLSE),
-              "CITL_Upper" = CITL + (stats::qnorm(0.975)*CITLSE),
-
               "CalSlope" = CalSlope,
               "CalSlope_SE" = CalSlopeSE,
-              "CalSlope_Lower" = CalSlope - (stats::qnorm(0.975)*CalSlopeSE),
-              "CalSlope_Upper" = CalSlope + (stats::qnorm(0.975)*CalSlopeSE),
-
               "AUC" = AUC,
               "AUC_SE" = AUCSE,
-              "AUC_Lower" = AUC - (stats::qnorm(0.975)*AUCSE),
-              "AUC_Upper" = AUC + (stats::qnorm(0.975)*AUCSE),
-
               "R2_CoxSnell" = R2_coxsnell,
               "R2_Nagelkerke" = R2_Nagelkerke,
               "BrierScore" = BrierScore)
