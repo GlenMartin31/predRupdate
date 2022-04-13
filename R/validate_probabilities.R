@@ -259,19 +259,10 @@ validate_probabilities <- function(ObservedOutcome,
   #Return results
   out <- list("CITL" = CITL,
               "CITL_SE" = CITLSE,
-              "CITL_Lower" = CITL - (stats::qnorm(0.975)*CITLSE),
-              "CITL_Upper" = CITL + (stats::qnorm(0.975)*CITLSE),
-
               "CalSlope" = CalSlope,
               "CalSlope_SE" = CalSlopeSE,
-              "CalSlope_Lower" = CalSlope - (stats::qnorm(0.975)*CalSlopeSE),
-              "CalSlope_Upper" = CalSlope + (stats::qnorm(0.975)*CalSlopeSE),
-
               "AUC" = AUC,
               "AUC_SE" = AUCSE,
-              "AUC_Lower" = AUC - (stats::qnorm(0.975)*AUCSE),
-              "AUC_Upper" = AUC + (stats::qnorm(0.975)*AUCSE),
-
               "R2_CoxSnell" = R2_coxsnell,
               "R2_Nagelkerke" = R2_Nagelkerke,
               "BrierScore" = BrierScore)

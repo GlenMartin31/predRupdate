@@ -73,12 +73,12 @@ print.pmvalidate_logistic <- function(x, ...) {
                          "Calibration Slope")
   results[1,] <- c(round(x$CITL, 4),
                    round(x$CITL_SE, 4),
-                   round(x$CITL_Lower, 4),
-                   round(x$CITL_Upper, 4))
+                   round((x$CITL - (stats::qnorm(0.975)*x$CITL_SE)), 4),
+                   round((x$CITL + (stats::qnorm(0.975)*x$CITL_SE)), 4))
   results[2,] <- c(round(x$CalSlope, 4),
                    round(x$CalSlope_SE, 4),
-                   round(x$CalSlope_Lower, 4),
-                   round(x$CalSlope_Upper, 4))
+                   round((x$CalSlope - (stats::qnorm(0.975)*x$CalSlope_SE)), 4),
+                   round((x$CalSlope + (stats::qnorm(0.975)*x$CalSlope_SE)), 4))
   print(results)
   cat("\n Also examine the calibration plot, if produced. \n")
   cat("\nDiscrimination Measures \n",
@@ -91,8 +91,8 @@ print.pmvalidate_logistic <- function(x, ...) {
   rownames(results) <- c("AUC")
   results[1,] <- c(round(x$AUC, 4),
                    round(x$AUC_SE, 4),
-                   round(x$AUC_Lower, 4),
-                   round(x$AUC_Upper, 4))
+                   round((x$AUC - (stats::qnorm(0.975)*x$AUC_SE)), 4),
+                   round((x$AUC + (stats::qnorm(0.975)*x$AUC_SE)), 4))
   print(results)
   cat("\n")
   cat("\nOverall Performance Measures \n",
