@@ -6,7 +6,7 @@
 #' models on.
 #'
 #' @format A list with two elements.
-#' \enumerate{\item{The first element is a data frame with 4
+#' \enumerate{\item{The first element is a data frame with 3
 #'   rows and 3 variables:
 #'   \describe{
 #'       \item{Model_Name}{An (arbitary) name of each of the existing models.}
@@ -19,9 +19,9 @@
 #'            }
 #'  \item{
 #'  The second element is the (synthetic) validation dataset on which we want to
-#'  validate the existing models. The dataset has 20000 rows and 6 variables:
+#'  validate the existing models. The dataset has 118150 rows and 7 variables:
 #'  \describe{
-#'       \item{Age}{The age of the individual at baseline.}
+#'       \item{Age}{The age of the individual at baseline}
 #'       \item{Sex}{The sex of the individual (M = male; F = female)}
 #'       \item{Smoking_Status}{Indicates whether the individual was or is a
 #'             smoker (1=previous/ current smoker, 0=non-smoker)}
@@ -29,11 +29,12 @@
 #'                      (1=diabetic, 0=not diabetic)}
 #'      \item{CKD}{Indicates whether the individual has chronic kidney disease
 #'                 (1=chronic kidney disease)}
+#'      \item{Year}{The year the observation was made (2016-2021)}
 #'      \item{Y}{Whether the binary outcome occured (1=yes, 0=no)}
 #'            }
 #'            }
 #' }
-#' @source \url{https://github.com/GlenMartin31/pmupdate}
+#' @source Simulated Data; see \url{https://github.com/GlenMartin31/pmupdate}
 "SYNPM"
 
 

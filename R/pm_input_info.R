@@ -126,16 +126,17 @@
 #' #Example 1 - logistic regression existing model, with outcome specified, and
 #' #            handling of categorical variable in 'pre_processing'; uses
 #' #            package dataset
-#' pm_input_info(model_type = "logistic",
-#'               existingcoefs = c("(Intercept)" = -6.6252554,
-#'                                 "Age" = 0.1136751,
-#'                                 "SexM" = 0.2304344,
-#'                                 "Smoking_Status" = 0.6873743,
-#'                                 "Diabetes" = 0.4306382),
-#'               formula = formula(SYNPM$Existing_models$Formula[1]),
-#'               newdata = SYNPM$ValidationData,
-#'               pre_processing = list(function(df) {dummyvars(df)}),
-#'               binary_outcome = "Y")
+#' existing_cpm_info <- pm_input_info(model_type = "logistic",
+#'                                    existingcoefs = c("(Intercept)" = -3.0893961710923,
+#'                                                      "Age" = 0.0230955938292795,
+#'                                                      "SexM" = 0.263578567485447,
+#'                                                      "Smoking_Status" = 0.689825139075564,
+#'                                                      "Diabetes" = 0.387810349702088,
+#'                                                      "CKD" = 0.56129156010678),
+#'                                    formula = formula(SYNPM$Existing_models$Formula[2]),
+#'                                    newdata = SYNPM$ValidationData,
+#'                                    pre_processing = list(function(df) {dummyvars(df)}),
+#'                                    binary_outcome = "Y")
 #'
 #' #Example 2 - survival model example; uses package dataset
 #' pm_input_info(model_type = "survival",
