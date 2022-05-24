@@ -34,7 +34,7 @@
 #'            }
 #'            }
 #' }
-#' @source Simulated Data; see \url{https://github.com/GlenMartin31/pmupdate}
+#' @source Simulated Data; see \url{https://github.com/GlenMartin31/predRupdate}
 "SYNPM"
 
 

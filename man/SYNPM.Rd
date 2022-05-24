@@ -36,7 +36,7 @@ smoker (1=previous/ current smoker, 0=non-smoker)}
 }
 }
 \source{
-Simulated Data; see \url{https://github.com/GlenMartin31/pmupdate}
+Simulated Data; see \url{https://github.com/GlenMartin31/predRupdate}
 }
 \usage{
 SYNPM

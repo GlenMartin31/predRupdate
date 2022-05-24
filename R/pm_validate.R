@@ -68,12 +68,12 @@ pm_validate.pminfo_logistic <- function(x, ...){
   }
 
   ### USE EXISTING INFO ABOUT PREDICTION MODEL TO MAKE PREDICTIONS IN NEWDATA
-  predictions <- pmupdate::pm_predict(x)
+  predictions <- predRupdate::pm_predict(x)
 
   ### VALIDATION OF THE EXISTING MODEL
-  performance <- pmupdate::validate_probabilities(ObservedOutcome = predictions$Outcomes,
-                                                  LP = predictions$LinearPredictor,
-                                                  ...)
+  performance <- predRupdate::validate_probabilities(ObservedOutcome = predictions$Outcomes,
+                                                     LP = predictions$LinearPredictor,
+                                                     ...)
 
   class(performance) <- c("pmvalidate_logistic", "pmvalidate")
   performance

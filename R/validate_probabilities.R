@@ -74,9 +74,9 @@ validate_probabilities <- function(ObservedOutcome,
   }
 
   if (missing(Prob)) {
-    Prob <- pmupdate::inv_logit(LP)
+    Prob <- predRupdate::inv_logit(LP)
   } else if (missing(LP)) {
-    LP <- pmupdate::logit(Prob)
+    LP <- predRupdate::logit(Prob)
   } else{
     stop("one of 'Prob' or 'LP' must be specified",
          call. = FALSE)

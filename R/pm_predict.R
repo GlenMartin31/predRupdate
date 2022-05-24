@@ -69,7 +69,7 @@ pm_predict.pminfo_logistic <- function(x, time_horizon = NULL){
   #Calculate the linear predictor
   LP <- as.numeric(DM %*% existingcoefs)
   #Map to predicted risks
-  PR <- pmupdate::inv_logit(LP)
+  PR <- predRupdate::inv_logit(LP)
 
   #return results
   out <- list("LinearPredictor" = LP,

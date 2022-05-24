@@ -1,8 +1,9 @@
-Package: pmupdate
-Title: Prognostic Model Updating and Validation
+Package: predRupdate
+Title: Prognostic Model Updating and Validation in R
 Version: 0.0.0.9000
 Authors@R: c(person(given = "Glen", family = "Martin", role = c("aut", "cre"), email = "glen.martin@manchester.ac.uk"),
-             person(given = "Matthew", family = "Sperrin", role = c("aut"), email = "matthew.sperrin@manchester.ac.uk"))
+             person(given = "Matthew", family = "Sperrin", role = c("aut"), email = "matthew.sperrin@manchester.ac.uk"),
+             person(given = "David", family = "Jenkins", role = c("aut"), email = "david.jenkins-5@manchester.ac.uk"))
 Description: Evaluate the predictive performance of an existing (i.e. previously developed) 
     prediction/ prognostic model given relevant information about the existing 
     prediction model (e.g. coefficients) and a new dataset (e.g. external 
@@ -13,8 +14,8 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
-URL: https://github.com/GlenMartin31/pmupdate
-BugReports: https://github.com/GlenMartin31/pmupdate/issues
+URL: https://github.com/GlenMartin31/predRupdate
+BugReports: https://github.com/GlenMartin31/predRupdate/issues
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
