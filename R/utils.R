@@ -54,7 +54,7 @@ inv_logit <- function(x) {
 #' Create dummy variables for all categorical variables in a data.frame
 #'
 #' Create dummy variables for all categorical variables in a data.frame. Can be
-#' used as a pre-processing function within \code{\link{pm_input_info}}.
+#' used as a pre-processing function within \code{\link{pred_input_info}}.
 #'
 #' @param df a data.frame on which to make dummy variables for each
 #'   categorical/factor variable, based on contrasts.
@@ -68,7 +68,7 @@ inv_logit <- function(x) {
 #'   colourgreen, respectively.
 #' @export
 #'
-#' @seealso \code{\link{pm_input_info}}
+#' @seealso \code{\link{pred_input_info}}
 #'
 #' @author Glen Martin, \email{glen.martin@@manchester.ac.uk}
 #'

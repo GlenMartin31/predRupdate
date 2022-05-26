@@ -45,8 +45,8 @@
 #' @return Returns a list of the performance metrics and associated 95%
 #'   confidence intervals, where appropriate.
 #'
-#' @seealso \code{\link{pm_validate}}, \code{\link{pm_predict}},
-#'   \code{\link{pm_input_info}}
+#' @seealso \code{\link{pred_validate}}, \code{\link{pred_predict}},
+#'   \code{\link{pred_input_info}}
 #'
 #' @export
 validate_probabilities <- function(ObservedOutcome,
@@ -266,6 +266,6 @@ validate_probabilities <- function(ObservedOutcome,
               "R2_CoxSnell" = R2_coxsnell,
               "R2_Nagelkerke" = R2_Nagelkerke,
               "BrierScore" = BrierScore)
-  class(out) <- c("pmvalidate_logistic")
+  class(out) <- c("predvalidate_logistic")
   out
 }

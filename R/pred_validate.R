@@ -3,19 +3,19 @@
 #' Validate an existing prediction model, to calculate the predictive
 #' performance against a new (validation) dataset.
 #'
-#' @param x an object of class "pminfo"
+#' @param x an object of class "predinfo"
 #' @param ... further arguments passed to other methods. See
 #'   \code{\link{validate_probabilities}} for more details of arguments that can
 #'   be passed
 #'
 #' @details This function takes an existing prediction model formatted according
-#'   to \code{\link{pm_input_info}}, and calculates measures of predictive
+#'   to \code{\link{pred_input_info}}, and calculates measures of predictive
 #'   performance on new data (e.g., within an external validation study). The
 #'   information about the existing prediction model should first be inputted by
-#'   calling \code{\link{pm_input_info}}, before passing the resulting object to
-#'   \code{pm_validate}.
+#'   calling \code{\link{pred_input_info}}, before passing the resulting object
+#'   to \code{pred_validate}.
 #'
-#'   In the case of validating a logistic regression model, \code{pm_validate}
+#'   In the case of validating a logistic regression model, \code{pred_validate}
 #'   internally calls \code{\link{validate_probabilities}}. See this function
 #'   for details on the performance metrics that are estimated.
 #'
@@ -28,67 +28,67 @@
 #'
 #' @examples
 #' # Example 1 - logistic regression example
-#' existing_cpm_info <- pm_input_info(model_type = "logistic",
-#'                                    existingcoefs = c("(Intercept)" = -3.0893961710923,
-#'                                                      "Age" = 0.0230955938292795,
-#'                                                      "SexM" = 0.263578567485447,
-#'                                                      "Smoking_Status" = 0.689825139075564,
-#'                                                      "Diabetes" = 0.387810349702088,
-#'                                                      "CKD" = 0.56129156010678),
-#'                                    formula = formula(SYNPM$Existing_models$Formula[2]),
-#'                                    newdata = SYNPM$ValidationData,
-#'                                    pre_processing = list(function(df) {dummyvars(df)}),
-#'                                    binary_outcome = "Y")
-#' pm_validate(existing_cpm_info)
+#' existing_cpm_info <- pred_input_info(model_type = "logistic",
+#'                                      existingcoefs = c("(Intercept)" = -3.0893961710923,
+#'                                                        "Age" = 0.0230955938292795,
+#'                                                        "SexM" = 0.263578567485447,
+#'                                                        "Smoking_Status" = 0.689825139075564,
+#'                                                        "Diabetes" = 0.387810349702088,
+#'                                                        "CKD" = 0.56129156010678),
+#'                                      formula = formula(SYNPM$Existing_models$Formula[2]),
+#'                                      newdata = SYNPM$ValidationData,
+#'                                      pre_processing = list(function(df) {dummyvars(df)}),
+#'                                      binary_outcome = "Y")
+#' pred_validate(existing_cpm_info)
 #'
 #' # Example 2 - survival example
 #' #TO ADD
 #'
-#' @seealso \code{\link{pm_input_info}} \code{\link{validate_probabilities}}
-pm_validate <- function(x, ...) {
-  UseMethod("pm_validate")
+#' @seealso \code{\link{pred_input_info}} \code{\link{validate_probabilities}}
+pred_validate <- function(x, ...) {
+  UseMethod("pred_validate")
 }
 
 
 #' @export
-pm_validate.default <- function(x, ...) {
-  stop("'x' is not of class 'pminfo'",
+pred_validate.default <- function(x, ...) {
+  stop("'x' is not of class 'predinfo'",
        call. = FALSE)
 }
 
 
 
 #' @export
-pm_validate.pminfo_logistic <- function(x, ...){
+pred_validate.predinfo_logistic <- function(x, ...){
 
-  #Check outcomes were inputted into pminfo object
+  #Check outcomes were inputted into predinfo object
   if (is.null(x$Outcomes)) {
-    stop("Observed outcomes must be supplied in newdata to validate the existing model. Recall pm_input_info() with outcome specified.",
+    stop("Observed outcomes must be supplied in newdata to validate the existing model. Recall pred_input_info() with outcome specified.",
          call. = FALSE)
   }
 
   ### USE EXISTING INFO ABOUT PREDICTION MODEL TO MAKE PREDICTIONS IN NEWDATA
-  predictions <- predRupdate::pm_predict(x)
+  predictions <- predRupdate::pred_predict(x)
 
   ### VALIDATION OF THE EXISTING MODEL
   performance <- predRupdate::validate_probabilities(ObservedOutcome = predictions$Outcomes,
                                                      LP = predictions$LinearPredictor,
                                                      ...)
 
-  class(performance) <- c("pmvalidate_logistic", "pmvalidate")
+  class(performance) <- c("predvalidate_logistic", "predvalidate")
   performance
 }
 
 
 #' @export
-pm_validate.pminfo_survival <- function(x, ...){
+pred_validate.predinfo_survival <- function(x, ...){
   stop("Models of type='survival' are not currently supported")
 }
 
 
 
 #' @export
-print.pmvalidate_logistic <- function(x, ...) {
+print.predvalidate_logistic <- function(x, ...) {
   cat("Calibration Measures \n",
       "================================= \n", sep = "")
   results <- matrix(NA, ncol = 4, nrow = 2)

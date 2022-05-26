@@ -58,7 +58,7 @@
 #'   Sometimes, it is necessary to transform some variables in the dataset prior
 #'   to applying the model (e.g., if the existing model includes splines, or
 #'   non-linear variable transformations, such as squared terms).
-#'   \code{\link{pm_input_info}} provides mechanisms for applying such
+#'   \code{\link{pred_input_info}} provides mechanisms for applying such
 #'   transformations by specifying \code{pre_processing}. \code{pre_processing}
 #'   should be a list where each element is a function that applies the desired
 #'   transformations/ pre-processing steps. Each function (list element) should
@@ -103,10 +103,10 @@
 #'   dataset. If \code{newdata} does not contain outcomes, then leave
 #'   these inputs to the default of \code{NULL}.
 #'
-#' @return \code{\link{pm_input_info}} returns an object of class "pminfo", with
+#' @return \code{\link{pred_input_info}} returns an object of class "predinfo", with
 #'   child classes per model_type. This is a standardised format, such that it
 #'   can be used with other functions in the package. An object of class
-#'   "pminfo" is a list containing at least the following components:
+#'   "predinfo" is a list containing at least the following components:
 #'   \itemize{
 #'      \item{model_type = this is the type of analytical model that the
 #'      existing prediction model is based upon ("logistic" or "survival")}
@@ -126,42 +126,42 @@
 #' #Example 1 - logistic regression existing model, with outcome specified, and
 #' #            handling of categorical variable in 'pre_processing'; uses
 #' #            package dataset
-#' existing_cpm_info <- pm_input_info(model_type = "logistic",
-#'                                    existingcoefs = c("(Intercept)" = -3.0893961710923,
-#'                                                      "Age" = 0.0230955938292795,
-#'                                                      "SexM" = 0.263578567485447,
-#'                                                      "Smoking_Status" = 0.689825139075564,
-#'                                                      "Diabetes" = 0.387810349702088,
-#'                                                      "CKD" = 0.56129156010678),
-#'                                    formula = formula(SYNPM$Existing_models$Formula[2]),
-#'                                    newdata = SYNPM$ValidationData,
-#'                                    pre_processing = list(function(df) {dummyvars(df)}),
-#'                                    binary_outcome = "Y")
+#' existing_cpm_info <- pred_input_info(model_type = "logistic",
+#'                                      existingcoefs = c("(Intercept)" = -3.0893961710923,
+#'                                                        "Age" = 0.0230955938292795,
+#'                                                        "SexM" = 0.263578567485447,
+#'                                                        "Smoking_Status" = 0.689825139075564,
+#'                                                        "Diabetes" = 0.387810349702088,
+#'                                                        "CKD" = 0.56129156010678),
+#'                                      formula = formula(SYNPM$Existing_models$Formula[2]),
+#'                                      newdata = SYNPM$ValidationData,
+#'                                      pre_processing = list(function(df) {dummyvars(df)}),
+#'                                      binary_outcome = "Y")
 #'
 #' #Example 2 - survival model example; uses package dataset
-#' pm_input_info(model_type = "survival",
-#'               existingcoefs = c("SEX" = 0.53,
-#'                                 "AGE" = -0.05,
-#'                                 "SYSTBP" = -0.0055,
-#'                                 "BMIO" = 0.0325,
-#'                                 "CARDIAC" = -0.126,
-#'                                 "DIABETES" = -0.461),
-#'               formula = ~ SEX + AGE + SYSTBP + BMIO + CARDIAC + DIABETES,
-#'               newdata = SMART,
-#'               baselinehazard = data.frame("t" = 1:5,
-#'                                           "h" = c(0.12, 0.20, 0.26, 0.33, 0.38)),
-#'               survival_time = "TEVENT",
-#'               event_indicator = "EVENT")
+#' pred_input_info(model_type = "survival",
+#'                 existingcoefs = c("SEX" = 0.53,
+#'                                   "AGE" = -0.05,
+#'                                   "SYSTBP" = -0.0055,
+#'                                   "BMIO" = 0.0325,
+#'                                   "CARDIAC" = -0.126,
+#'                                   "DIABETES" = -0.461),
+#'                 formula = ~ SEX + AGE + SYSTBP + BMIO + CARDIAC + DIABETES,
+#'                 newdata = SMART,
+#'                 baselinehazard = data.frame("t" = 1:5,
+#'                                             "h" = c(0.12, 0.20, 0.26, 0.33, 0.38)),
+#'                 survival_time = "TEVENT",
+#'                 event_indicator = "EVENT")
 #'
 #'
 #' #Example 3 - example of incorrect specification; here, the intercept in
 #' #            'existingcoefs' is incorrectly named; will return an error
 #' \dontrun{
-#' pm_input_info(model_type = "logistic",
-#'               existingcoefs = c("Intercept" = -2, "X" = 0.5),
-#'               formula = ~X,
-#'               newdata = data.frame("X" = rnorm(100)),
-#'               pre_processing = NULL)
+#' pred_input_info(model_type = "logistic",
+#'                 existingcoefs = c("Intercept" = -2, "X" = 0.5),
+#'                 formula = ~X,
+#'                 newdata = data.frame("X" = rnorm(100)),
+#'                 pre_processing = NULL)
 #'          }
 #'
 #'
@@ -170,78 +170,78 @@
 #' #            X+Z (in 'formula') with corresponding 'existingcoefs', but Z does
 #' #            not exist in 'newdata'; will return an error
 #' \dontrun{
-#' pm_input_info(model_type = "logistic",
-#'               existingcoefs = c("(Intercept)" = -2, "X" = 0.5, "Z" = 0.9),
-#'               formula = ~X + Z,
-#'               newdata = data.frame("X" = rnorm(100)),
-#'               pre_processing = NULL)
+#' pred_input_info(model_type = "logistic",
+#'                 existingcoefs = c("(Intercept)" = -2, "X" = 0.5, "Z" = 0.9),
+#'                 formula = ~X + Z,
+#'                 newdata = data.frame("X" = rnorm(100)),
+#'                 pre_processing = NULL)
 #'          }
 #'
 #'
 #' #Example 5 - showing use of 'pre_processing' - the following are all valid ways
 #' #            of specifying elements of 'pre_processing'
-#' pm_input_info(model_type = "logistic",
-#'               existingcoefs = c("(Intercept)" = -5,
-#'                                 "Age" = 0.05,
-#'                                 "Age_squared" = 0.0005,
-#'                                 "BMI_logged" = 0.006),
-#'               formula = ~Age + Age_squared + BMI_logged,
-#'               newdata = data.frame("Age" = rnorm(100, 50, 0.5),
-#'                                    "BMI" = rnorm(100, 25, 0.5)),
-#'               pre_processing = list("Age_squared" = function(df) df$Age^2,
-#'                                     "BMI_logged" = function(df) log(df$BMI)))
-#' pm_input_info(model_type = "logistic",
-#'               existingcoefs = c("(Intercept)" = -5,
-#'                                 "Age" = 0.05,
-#'                                 "Age_squared" = 0.0005,
-#'                                 "BMI_logged" = 0.006),
-#'               formula = ~Age + Age_squared + BMI_logged,
-#'               newdata = data.frame("Age" = rnorm(100, 50, 0.5),
-#'                                    "BMI" = rnorm(100, 25, 0.5)),
-#'               pre_processing = list(function(df) {
-#'                 Age_squared <- df$Age^2
-#'                 BMI_logged <- log(df$BMI)
-#'                 return(list("Age_squared" = Age_squared,
-#'                             "BMI_logged" = BMI_logged))
-#'               }))
-#' pm_input_info(model_type = "logistic",
-#'               existingcoefs = c("(Intercept)" = -5,
-#'                                 "Age" = 0.05,
-#'                                 "Age_squared" = 0.0005,
-#'                                 "BMI_logged" = 0.006),
-#'               formula = ~Age + Age_squared + BMI_logged,
-#'               newdata = data.frame("Age" = rnorm(100, 50, 0.5),
-#'                                    "BMI" = rnorm(100, 25, 0.5)),
-#'               pre_processing = list(function(df) {
-#'                 df$Age_squared <- df$Age^2
-#'                 df$BMI_logged <- log(df$BMI)
-#'                 return(df)
-#'               }))
+#' pred_input_info(model_type = "logistic",
+#'                 existingcoefs = c("(Intercept)" = -5,
+#'                                   "Age" = 0.05,
+#'                                   "Age_squared" = 0.0005,
+#'                                   "BMI_logged" = 0.006),
+#'                 formula = ~Age + Age_squared + BMI_logged,
+#'                 newdata = data.frame("Age" = rnorm(100, 50, 0.5),
+#'                                      "BMI" = rnorm(100, 25, 0.5)),
+#'                 pre_processing = list("Age_squared" = function(df) df$Age^2,
+#'                                       "BMI_logged" = function(df) log(df$BMI)))
+#' pred_input_info(model_type = "logistic",
+#'                 existingcoefs = c("(Intercept)" = -5,
+#'                                   "Age" = 0.05,
+#'                                   "Age_squared" = 0.0005,
+#'                                   "BMI_logged" = 0.006),
+#'                 formula = ~Age + Age_squared + BMI_logged,
+#'                 newdata = data.frame("Age" = rnorm(100, 50, 0.5),
+#'                                      "BMI" = rnorm(100, 25, 0.5)),
+#'                 pre_processing = list(function(df) {
+#'                   Age_squared <- df$Age^2
+#'                   BMI_logged <- log(df$BMI)
+#'                   return(list("Age_squared" = Age_squared,
+#'                               "BMI_logged" = BMI_logged))
+#'                 }))
+#' pred_input_info(model_type = "logistic",
+#'                 existingcoefs = c("(Intercept)" = -5,
+#'                                   "Age" = 0.05,
+#'                                   "Age_squared" = 0.0005,
+#'                                   "BMI_logged" = 0.006),
+#'                 formula = ~Age + Age_squared + BMI_logged,
+#'                 newdata = data.frame("Age" = rnorm(100, 50, 0.5),
+#'                                      "BMI" = rnorm(100, 25, 0.5)),
+#'                 pre_processing = list(function(df) {
+#'                   df$Age_squared <- df$Age^2
+#'                   df$BMI_logged <- log(df$BMI)
+#'                   return(df)
+#'                 }))
 #'
 #' @export
-pm_input_info <- function(model_type = c("logistic", "survival"),
-                          existingcoefs,
-                          formula,
-                          newdata,
-                          baselinehazard = NULL,
-                          pre_processing = NULL,
-                          binary_outcome = NULL,
-                          survival_time = NULL,
-                          event_indicator = NULL) {
+pred_input_info <- function(model_type = c("logistic", "survival"),
+                            existingcoefs,
+                            formula,
+                            newdata,
+                            baselinehazard = NULL,
+                            pre_processing = NULL,
+                            binary_outcome = NULL,
+                            survival_time = NULL,
+                            event_indicator = NULL) {
 
   model_type <- match.arg(model_type)
   formula <- stats::as.formula(formula)
 
   ########################## INPUT CHECKING #############################
-  pm_input_info_input_checks(model_type = model_type,
-                             existingcoefs = existingcoefs,
-                             formula = formula,
-                             newdata = newdata,
-                             baselinehazard = baselinehazard,
-                             pre_processing = pre_processing,
-                             binary_outcome = binary_outcome,
-                             survival_time = survival_time,
-                             event_indicator = event_indicator)
+  pred_input_info_input_checks(model_type = model_type,
+                               existingcoefs = existingcoefs,
+                               formula = formula,
+                               newdata = newdata,
+                               baselinehazard = baselinehazard,
+                               pre_processing = pre_processing,
+                               binary_outcome = binary_outcome,
+                               survival_time = survival_time,
+                               event_indicator = event_indicator)
 
 
   ########### APPLY PRE-PROCESSING TO NEWDATA AS NEEDED ##################
@@ -269,7 +269,7 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
                                                         all.vars(formula)), drop = FALSE])
                        , , drop = FALSE]
     warning(paste("Some rows of newdata have been removed due to missing data in either the outcome variables and/or variables specified in 'formula'.  \n",
-                  "Complete case may not be appropriate - consider alternative methods of handling missing data in newdata prior to calling pm_input_info()",
+                  "Complete case may not be appropriate - consider alternative methods of handling missing data in newdata prior to calling pred_input_info()",
                   sep = ''),
             call. = FALSE)
   }
@@ -301,7 +301,7 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
                       coef_names = names(existingcoefs),
                       PredictionData = DM,
                       Outcomes = Outcomes)
-    class(info_vals) <- c("pminfo_logistic", "pminfo")
+    class(info_vals) <- c("predinfo_logistic", "predinfo")
 
   } else if (model_type == "survival") {
 
@@ -332,7 +332,7 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
                       baselinehazard = baselinehazard,
                       PredictionData = DM,
                       Outcomes = Outcomes)
-    class(info_vals) <- c("pminfo_survival", "pminfo")
+    class(info_vals) <- c("predinfo_survival", "predinfo")
   }
 
   info_vals
@@ -340,7 +340,7 @@ pm_input_info <- function(model_type = c("logistic", "survival"),
 
 
 #' @export
-print.pminfo <- function(x, ...) {
+print.predinfo <- function(x, ...) {
   cat("Existing Prediction Model of type '", x$model_type, "' \n \n", sep = "")
   cat("Coefficients =", paste(x$coefs, collapse = ", "), "\n")
   cat("Predictors =", paste(x$coef_names, collapse = ", "), "\n \n")
@@ -378,17 +378,17 @@ print.pminfo <- function(x, ...) {
 
 
 
-# Internal functions for pm_input_info() ---------------------------------------
+# Internal functions for pred_input_info() ---------------------------------------
 
-pm_input_info_input_checks <- function(model_type,
-                                       existingcoefs,
-                                       formula,
-                                       newdata,
-                                       baselinehazard,
-                                       pre_processing,
-                                       binary_outcome,
-                                       survival_time,
-                                       event_indicator) {
+pred_input_info_input_checks <- function(model_type,
+                                         existingcoefs,
+                                         formula,
+                                         newdata,
+                                         baselinehazard,
+                                         pre_processing,
+                                         binary_outcome,
+                                         survival_time,
+                                         event_indicator) {
   # Check that 'existingcoefs' is supplied as a named numeric vector
   if (!is.vector(existingcoefs) |
       !is.numeric(existingcoefs) |

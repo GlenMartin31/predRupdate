@@ -21,7 +21,7 @@ colourgreen, respectively.
 }
 \description{
 Create dummy variables for all categorical variables in a data.frame. Can be
-used as a pre-processing function within \code{\link{pm_input_info}}.
+used as a pre-processing function within \code{\link{pred_input_info}}.
 }
 \examples{
 dummyvars(data.frame("Colour" = factor(sample(c("red",
@@ -32,7 +32,7 @@ dummyvars(data.frame("Colour" = factor(sample(c("red",
                                              replace = TRUE))))
 }
 \seealso{
-\code{\link{pm_input_info}}
+\code{\link{pred_input_info}}
 }
 \author{
 Glen Martin, \email{glen.martin@manchester.ac.uk}

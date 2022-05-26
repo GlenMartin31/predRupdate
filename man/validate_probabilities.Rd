@@ -71,6 +71,6 @@ we estimate the area under the receiver operating characteristic curve
 (Brier score, Cox-Snell R2).
 }
 \seealso{
-\code{\link{pm_validate}}, \code{\link{pm_predict}},
-\code{\link{pm_input_info}}
+\code{\link{pred_validate}}, \code{\link{pred_predict}},
+\code{\link{pred_input_info}}
 }
