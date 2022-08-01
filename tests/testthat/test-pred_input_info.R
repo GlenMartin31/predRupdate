@@ -1,11 +1,10 @@
 test_that("pred_input_info() outputs required info for model implementation", {
 
   predinfo_test1 <- pred_input_info(model_type = "logistic",
-                                    existingcoefs = c("(Intercept)" = -2,
-                                                      "Age" = 5,
-                                                      "Age_squared" = 0.05,
-                                                      "Age_logged" = 0.06),
-                                    formula = ~Age + Age_squared + Age_logged,
+                                    model_info = data.frame("Intercept" = -2,
+                                                            "Age" = 5,
+                                                            "Age_squared" = 0.05,
+                                                            "Age_logged" = 0.06),
                                     newdata = data.frame("Age" = c(25,
                                                                    27,
                                                                    33,
@@ -17,24 +16,22 @@ test_that("pred_input_info() outputs required info for model implementation", {
   )
 
   expect_equal(predinfo_test1$model_type, "logistic")
-  expect_equal(predinfo_test1$coefs, c(-2.00, 5.00, 0.05, 0.06))
+  expect_equal(as.numeric(predinfo_test1$coefs), c(-2.00, 5.00, 0.05, 0.06))
   expect_equal(predinfo_test1$coef_names,
-               c("(Intercept)", "Age", "Age_squared", "Age_logged"))
+               c("Intercept", "Age", "Age_squared", "Age_logged"))
   expect_equal(nrow(predinfo_test1$PredictionData), 4)
-  expect_equal(ncol(predinfo_test1$PredictionData), 4)
+  expect_equal(ncol(predinfo_test1$PredictionData), 3)
   expect_s3_class(predinfo_test1, class = "predinfo")
-  expect_snapshot(predinfo_test1)
 })
 
 
 test_that("pred_input_info() returns errors when input not correct", {
 
   expect_error(pred_input_info(model_type = "logistic",
-                               existingcoefs = c("(Intercept)" = -2,
-                                                 "Age" = 5,
-                                                 "Age_squared" = 0.05,
-                                                 "Age_logged" = 0.06),
-                               formula = ~Age + Age_logged,
+                               model_info = data.frame("(Intercept)" = -2,
+                                                       "Age" = 5,
+                                                       "Age_squared" = 0.05,
+                                                       "Age_logged" = 0.06),
                                newdata = data.frame("Age" = c(25,
                                                               27,
                                                               33,
@@ -47,11 +44,10 @@ test_that("pred_input_info() returns errors when input not correct", {
   )
 
   expect_error(pred_input_info(model_type = "logistic",
-                               existingcoefs = c("(Intercept)" = -2,
-                                                 "Age" = 5,
-                                                 "Age_squared" = 0.05,
-                                                 "Age_logged" = 0.06),
-                               formula = ~Age + Age_squared + Age_logged,
+                               model_info = data.frame("Intercept" = -2,
+                                                       "Age" = 5,
+                                                       "Age_squared" = 0.05,
+                                                       "Age_logged" = 0.06),
                                newdata = data.frame("Age" = c(25,
                                                               27,
                                                               33,
@@ -63,6 +59,7 @@ test_that("pred_input_info() returns errors when input not correct", {
   )
 
   expect_error(pred_input_info(model_type = "logistic",
+                               M = 1,
                                existingcoefs = c("(Intercept)" = -2,
                                                  "Age" = 5,
                                                  "Age_squared" = 0.05,
@@ -79,14 +76,4 @@ test_that("pred_input_info() returns errors when input not correct", {
   )
   )
 
-  expect_error(pred_input_info(model_type = "logistic",
-                               existingcoefs = c("(Intercept)" = -2,
-                                                 "Age" = 5),
-                               formula = ~1,
-                               newdata = data.frame("Age" = c(25,
-                                                              27,
-                                                              33,
-                                                              21))
-  )
-  )
 })

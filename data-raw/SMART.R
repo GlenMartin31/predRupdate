@@ -23,7 +23,11 @@ SMART <- SMART %>%
                 -IMTO,
                 -alcohol,
                 -packyrs) %>% #remove some variable to keep dataset as simple as possible for examples
-  dplyr::mutate(albumin = factor(case_when(albumin == 1 ~ "no",
+  dplyr::mutate(SEX = factor(case_when(SEX == 1 ~ "M",
+                                       SEX == 2 ~ "F"),
+                             levels = c("F", "M")),
+
+                albumin = factor(case_when(albumin == 1 ~ "no",
                                            albumin == 2 ~ "low",
                                            albumin == 3 ~ "high")),
 

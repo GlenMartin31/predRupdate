@@ -14,10 +14,10 @@ M <- c(20100, 18550, 21000, 22200, 19800, 17500, 25698, 16540, 17970); M[10] <- 
 
 #Simulate a population-level dataset:
 IPD <- data.frame("Age" = rnorm(N, mean=50, sd=3),
-                  "Sex" = factor(ifelse(rbinom(N, 1, 0.55)==1, "M", "F"))) %>%
+                  "SexM" = ifelse(rbinom(N, 1, 0.55)==1, 1, 0)) %>%
   mutate("Smoking_Status" = rbinom(N, 1, 0.15),
          "Diabetes" = rbinom(N, 1, 0.1),
-         "CKD" = ifelse(Sex=="M",
+         "CKD" = ifelse(SexM==1,
                         ifelse(Age<55,
                                rbinom(n(), 1, 0.03), rbinom(n(), 1, 0.06)),
                         ifelse(Age<55,
@@ -28,7 +28,7 @@ IPD <- data.frame("Age" = rnorm(N, mean=50, sd=3),
 #Simulate the binary outcomes based on a 'true' data-generating model:
 TrueModel_LP <- (-2 + ((IPD$Year - 2012)*0.05)) +
   (log(1.01) + ((IPD$Year - 2012)*0.01)) * (IPD$Age-50) +
-  log(1.3)*ifelse(IPD$Sex=="M", 1, 0) +
+  log(1.3)*(IPD$SexM) +
   log(2)*IPD$Smoking_Status +
   (log(1.5) - ((IPD$Year - 2012)*0.03)) * IPD$Diabetes +
   (log(1.8) + ((IPD$Year - 2012)*0.01)) * IPD$CKD +
@@ -47,17 +47,17 @@ DerivationData <- IPD %>%
   dplyr::filter(Year %in% 2012:2015)
 
 #Existing Model 1
-Existing_Mod1 <- glm(Y ~ Age + Sex + Diabetes,
+Existing_Mod1 <- glm(Y ~ Age + SexM + Diabetes,
                      data = DerivationData,
                      family = binomial(link = "logit"))
 
 #Existing Model 2
-Existing_Mod2 <- glm(Y ~ Age + Sex + Smoking_Status + Diabetes + CKD,
+Existing_Mod2 <- glm(Y ~ Age + SexM + Smoking_Status + Diabetes + CKD,
                      data = DerivationData,
                      family = binomial(link = "logit"))
 
 #Existing Model 3
-Existing_Mod3 <- glm(Y ~ Age + Sex + CKD,
+Existing_Mod3 <- glm(Y ~ Age + SexM + CKD,
                      data = DerivationData %>%
                        dplyr::filter(Year %in% c(2012:2016)),
                      family = binomial(link = "logit"))
@@ -65,18 +65,21 @@ Existing_Mod3 <- glm(Y ~ Age + Sex + CKD,
 # Store all the required information about the existing models in a data.frame -
 # this mimics each having a published paper, from which we can validate them in
 # other datasets
-Existing_models <- data.frame("Model_Name" = c("Existing_Mod1",
-                                               "Existing_Mod2",
-                                               "Existing_Mod3"),
-                              "Coeffs" = c(paste(as.character(as.numeric(coef(Existing_Mod1))), collapse = " | "),
-                                           paste(as.character(as.numeric(coef(Existing_Mod2))), collapse = " | "),
-                                           paste(as.character(as.numeric(coef(Existing_Mod3))), collapse = " | ")),
-                              "Variables" = c(paste(as.character(names(coef(Existing_Mod1))), collapse = " | "),
-                                              paste(as.character(names(coef(Existing_Mod2))), collapse = " | "),
-                                              paste(as.character(names(coef(Existing_Mod3))), collapse = " | ")),
-                              "Formula" = c(paste("~", as.character(formula(Existing_Mod1))[3], sep = ' '),
-                                            paste("~", as.character(formula(Existing_Mod2))[3], sep = ' '),
-                                            paste("~", as.character(formula(Existing_Mod3))[3], sep = ' ')))
+model_info <- data.frame(matrix(NA, ncol = length(unique(c((names(coef(Existing_Mod1))),
+                                                           (names(coef(Existing_Mod2))),
+                                                           (names(coef(Existing_Mod3)))))),
+                                nrow = 1))
+names(model_info) <- unique(c((names(coef(Existing_Mod1))),
+                              (names(coef(Existing_Mod2))),
+                              (names(coef(Existing_Mod3)))))
+
+model_info <- model_info %>%
+  bind_rows(as.data.frame(t(coef(Existing_Mod1)))) %>%
+  bind_rows(as.data.frame(t(coef(Existing_Mod2)))) %>%
+  bind_rows(as.data.frame(t(coef(Existing_Mod3)))) %>%
+  filter_all(any_vars(!is.na(.))) %>%
+  rename("Intercept" = "(Intercept)")
+
 
 ####-------------------------------------------------------------------------------------------------------
 ## Set the alidation data as being the most recent data
@@ -91,7 +94,7 @@ ValidationData <- IPD %>%
 ## Save the data for external use within the package
 ####-------------------------------------------------------------------------------------------------------
 
-SYNPM <- list("Existing_models" = Existing_models,
+SYNPM <- list("Existing_models" = model_info,
               "ValidationData" = ValidationData)
 
 usethis::use_data(SYNPM,
