@@ -4,9 +4,7 @@
 #' for each observation in a new dataset.
 #'
 #' @param x an object of class "\code{predinfo}" produced by calling
-#'   \code{\link{pred_input_info}}. This is a 'blueprint' description of the
-#'   existing prediction model, and the new data on which predictions will be
-#'   made.
+#'   \code{\link{pred_input_info}}.
 #'
 #' @param time_horizon for survival models, an integer giving the time horizon
 #'   (post baseline/time of prediction) at which a prediction is required.
@@ -51,70 +49,128 @@ pred_predict.default <- function(x, time_horizon = NULL) {
 
 #' @export
 pred_predict.predinfo_logistic <- function(x, time_horizon = NULL){
-  #Gather information from the predinfo blueprint:
-  existingcoefs <- x$coefs
-  DM <- x$PredictionData
 
-  #Double-check dimensions:
-  if (ncol(DM) != length(existingcoefs)) {
-    stop("Existing coefficients of the model and new data to make predictions on are non-conformable",
-         call. = FALSE)
+  if (x$M == 1) {
+    #Gather information from the predinfo blueprint:
+    existingcoefs <- as.numeric(x$coefs)
+    DM <- stats::model.matrix(x$formula, x$PredictionData)
+    #Double-check dimensions:
+    if (ncol(DM) != length(existingcoefs)) {
+      stop("Existing coefficients of the model and new data to make predictions on are non-conformable",
+           call. = FALSE)
+    }
+    #Calculate the linear predictor
+    LP <- as.numeric(DM %*% existingcoefs)
+    #Map to predicted risks
+    PR <- predRupdate::inv_logit(LP)
+    #return results
+    out <- list("LinearPredictor" = LP,
+                "PredictedRisk" = PR,
+                "Outcomes" = x$Outcomes)
+
+  } else{
+
+    out <- vector(mode = "list", length = x$M)
+    for(m in 1:x$M) {
+      #Gather information from the predinfo blueprint:
+      existingcoefs <- as.numeric(x$coefs[[m]])
+      DM <- stats::model.matrix(x$formula[[m]],
+                                x$PredictionData)
+      #Double-check dimensions:
+      if (ncol(DM) != length(existingcoefs)) {
+        stop("Existing coefficients of the model and new data to make predictions on are non-conformable",
+             call. = FALSE)
+      }
+      #Calculate the linear predictor
+      LP <- as.numeric(DM %*% existingcoefs)
+      #Map to predicted risks
+      PR <- predRupdate::inv_logit(LP)
+      #return results
+      out[[m]] <- list("LinearPredictor" = LP,
+                       "PredictedRisk" = PR,
+                       "Outcomes" = x$Outcomes)
+    }
   }
-
-
-  #Calculate the linear predictor
-  LP <- as.numeric(DM %*% existingcoefs)
-  #Map to predicted risks
-  PR <- predRupdate::inv_logit(LP)
-
-  #return results
-  out <- list("LinearPredictor" = LP,
-              "PredictedRisk" = PR,
-              "Outcomes" = x$Outcomes)
   out
 }
 
 
 #' @export
 pred_predict.predinfo_survival <- function(x, time_horizon = NULL){
-  #Gather information from the predinfo blueprint:
-  existingcoefs <- x$coefs
-  DM <- x$PredictionData
 
-  #Double-check dimensions:
-  if (ncol(DM) != length(existingcoefs)) {
-    stop("Existing coefficients of the model and new data to make predictions on are non-conformable",
-         call. = FALSE)
+  if (x$M == 1) {
+    #Gather information from the predinfo blueprint:
+    existingcoefs <- as.numeric(x$coefs)
+    DM <- stats::model.matrix(x$formula, x$PredictionData)
+    DM <- DM[,-which(colnames(DM) == "(Intercept)")]
+    #Double-check dimensions:
+    if (ncol(DM) != length(existingcoefs)) {
+      stop("Existing coefficients of the model and new data to make predictions on are non-conformable",
+           call. = FALSE)
+    }
+    #check validity of time_horizon
+    if(is.null(time_horizon)){
+      stop("time_horizon must be specified to make a prediction",
+           call. = FALSE)
+    }
+    if(length(time_horizon) > 1){
+      stop("only one time_horizon can be specified",
+           call. = FALSE)
+    }
+    if(!(time_horizon %in% x$baselinehazard[,1])){
+      stop("time_horizon is not available in baselinehazard",
+           call. = FALSE)
+    }
+    #extract baseline hazard value for required time_horizon:
+    bh <- x$baselinehazard[x$baselinehazard[,1] == time_horizon,2]
+    #Calculate the linear predictor
+    LP <- as.numeric(DM %*% existingcoefs)
+    #Map to predicted risks
+    PR <- 1-exp(-bh)^exp(LP)
+    #return results
+    out <- list("LinearPredictor" = LP,
+                "PredictedRisk" = PR,
+                "TimeHorizon" = time_horizon,
+                "Outcomes" = x$Outcomes)
+  } else{
+
+    out <- vector(mode = "list", length = x$M)
+    for(m in 1:x$M) {
+      #Gather information from the predinfo blueprint:
+      existingcoefs <- as.numeric(x$coefs[[m]])
+      DM <- stats::model.matrix(x$formula[[m]],
+                                x$PredictionData)
+      DM <- DM[,-which(colnames(DM) == "(Intercept)")]
+      #Double-check dimensions:
+      if (ncol(DM) != length(existingcoefs)) {
+        stop("Existing coefficients of the model and new data to make predictions on are non-conformable",
+             call. = FALSE)
+      }
+      #check validity of time_horizon
+      if(is.null(time_horizon)){
+        stop("time_horizon must be specified to make a prediction",
+             call. = FALSE)
+      }
+      if(length(time_horizon) > 1){
+        stop("only one time_horizon can be specified",
+             call. = FALSE)
+      }
+      if(!(time_horizon %in% x$baselinehazard[[m]][,1])){
+        stop("time_horizon is not available in baselinehazard",
+             call. = FALSE)
+      }
+      #extract baseline hazard value for required time_horizon:
+      bh <- x$baselinehazard[[m]][x$baselinehazard[[m]][,1] == time_horizon,2]
+      #Calculate the linear predictor
+      LP <- as.numeric(DM %*% existingcoefs)
+      #Map to predicted risks
+      PR <- 1-exp(-bh)^exp(LP)
+      #return results
+      out[[m]] <- list("LinearPredictor" = LP,
+                       "PredictedRisk" = PR,
+                       "TimeHorizon" = time_horizon,
+                       "Outcomes" = x$Outcomes)
+    }
   }
-
-  #check validity of time_horizon
-  if(is.null(time_horizon)){
-    stop("time_horizon must be specified to make a prediction",
-         call. = FALSE)
-  }
-
-  if(length(time_horizon) > 1){
-    stop("only one time_horizon can be specified",
-         call. = FALSE)
-  }
-
-  if(!(time_horizon %in% x$baselinehazard[,1])){
-    stop("time_horizon is not available in baselinehazard",
-         call. = FALSE)
-  }
-
-  #extract baseline hazard value for required time_horizon:
-  bh <- x$baselinehazard[x$baselinehazard[,1] == time_horizon,2]
-
-  #Calculate the linear predictor
-  LP <- as.numeric(DM %*% existingcoefs)
-  #Map to predicted risks
-  PR <- 1-exp(-bh)^exp(LP)
-
-  #return results
-  out <- list("LinearPredictor" = LP,
-              "PredictedRisk" = PR,
-              "TimeHorizon" = time_horizon,
-              "Outcomes" = x$Outcomes)
   out
 }

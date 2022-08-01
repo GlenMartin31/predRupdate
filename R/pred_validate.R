@@ -29,16 +29,10 @@
 #' @examples
 #' # Example 1 - logistic regression example
 #' existing_cpm_info <- pred_input_info(model_type = "logistic",
-#'                                      existingcoefs = c("(Intercept)" = -3.0893961710923,
-#'                                                        "Age" = 0.0230955938292795,
-#'                                                        "SexM" = 0.263578567485447,
-#'                                                        "Smoking_Status" = 0.689825139075564,
-#'                                                        "Diabetes" = 0.387810349702088,
-#'                                                        "CKD" = 0.56129156010678),
-#'                                      formula = formula(SYNPM$Existing_models$Formula[2]),
+#'                                      model_info = SYNPM$Existing_models[1,],
 #'                                      newdata = SYNPM$ValidationData,
-#'                                      pre_processing = list(function(df) {dummyvars(df)}),
 #'                                      binary_outcome = "Y")
+#'
 #' pred_validate(existing_cpm_info)
 #'
 #' # Example 2 - survival example
@@ -70,12 +64,21 @@ pred_validate.predinfo_logistic <- function(x, ...){
   ### USE EXISTING INFO ABOUT PREDICTION MODEL TO MAKE PREDICTIONS IN NEWDATA
   predictions <- predRupdate::pred_predict(x)
 
-  ### VALIDATION OF THE EXISTING MODEL
-  performance <- predRupdate::validate_probabilities(ObservedOutcome = predictions$Outcomes,
-                                                     LP = predictions$LinearPredictor,
-                                                     ...)
-
-  class(performance) <- c("predvalidate_logistic", "predvalidate")
+  if (x$M == 1) {
+    ### VALIDATION OF THE EXISTING MODEL
+    performance <- predRupdate::validate_probabilities(ObservedOutcome = predictions$Outcomes,
+                                                       LP = predictions$LinearPredictor,
+                                                       ...)
+  } else{
+    performance <- vector(mode = "list", length = x$M)
+    names(performance) <- paste("Model_",1:x$M, sep = "")
+    for (m in 1:x$M) {
+      performance[[paste("Model_",m, sep = "")]] <-
+        predRupdate::validate_probabilities(ObservedOutcome = predictions[[m]]$Outcomes,
+                                            LP = predictions[[m]]$LinearPredictor,
+                                            ...)
+    }
+  }
   performance
 }
 

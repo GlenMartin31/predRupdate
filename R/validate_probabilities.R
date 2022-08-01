@@ -266,6 +266,6 @@ validate_probabilities <- function(ObservedOutcome,
               "R2_CoxSnell" = R2_coxsnell,
               "R2_Nagelkerke" = R2_Nagelkerke,
               "BrierScore" = BrierScore)
-  class(out) <- c("predvalidate_logistic")
+  class(out) <- c("predvalidate_logistic", "predvalidate")
   out
 }

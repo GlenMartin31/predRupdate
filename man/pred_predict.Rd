@@ -8,9 +8,7 @@ pred_predict(x, time_horizon = NULL)
 }
 \arguments{
 \item{x}{an object of class "\code{predinfo}" produced by calling
-\code{\link{pred_input_info}}. This is a 'blueprint' description of the
-existing prediction model, and the new data on which predictions will be
-made.}
+\code{\link{pred_input_info}}.}
 
 \item{time_horizon}{for survival models, an integer giving the time horizon
 (post baseline/time of prediction) at which a prediction is required.

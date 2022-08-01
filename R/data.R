@@ -57,7 +57,7 @@
 #' \describe{
 #'   \item{TEVENT}{Time of event (days)}
 #'   \item{EVENT}{Cardiovascular event (0=no, 1=yes)}
-#'   \item{SEX}{1 = male, 2 = female}
+#'   \item{SEX}{M = male, f = female}
 #'   \item{AGE}{Age (years)}
 #'   \item{DIABETES}{History of diabetes (0=no, 1=yes)}
 #'   \item{CEREBRAL}{History of cerebrovascular disease (0=no, 1=yes)}
