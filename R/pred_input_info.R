@@ -137,7 +137,7 @@
 #'                  pre_processing = list(function(x) predRupdate::dummyvars(x)))
 #'
 #'
-#' #Example 3 - Input information about muliple models
+#' #Example 3 - Input information about multiple models
 #' pred_input_info(model_type = "logistic",
 #'                 model_info = SYNPM$Existing_models,
 #'                 newdata = SYNPM$ValidationData,
