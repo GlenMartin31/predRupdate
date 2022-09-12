@@ -30,7 +30,7 @@
 #'   \item{PredictedRisk = the predicted risk for each observation in the new
 #'   data} \item{TimeHorizon = for survival models, an integer giving the time
 #'   horizon at which a prediction is made} \item{Outcomes = vector of
-#'   outcomes/endpoints (if avaliable).} }
+#'   outcomes/endpoints (if available).} }
 #'
 #' @seealso \code{\link{pred_input_info}}
 #'
