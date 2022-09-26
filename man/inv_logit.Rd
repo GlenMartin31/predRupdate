@@ -26,6 +26,3 @@ plot(inv_logit(seq(from=-10, to=10, by=1)), type='l', ylab = "Prob")
 \seealso{
 \code{\link{logit}}
 }
-\author{
-Glen Martin, \email{glen.martin@manchester.ac.uk}
-}

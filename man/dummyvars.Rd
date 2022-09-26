@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{dummyvars}
 \alias{dummyvars}
-\title{Create dummy variables for all categorical variables in a data.frame}
+\title{Create dummy variables for all categorical/factor variables in a data.frame}
 \usage{
 dummyvars(df)
 }
@@ -11,17 +11,18 @@ dummyvars(df)
 categorical/factor variable, based on contrasts.}
 }
 \value{
-a list in which each element is a dummy variable for each categorical
-variable in \code{df}. All combinations of dummy variable are returned.
-Naming convention of the new dummy variables is variablelevel. For
-example, a factor variable in \code{df} named "colour" with levels "red",
-"green" and "purple" (where "purple" is the reference) will produce a list
-with two elements (the new dummy variables), named colourred and
-colourgreen, respectively.
+a data.frame matching \code{df} but where where each categorical
+variable in \code{df} is replaced with indicator variables. All
+combinations of the indicator/dummy variable are returned. Naming
+convention of the new dummy variables is variable_level. For example, a
+factor variable in \code{df} named "colour" with levels "red", "green" and
+"purple" will be replaced with three columns (the new dummy variables),
+named colour_red,  colour_green and colour_purple.
 }
 \description{
-Create dummy variables for all categorical variables in a data.frame. Can be
-used as a pre-processing function within \code{\link{pred_input_info}}.
+Create dummy/indicator variables for all categorical variables in a
+data.frame. Can be used as a pre-processing step before calling other
+functions within the package.
 }
 \examples{
 dummyvars(data.frame("Colour" = factor(sample(c("red",
@@ -33,7 +34,4 @@ dummyvars(data.frame("Colour" = factor(sample(c("red",
 }
 \seealso{
 \code{\link{pred_input_info}}
-}
-\author{
-Glen Martin, \email{glen.martin@manchester.ac.uk}
 }

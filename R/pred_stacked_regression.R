@@ -7,10 +7,24 @@
 #' @param x an object of class "\code{predinfo}" produced by calling
 #'   \code{\link{pred_input_info}} containing information on at least two
 #'   existing prediction models.
-#'
 #' @param positivity_constraint TRUE/FALSE denoting if the weights within the
 #'   stacked regression model should be constrained to be non-negative (TRUE) or
 #'   should be allowed to take any value (FALSE). See details
+#' @param newdata data.frame upon which the prediction models should be
+#'   aggregated
+#' @param binary_outcome Character variable giving the name of the column in
+#'   \code{newdata} that represents the observed outcomes. Only relevant for
+#'   \code{model_type}="logistic"; leave as \code{NULL} otherwise.
+#' @param survival_time Character variable giving the name of the column in
+#'   \code{newdata} that represents the observed survival times. Only relevant
+#'   for \code{model_type}="survival"; leave as \code{NULL} otherwise.
+#' @param event_indicator Character variable giving the name of the column in
+#'   \code{newdata} that represents the observed survival indicator (1 for
+#'   event, 0 for censoring). Only relevant for \code{model_type}="survival";
+#'   leave as \code{NULL} otherwise.
+#' @param time_horizon for survival models, an integer giving the time horizon
+#'   (post baseline/time of prediction) at which a prediction is required.
+#'   Currently, this must match a time in x$baselinehazard.
 #'
 #' @details The aim of this function is to take a set of (previously estimated)
 #'   prediction models that were each originally developed for the same
@@ -19,37 +33,30 @@
 #'   develop any of the existing models). The methodological details can be
 #'   found in Debray et al. 2014.
 #'
-#'   Given that the existing models are likely to be highly co-linear (given
-#'   that they were each developed for the same prediction task), it has been
-#'   proposed to impose a positivity constraint on the weights of the stacked
-#'   regression model (Debray et al. 2014.). This is not strictly needed, so the
-#'   use of this constraint can be controlled using
-#'   \code{positivity_constraint}. If \code{positivity_constraint} is set to
-#'   TRUE, then the stacked regression model will be estimated by optimising the
-#'   (log-)likelihood of a logistic regression model using bound constrained
-#'   optimization ("L-BFGS-B" in \code{stats::optim()}).
+#'   Given that the existing models are likely to be highly co-linear (since
+#'   they were each developed for the same prediction task), it has been
+#'   suggested to impose a positivity constraint on the weights of the stacked
+#'   regression model (Debray et al. 2014.). If \code{positivity_constraint} is
+#'   set to TRUE, then the stacked regression model will be estimated by
+#'   optimising the (log-)likelihood of a logistic regression model using bound
+#'   constrained optimization ("L-BFGS-B" in \code{stats::optim()}).
 #'
-#' @return A object of class "\code{predSR}". This is a list containing the
-#'   information/estimates about the meta-model obtained by stacked regression.
-#'   Specifically, \itemize{ \item{Stacked_Regression_Model = the results of the
-#'   stacked regression equation} \item{Aggregated_Coefs = a data.frame of the
-#'   pooled/aggregated coefficients of each covariate across the existing
-#'   prediction models} \item{pred_info = the original "\code{predinfo}" object,
-#'   as passed to \code{x}}}
+#' @return A object of class "predinfo" with subclass"\code{predSR}". This is
+#'   the same as that detailed in \code{\link{pred_input_info}}, with the added
+#'   element containing the estimates of the meta-model obtained by stacked
+#'   regression.
 #'
 #' @examples
-#' model_input <- pred_input_info(model_type = "logistic",
-#'                                model_info = SYNPM$Existing_models,
-#'                                newdata = SYNPM$ValidationData,
-#'                                binary_outcome = "Y")
-#' SR <- pred_stacked_regression(model_input)
+#' model3 <- pred_input_info(model_type = "logistic",
+#'                           model_info = SYNPM$Existing_models)
+#' SR <- pred_stacked_regression(x = model3,
+#'                               newdata = SYNPM$ValidationData,
+#'                               binary_outcome = "Y")
 #' print(SR)
 #' summary(SR)
-#' #one could then validate this as follows (but note this should be adjusted for in-sample optimism)
-#' pred_validate(pred_input_info(model_type = "logistic",
-#'                               model_info = SR$Aggregated_Coefs,
-#'                               newdata = SYNPM$ValidationData,
-#'                               binary_outcome = "Y"))
+#' #one could then validate this as follows (but this should be adjusted for
+#' #in-sample optimism):
+#' pred_validate(SR, newdata = SYNPM$ValidationData, binary_outcome = "Y")
 #'
 #' @references Debray, T.P., Koffijberg, H., Nieboer, D., Vergouwe, Y.,
 #'   Steyerberg, E.W. and Moons, K.G. (2014), Meta-analysis and aggregation of
@@ -57,24 +64,42 @@
 #'   2341-2362
 #'
 #' @export
-pred_stacked_regression <- function(x, positivity_constraint = FALSE, ...) {
+pred_stacked_regression <- function(x,
+                                    positivity_constraint = FALSE,
+                                    newdata,
+                                    binary_outcome = NULL,
+                                    survival_time = NULL,
+                                    event_indicator = NULL,
+                                    time_horizon = NULL) {
   UseMethod("pred_stacked_regression")
 }
 
 
 #' @export
-pred_stacked_regression.default <- function(x, positivity_constraint = FALSE, ...) {
+pred_stacked_regression.default <- function(x,
+                                            positivity_constraint = FALSE,
+                                            newdata,
+                                            binary_outcome = NULL,
+                                            survival_time = NULL,
+                                            event_indicator = NULL,
+                                            time_horizon = NULL) {
   stop("'x' is not of class 'predinfo'; please see pred_input_info()",
        call. = FALSE)
 }
 
 
 #' @export
-pred_stacked_regression.predinfo_logistic <- function(x, positivity_constraint = FALSE, ...) {
+pred_stacked_regression.predinfo_logistic <- function(x,
+                                                      positivity_constraint = FALSE,
+                                                      newdata,
+                                                      binary_outcome = NULL,
+                                                      survival_time = NULL,
+                                                      event_indicator = NULL,
+                                                      time_horizon = NULL) {
 
-  #Check outcomes were inputted into predinfo object
-  if (is.null(x$Outcomes)) {
-    stop("Observed outcomes must be supplied in newdata to agregate the existing models. Recall pred_input_info() with outcome specified.",
+  #Check outcomes were inputted (needed to validate the model)
+  if (is.null(binary_outcome)) {
+    stop("binary_outcome must be supplied to aggregate the existing model(s)",
          call. = FALSE)
   }
   #Check that multiple models are included in predinfo object
@@ -83,9 +108,16 @@ pred_stacked_regression.predinfo_logistic <- function(x, positivity_constraint =
          call. = FALSE)
   }
 
-  predictions <- predRupdate::pred_predict(x)
+  #Make predictions within newdata using the existing prediction model(s)
+  predictions <- predRupdate::pred_predict(x = x,
+                                           newdata = newdata,
+                                           binary_outcome = binary_outcome)
 
-  SR_dat <- data.frame(x$Outcomes,
+  #double-check all outcome columns identical across the M models (should be by definition)
+  if((length(unique(lapply(predictions, function(X) X$Outcomes))) == 1) == FALSE){
+    stop("Outcomes differ across models", call. = FALSE)
+  }
+  SR_dat <- data.frame(predictions[[1]]$Outcomes,
                        do.call(cbind.data.frame,
                                lapply(predictions,
                                       function(X) X[names(X)=="LinearPredictor"])))
@@ -97,7 +129,7 @@ pred_stacked_regression.predinfo_logistic <- function(x, positivity_constraint =
                      data = SR_dat,
                      family = stats::binomial(link = "logit"))
 
-    alpha <- coef(SR)
+    alpha <- stats::coef(SR)
 
   } else {
 
@@ -125,7 +157,7 @@ pred_stacked_regression.predinfo_logistic <- function(x, positivity_constraint =
                         method = "L-BFGS-B",
                         lower=bl,
                         upper=bu,
-                        control = list("fnscale" = -1)) #Optimise the likelihood function under parameter restrictions
+                        control = list("fnscale" = -1))
     if (MLE$convergence != 0) {
       warning("Stacked regression under positivity contraint failed to converge")
     }
@@ -136,7 +168,7 @@ pred_stacked_regression.predinfo_logistic <- function(x, positivity_constraint =
   }
 
   #Convert the results of stacked regression into the pooled model coefficients:
-  coef_long <- do.call(rbind, lapply(x$coefs, stack))
+  coef_long <- do.call(rbind, lapply(x$coefs, utils::stack))
   coef_long$model <- rep(1:length(x$coefs), times = sapply(x$coefs, length))
   coef_table <- stats::reshape(coef_long,
                                direction = "wide",
@@ -154,31 +186,31 @@ pred_stacked_regression.predinfo_logistic <- function(x, positivity_constraint =
   coef_table["Intercept"] <- coef_table["Intercept"] + as.numeric(alpha[1])
 
   #Return results and set S3 class
-  SR_results <- list("Stacked_Regression_Weights" = alpha,
-                     "Aggregated_Coefs" = data.frame(as.list(coef_table)),
-                     "pred_info" = x)
-  class(SR_results) <- c("predSR")
+  SR_results <- list("M" = 1,
+                     "model_type" = x$model_type,
+                     "coefs" = data.frame(as.list(coef_table)),
+                     "coef_names" = names(coef_table),
+                     "formula" = stats::as.formula(paste("~",
+                                                         paste(names(coef_table)[
+                                                           -which(names(coef_table)=="Intercept")
+                                                           ],
+                                                    collapse = "+"),
+                                                  sep="")),
+                     "Stacked_Regression_Weights" = alpha)
+
+  class(SR_results) <- c("predSR", "predinfo_logistic", "predinfo")
   SR_results
 }
 
 
 #' @export
-pred_stacked_regression.predinfo_survival <- function(x, positivity_constraint = FALSE, ...){
+pred_stacked_regression.predinfo_survival <- function(x,
+                                                      positivity_constraint = FALSE,
+                                                      newdata,
+                                                      binary_outcome = NULL,
+                                                      survival_time = NULL,
+                                                      event_indicator = NULL,
+                                                      time_horizon = NULL){
   stop("Stacked regression for models of type='survival' are not currently supported",
        call. = FALSE)
-}
-
-
-#' @export
-summary.predSR <- function(x, ...) {
-  cat(paste("Stacked regression applied to", x$pred_info$M, "existing models",
-            paste("of type '", x$pred_info$model_type, "' \n", sep = ""), sep = " "))
-  cat("The pooled coefficients are: \n")
-  print(x$Aggregated_Coefs)
-}
-
-#' @export
-print.predSR <- function(x, ...) {
-  print(list(x$Stacked_Regression_Weights,
-             x$Aggregated_Coefs))
 }
