@@ -4,11 +4,37 @@
 \alias{pred_predict}
 \title{Make predictions from an existing prediction model}
 \usage{
-pred_predict(x, time_horizon = NULL)
+pred_predict(
+  x,
+  newdata,
+  binary_outcome = NULL,
+  survival_time = NULL,
+  event_indicator = NULL,
+  time_horizon = NULL
+)
 }
 \arguments{
 \item{x}{an object of class "\code{predinfo}" produced by calling
 \code{\link{pred_input_info}}.}
+
+\item{newdata}{data.frame upon which predictions are obtained using the
+prediction model}
+
+\item{binary_outcome}{Character variable giving the name of the column in
+\code{newdata} that represents the observed outcomes. Only relevant for
+\code{model_type}="logistic"; leave as \code{NULL} otherwise. Leave as
+\code{NULL} if \code{newdata} does not contain any outcomes.}
+
+\item{survival_time}{Character variable giving the name of the column in
+\code{newdata} that represents the observed survival times. Only relevant
+for \code{model_type}="survival"; leave as \code{NULL} otherwise. Leave as
+\code{NULL} if \code{newdata} does not contain any survival outcomes.}
+
+\item{event_indicator}{Character variable giving the name of the column in
+\code{newdata} that represents the observed survival indicator (1 for
+event, 0 for censoring). Only relevant for \code{model_type}="survival";
+leave as \code{NULL} otherwise. Leave as \code{NULL} if \code{newdata} does
+not contain any survival outcomes.}
 
 \item{time_horizon}{for survival models, an integer giving the time horizon
 (post baseline/time of prediction) at which a prediction is required.
@@ -22,7 +48,7 @@ predictor variables and their corresponding coefficients)}
 \item{PredictedRisk = the predicted risk for each observation in the new
 data} \item{TimeHorizon = for survival models, an integer giving the time
 horizon at which a prediction is made} \item{Outcomes = vector of
-outcomes/endpoints (if avaliable).} }
+outcomes/endpoints (if available).} }
 }
 \description{
 Use an existing prediction model to estimate predicted risks of the outcome
@@ -41,6 +67,44 @@ binary outcome conditional on the predictor variables in the newdatas
 time-to-event/survival model (i.e., if x$model_type == "survival"), this
 will be one minus the survival probability (i.e., \eqn{1 - S(T>time_horizon
   | X)}).
+}
+\examples{
+#Example 1 - logistic regression existing model, with outcome specified; uses
+#            an example dataset within the package
+model1 <- pred_input_info(model_type = "logistic",
+                          model_info = SYNPM$Existing_models[1,])
+pred_predict(x = model1,
+             newdata = SYNPM$ValidationData,
+             binary_outcome = "Y")
+
+#Example 2 - survival model example; uses an example dataset within the
+#             package. Also shows use of pre-processing to handle
+#             categorical variables - need converting prior to call
+SMART_dummaryvars <- dummyvars(SMART)
+model2 <- pred_input_info(model_type = "survival",
+                          model_info = data.frame("SEXM" = 0.53,
+                                                  "AGE" = -0.05,
+                                                  "SYSTBP" = -0.0055,
+                                                  "BMIO" = 0.0325,
+                                                  "CARDIAC" = -0.126,
+                                                  "DIABETES" = -0.461),
+                           baselinehazard = data.frame("t" = 1:5,
+                                                       "h" = c(0.12, 0.20,
+                                                               0.26, 0.33,
+                                                               0.38)))
+pred_predict(x = model2,
+             newdata = SMART_dummaryvars,
+            survival_time = "TEVENT",
+            event_indicator = "EVENT",
+            time_horizon = 2)
+
+#Example 3 - multiple existing models
+model3 <- pred_input_info(model_type = "logistic",
+                          model_info = SYNPM$Existing_models)
+pred_predict(x = model3,
+             newdata = SYNPM$ValidationData,
+             binary_outcome = "Y")
+
 }
 \seealso{
 \code{\link{pred_input_info}}

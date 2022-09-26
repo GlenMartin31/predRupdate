@@ -4,6 +4,20 @@
 #' performance against a new (validation) dataset.
 #'
 #' @param x an object of class "predinfo"
+#' @param newdata data.frame upon which the prediction model should be validated
+#' @param binary_outcome Character variable giving the name of the column in
+#'   \code{newdata} that represents the observed outcomes. Only relevant for
+#'   \code{model_type}="logistic"; leave as \code{NULL} otherwise.
+#' @param survival_time Character variable giving the name of the column in
+#'   \code{newdata} that represents the observed survival times. Only relevant
+#'   for \code{model_type}="survival"; leave as \code{NULL} otherwise.
+#' @param event_indicator Character variable giving the name of the column in
+#'   \code{newdata} that represents the observed survival indicator (1 for
+#'   event, 0 for censoring). Only relevant for \code{model_type}="survival";
+#'   leave as \code{NULL} otherwise.
+#' @param time_horizon for survival models, an integer giving the time horizon
+#'   (post baseline/time of prediction) at which a prediction is required.
+#'   Currently, this must match a time in x$baselinehazard.
 #' @param ... further arguments passed to other methods. See
 #'   \code{\link{validate_probabilities}} for more details of arguments that can
 #'   be passed
@@ -27,25 +41,60 @@
 #' @export
 #'
 #' @examples
-#' # Example 1 - logistic regression example
-#' existing_cpm_info <- pred_input_info(model_type = "logistic",
-#'                                      model_info = SYNPM$Existing_models[1,],
-#'                                      newdata = SYNPM$ValidationData,
-#'                                      binary_outcome = "Y")
+#' #Example 1 - logistic regression existing model, with outcome specified; uses
+#' #            an example dataset within the package
+#' model1 <- pred_input_info(model_type = "logistic",
+#'                           model_info = SYNPM$Existing_models[1,])
+#' pred_validate(x = model1,
+#'               newdata = SYNPM$ValidationData,
+#'               binary_outcome = "Y")
 #'
-#' pred_validate(existing_cpm_info)
+#' #Example 2 - survival model example; uses an example dataset within the
+#' #             package. Also shows use of pre-processing to handle
+#' #             categorical variables - need converting prior to call
+#' SMART_dummaryvars <- dummyvars(SMART)
+#' model2 <- pred_input_info(model_type = "survival",
+#'                           model_info = data.frame("SEXM" = 0.53,
+#'                                                   "AGE" = -0.05,
+#'                                                   "SYSTBP" = -0.0055,
+#'                                                   "BMIO" = 0.0325,
+#'                                                   "CARDIAC" = -0.126,
+#'                                                   "DIABETES" = -0.461),
+#'                            baselinehazard = data.frame("t" = 1:5,
+#'                                                        "h" = c(0.12, 0.20,
+#'                                                                0.26, 0.33,
+#'                                                                0.38)))
+#' pred_validate(x = model2,
+#'               newdata = SMART_dummaryvars,
+#'               survival_time = "TEVENT",
+#'               event_indicator = "EVENT",
+#'               time_horizon = 2)
 #'
-#' # Example 2 - survival example
-#' #TO ADD
+#' #Example 3 - multiple existing models
+#' model3 <- pred_input_info(model_type = "logistic",
+#'                           model_info = SYNPM$Existing_models)
+#' pred_validate(x = model3,
+#'               newdata = SYNPM$ValidationData,
+#'               binary_outcome = "Y")
 #'
 #' @seealso \code{\link{pred_input_info}} \code{\link{validate_probabilities}}
-pred_validate <- function(x, ...) {
+pred_validate <- function(x,
+                          newdata,
+                          binary_outcome = NULL,
+                          survival_time = NULL,
+                          event_indicator = NULL,
+                          time_horizon = NULL, ...) {
   UseMethod("pred_validate")
 }
 
 
 #' @export
-pred_validate.default <- function(x, ...) {
+pred_validate.default <- function(x,
+                                  newdata,
+                                  binary_outcome = NULL,
+                                  survival_time = NULL,
+                                  event_indicator = NULL,
+                                  time_horizon = NULL, ...) {
   stop("'x' is not of class 'predinfo'",
        call. = FALSE)
 }
@@ -53,16 +102,23 @@ pred_validate.default <- function(x, ...) {
 
 
 #' @export
-pred_validate.predinfo_logistic <- function(x, ...){
+pred_validate.predinfo_logistic <- function(x,
+                                            newdata,
+                                            binary_outcome = NULL,
+                                            survival_time = NULL,
+                                            event_indicator = NULL,
+                                            time_horizon = NULL, ...){
 
-  #Check outcomes were inputted into predinfo object
-  if (is.null(x$Outcomes)) {
-    stop("Observed outcomes must be supplied in newdata to validate the existing model. Recall pred_input_info() with outcome specified.",
+  #Check outcomes were inputted (needed to validate the model)
+  if (is.null(binary_outcome)) {
+    stop("binary_outcome must be supplied to validate the existing model(s)",
          call. = FALSE)
   }
 
-  ### USE EXISTING INFO ABOUT PREDICTION MODEL TO MAKE PREDICTIONS IN NEWDATA
-  predictions <- predRupdate::pred_predict(x)
+  #Make predictions within newdata using the existing prediction model(s)
+  predictions <- predRupdate::pred_predict(x = x,
+                                           newdata = newdata,
+                                           binary_outcome = binary_outcome)
 
   if (x$M == 1) {
     ### VALIDATION OF THE EXISTING MODEL
@@ -84,7 +140,27 @@ pred_validate.predinfo_logistic <- function(x, ...){
 
 
 #' @export
-pred_validate.predinfo_survival <- function(x, ...){
+pred_validate.predinfo_survival <- function(x,
+                                            newdata,
+                                            binary_outcome = NULL,
+                                            survival_time = NULL,
+                                            event_indicator = NULL,
+                                            time_horizon = NULL, ...){
+
+  #Check outcomes were inputted (needed to validate the model)
+  if (is.null(survival_time) |
+      is.null(event_indicator)) {
+    stop("survival_time and event_indicator must be supplied to validate the existing model(s)",
+         call. = FALSE)
+  }
+
+  #Make predictions within newdata using the existing prediction model(s)
+  predictions <- predRupdate::pred_predict(x = x,
+                                           newdata = newdata,
+                                           survival_time = survival_time,
+                                           event_indicator = event_indicator,
+                                           time_horizon = time_horizon)
+
   stop("Models of type='survival' are not currently supported")
 }
 
