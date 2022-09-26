@@ -27,6 +27,3 @@ plot(logit(seq(from=0.01, to=0.99, by=0.01)), type='l', ylab = "LP")
 \seealso{
 \code{\link{inv_logit}}
 }
-\author{
-Glen Martin, \email{glen.martin@manchester.ac.uk}
-}

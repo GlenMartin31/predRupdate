@@ -49,12 +49,13 @@
 #'               newdata = SYNPM$ValidationData,
 #'               binary_outcome = "Y")
 #'
+#' \dontrun{
 #' #Example 2 - survival model example; uses an example dataset within the
 #' #             package. Also shows use of pre-processing to handle
 #' #             categorical variables - need converting prior to call
 #' SMART_dummaryvars <- dummyvars(SMART)
 #' model2 <- pred_input_info(model_type = "survival",
-#'                           model_info = data.frame("SEXM" = 0.53,
+#'                           model_info = data.frame("SEX_M" = 0.53,
 #'                                                   "AGE" = -0.05,
 #'                                                   "SYSTBP" = -0.0055,
 #'                                                   "BMIO" = 0.0325,
@@ -69,6 +70,7 @@
 #'               survival_time = "TEVENT",
 #'               event_indicator = "EVENT",
 #'               time_horizon = 2)
+#' }
 #'
 #' #Example 3 - multiple existing models
 #' model3 <- pred_input_info(model_type = "logistic",

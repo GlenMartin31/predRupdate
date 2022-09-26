@@ -129,7 +129,7 @@ pred_stacked_regression.predinfo_logistic <- function(x,
                      data = SR_dat,
                      family = stats::binomial(link = "logit"))
 
-    alpha <- coef(SR)
+    alpha <- stats::coef(SR)
 
   } else {
 
@@ -168,7 +168,7 @@ pred_stacked_regression.predinfo_logistic <- function(x,
   }
 
   #Convert the results of stacked regression into the pooled model coefficients:
-  coef_long <- do.call(rbind, lapply(x$coefs, stack))
+  coef_long <- do.call(rbind, lapply(x$coefs, utils::stack))
   coef_long$model <- rep(1:length(x$coefs), times = sapply(x$coefs, length))
   coef_table <- stats::reshape(coef_long,
                                direction = "wide",
@@ -190,10 +190,10 @@ pred_stacked_regression.predinfo_logistic <- function(x,
                      "model_type" = x$model_type,
                      "coefs" = data.frame(as.list(coef_table)),
                      "coef_names" = names(coef_table),
-                     "formula" = as.formula(paste("~",
-                                                  paste(names(coef_table)[
-                                                    -which(names(coef_table)=="Intercept")
-                                                    ],
+                     "formula" = stats::as.formula(paste("~",
+                                                         paste(names(coef_table)[
+                                                           -which(names(coef_table)=="Intercept")
+                                                           ],
                                                     collapse = "+"),
                                                   sep="")),
                      "Stacked_Regression_Weights" = alpha)
@@ -213,16 +213,4 @@ pred_stacked_regression.predinfo_survival <- function(x,
                                                       time_horizon = NULL){
   stop("Stacked regression for models of type='survival' are not currently supported",
        call. = FALSE)
-}
-
-
-#' @export
-summary.predSR <- function(x, ...) {
-  cat(paste("Model developed using stacked regression of existing models of type '",
-            x$model_type, "' \n", sep = ""))
-  cat("The pooled coefficients are: \n")
-  print(x$coefs)
-  cat("\n")
-  cat("The stacked regression weights are: \n")
-  print(x$Stacked_Regression_Weights)
 }

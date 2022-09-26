@@ -35,6 +35,3 @@ dummyvars(data.frame("Colour" = factor(sample(c("red",
 \seealso{
 \code{\link{pred_input_info}}
 }
-\author{
-Glen Martin, \email{glen.martin@manchester.ac.uk}
-}

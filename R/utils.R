@@ -10,8 +10,6 @@
 #' @return A numeric vector, with values between -Inf and Inf
 #' @export
 #'
-#' @author Glen Martin, \email{glen.martin@@manchester.ac.uk}
-#'
 #' @seealso \code{\link{inv_logit}}
 #'
 #' @examples
@@ -36,8 +34,6 @@ logit <- function(p) {
 #'
 #' @return Numeric vector of probabilities (i.e. values between 0 and 1)
 #' @export
-#'
-#' @author Glen Martin, \email{glen.martin@@manchester.ac.uk}
 #'
 #' @seealso \code{\link{logit}}
 #'
@@ -70,8 +66,6 @@ inv_logit <- function(x) {
 #' @export
 #'
 #' @seealso \code{\link{pred_input_info}}
-#'
-#' @author Glen Martin, \email{glen.martin@@manchester.ac.uk}
 #'
 #' @examples
 #' dummyvars(data.frame("Colour" = factor(sample(c("red",

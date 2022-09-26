@@ -82,7 +82,7 @@ pred_predict(x = model1,
 #             categorical variables - need converting prior to call
 SMART_dummaryvars <- dummyvars(SMART)
 model2 <- pred_input_info(model_type = "survival",
-                          model_info = data.frame("SEXM" = 0.53,
+                          model_info = data.frame("SEX_M" = 0.53,
                                                   "AGE" = -0.05,
                                                   "SYSTBP" = -0.0055,
                                                   "BMIO" = 0.0325,

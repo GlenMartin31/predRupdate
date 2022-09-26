@@ -78,11 +78,9 @@ SR <- pred_stacked_regression(x = model3,
                               binary_outcome = "Y")
 print(SR)
 summary(SR)
-#one could then validate this as follows (but note this should be adjusted for in-sample optimism)
-pred_validate(pred_input_info(model_type = "logistic",
-                              model_info = SR$Aggregated_Coefs,
-                              newdata = SYNPM$ValidationData,
-                              binary_outcome = "Y"))
+#one could then validate this as follows (but this should be adjusted for
+#in-sample optimism):
+pred_validate(SR, newdata = SYNPM$ValidationData, binary_outcome = "Y")
 
 }
 \references{
