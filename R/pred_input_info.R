@@ -21,7 +21,9 @@
 #'   the data.frame as NA. See examples below.
 #' @param baselinehazard A data.frame with two columns: (1) time, and (2)
 #'   estimated baseline hazard at that time. Only relevant if \code{model_type}
-#'   is "survival"; leave as NULL otherwise.
+#'   is "survival"; leave as NULL otherwise. If multiple existing models
+#'   entered, and model_type = survival, then \code{baselinehazard} should be
+#'   supplied as list of length equal to number of models.
 #'
 #' @details This function will structure the relevant information (detailed
 #'   below) about one or more existing prediction model into a standardised
@@ -32,8 +34,8 @@
 #'   \code{formula}, this will be taken as being a linear combination of the
 #'   variables specified by the columns of \code{model_info}.
 #'
-#'   Second, each of the predictor variables of the existing prediction
-#'   model(s) will have a published coefficient (e.g. log-odds-ratio or
+#'   Second, each of the predictor variables of the existing prediction model(s)
+#'   will have a published coefficient (e.g. log-odds-ratio or
 #'   log-hazard-ratio), which should each be given as the values in
 #'   \code{model_info}. If entering information about multiple existing
 #'   prediction models, then \code{model_info} will contain multiple rows (one
