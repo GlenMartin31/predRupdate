@@ -37,8 +37,10 @@ leave as \code{NULL} otherwise. Leave as \code{NULL} if \code{newdata} does
 not contain any survival outcomes.}
 
 \item{time_horizon}{for survival models, an integer giving the time horizon
-(post baseline/time of prediction) at which a prediction is required.
-Currently, this must match a time in x$baselinehazard.}
+(post baseline/time of prediction) at which a prediction is required (i.e.
+the t at which P(T<t) should be estiamted). Currently, this must match a
+time in x$baselinehazard. If left as NULL, no predicted risks will be
+returned, just the linear predictor.}
 }
 \value{
 \code{\link{pred_predict}} returns a list containing the following
@@ -65,8 +67,26 @@ x$model_type == "logistic"), this will be the predicted probability of the
 binary outcome conditional on the predictor variables in the newdatas
 (i.e., \eqn{P(Y=1 | X)}). If the existing prediction model is based on a
 time-to-event/survival model (i.e., if x$model_type == "survival"), this
-will be one minus the survival probability (i.e., \eqn{1 - S(T>time_horizon
+will be one minus the survival probability (i.e., \eqn{1 - S(T>time horizon
   | X)}).
+
+\code{newdata} should be a data.frame, where each row should be an
+observation (e.g. patient) and each variable/column should be a predictor
+variable. The predictor variables need to include (as a minimum) all of the
+predictor variables that are included in the existing prediction model
+(i.e., each of the variable names supplied to
+\code{\link{pred_input_info}}, through the \code{model_info} parameter,
+must match the name of a variables in \code{newdata}).
+
+Any factor variables within \code{newdata} must be converted to dummy (0/1)
+variables before calling this function. \code{\link{dummyvars}} can help
+with this - see examples below.
+
+\code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
+used to specify the outcome variable(s) within \code{newdata} (use
+\code{binary_outcome} if \code{x$model_type} = "logistic", or use
+\code{survival_time} and \code{event_indicator} if \code{x$model_type} =
+"survival").
 }
 \examples{
 #Example 1 - logistic regression existing model, with outcome specified; uses
@@ -80,23 +100,15 @@ pred_predict(x = model1,
 #Example 2 - survival model example; uses an example dataset within the
 #             package. Also shows use of pre-processing to handle
 #             categorical variables - need converting prior to call
-SMART_dummaryvars <- dummyvars(SMART)
+SMART_dummaryvars <- dummyvars(SMART$SMART_dataset)
 model2 <- pred_input_info(model_type = "survival",
-                          model_info = data.frame("SEX_M" = 0.53,
-                                                  "AGE" = -0.05,
-                                                  "SYSTBP" = -0.0055,
-                                                  "BMIO" = 0.0325,
-                                                  "CARDIAC" = -0.126,
-                                                  "DIABETES" = -0.461),
-                           baselinehazard = data.frame("t" = 1:5,
-                                                       "h" = c(0.12, 0.20,
-                                                               0.26, 0.33,
-                                                               0.38)))
+                          model_info = SMART$Existing_models[1,],
+                          baselinehazard = SMART$Framingham_Male_baseline)
 pred_predict(x = model2,
              newdata = SMART_dummaryvars,
             survival_time = "TEVENT",
             event_indicator = "EVENT",
-            time_horizon = 2)
+            time_horizon = 10)
 
 #Example 3 - multiple existing models
 model3 <- pred_input_info(model_type = "logistic",
