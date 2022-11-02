@@ -56,6 +56,24 @@ information about the existing prediction model should first be inputted by
 calling \code{\link{pred_input_info}}, before passing the resulting object
 to \code{pred_validate}.
 
+\code{newdata} should be a data.frame, where each row should be an
+observation (e.g. patient) and each variable/column should be a predictor
+variable. The predictor variables need to include (as a minimum) all of the
+predictor variables that are included in the existing prediction model
+(i.e., each of the variable names supplied to
+\code{\link{pred_input_info}}, through the \code{model_info} parameter,
+must match the name of a variables in \code{newdata}).
+
+Any factor variables within \code{newdata} must be converted to dummy (0/1)
+variables before calling this function. \code{\link{dummyvars}} can help
+with this - see examples below.
+
+\code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
+used to specify the outcome variable(s) within \code{newdata} (use
+\code{binary_outcome} if \code{x$model_type} = "logistic", or use
+\code{survival_time} and \code{event_indicator} if \code{x$model_type} =
+"survival").
+
 In the case of validating a logistic regression model, \code{pred_validate}
 internally calls \code{\link{validate_probabilities}}. See this function
 for details on the performance metrics that are estimated.
