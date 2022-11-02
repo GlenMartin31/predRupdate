@@ -82,7 +82,7 @@ model_info <- model_info %>%
 
 
 ####-------------------------------------------------------------------------------------------------------
-## Set the alidation data as being the most recent data
+## Set the validation data as being the most recent data
 ####-------------------------------------------------------------------------------------------------------
 ValidationData <- IPD %>%
   dplyr::mutate(Age = round(Age)) %>%

@@ -5,25 +5,28 @@
 \alias{SMART}
 \title{Second Manifestations of ARTerial disease (SMART) dataset}
 \format{
-A data with 3873 rows (observations) with 16 variables:
-\describe{
-\item{TEVENT}{Time of event (days)}
-\item{EVENT}{Cardiovascular event (0=no, 1=yes)}
-\item{SEX}{M = male, f = female}
-\item{AGE}{Age (years)}
-\item{DIABETES}{History of diabetes (0=no, 1=yes)}
-\item{CEREBRAL}{History of cerebrovascular disease (0=no, 1=yes)}
-\item{CARDIAC}{History of cardiovascular disease (0=no, 1=yes)}
-\item{AAA}{History of abdominal aortic aneurysm (0=no, 1=yes)}
-\item{PERIPH}{History of periferal aortic aneurysm (0=no, 1=yes)}
-\item{STENOSIS}{History of periferal vascular disease (0=no, 1=yes)}
-\item{SYSTBP}{Systolic blood pressure (mm Hg)}
-\item{DIASTBP}{Diastolic blood pressure (mm Hg)}
-\item{BMIO}{Body mass index (kg/m^2)}
-\item{CHOLO}{Cholesterol level (mmol/L)}
-\item{albumin}{Albumin in urine (no/low/high)}
+A list, with the information about the existing models, their
+baseline hazards and the SMART data, which includes 3873 rows
+(observations) with the following variables: \describe{ \item{TEVENT}{Time
+of event (days)} \item{EVENT}{Cardiovascular event (0=no, 1=yes)}
+\item{SEX}{M = male, f = female} \item{AGE}{Age (years)}
+\item{DIABETES}{History of diabetes (0=no, 1=yes)} \item{CEREBRAL}{History
+of cerebrovascular disease (0=no, 1=yes)} \item{CARDIAC}{History of
+cardiovascular disease (0=no, 1=yes)} \item{AAA}{History of abdominal
+aortic aneurysm (0=no, 1=yes)} \item{PERIPH}{History of periferal aortic
+aneurysm (0=no, 1=yes)} \item{STENOSIS}{History of periferal vascular
+disease (0=no, 1=yes)} \item{SYSTBP}{Systolic blood pressure (mm Hg)}
+\item{DIASTBP}{Diastolic blood pressure (mm Hg)} \item{BMIO}{Body mass
+index (kg/m^2)} \item{CHOLO}{Cholesterol level (mg/dL)}
+\item{HDLO}{High-density lipoprotein cholesterol (mg/dL)}
+\item{LDLO}{Low-density lipoprotein cholesterol (mg/dL)}
+\item{TRIGO}{Triglycerides (mg/dL)} \item{HOMOCO}{Homocysteine (umol/L)}
+\item{GLUTO}{Glutamine (umol/L)} \item{CREATO}{Creatinine clearance
+(mL/min)} \item{albumin}{Albumin in urine (no/low/high)}
 \item{SMOKING}{Smoking status (never/former/current)}
-}
+\item{Hypertension_Cat}{Hypertension as categorized by JNC-V definitions}
+\item{HDL_Chol_cat}{Categorized high-density lipoprotein cholesterol}
+\item{Fam_Hist}{Family history of CVD: not recorded in SMART, so 0 for} }
 }
 \source{
 \url{http://www.clinicalpredictionmodels.org/doku.php?id=rcode_and_data:start;
@@ -46,5 +49,9 @@ Interest is in predicting the occurrence of cardiovascular events; this is
 defined as time-to-event of the composite endpoint of cardiovascular death,
 ischemic stroke or myocardial infarction. The dataset includes those patients
 enrolled in study between September 1996 and March 2006.
+
+Also contains information from the Framingham (Wilson et al.
+https://doi.org/10.1161/01.CIR.97.18.1837) and PROCAM (Assmann et al.
+https://doi.org/10.1161/hc0302.102575) existing risk prediction models
 }
 \keyword{datasets}
