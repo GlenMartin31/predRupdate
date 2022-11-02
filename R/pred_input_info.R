@@ -1,33 +1,33 @@
 #' Input information about an existing prediction model
 #'
-#' Input relevant information about one or multiple existing prediction model
-#' (i.e. the functional form and published coefficients), and a new dataset, to
-#' create a standardised 'blueprint' for further evaluation.
+#' Input coefficient information about one or multiple existing prediction
+#' model(s), for use in other functions in the package.
 #'
 #' @param model_type specifies the type of model that the existing prediction
 #'   model is based on; possible options are: \itemize{ \item {\code{"logistic"}
 #'   indicates that the existing model was based on a logistic regression model
 #'   (default)} \item {\code{"survival"} indicates that the existing model was
 #'   based on a survival regression model} } If multiple models are being
-#'   entered (i.e., if \code{M}>1), then note that all such model need to be of
-#'   the same type.
+#'   entered, then all models need to be of the same type - otherwise call
+#'   \code{pm_input_info()} multiple times for each type of model.
 #' @param model_info a data.frame that contains the coefficients of the existing
 #'   prediction model(s). Each column should be a predictor variable (with the
-#'   name being the name of said predictor variable as specified in
-#'   \code{newdata}), with the values being the coefficients, taken exactly as
-#'   published from the existing prediction model(s). Multiple existing
-#'   prediction models should be specified by entering multiple rows. If a
-#'   predictor variable is not present in a given model then enter that cell of
-#'   the data.frame as NA. See examples below.
+#'   name of the column being the name of the predictor variable), with the
+#'   values being the coefficients, taken exactly as published from the existing
+#'   prediction model(s). Multiple existing prediction models should be
+#'   specified by entering multiple rows. If a predictor variable is not present
+#'   in a given model then enter that cell of the data.frame as NA. See
+#'   examples.
 #' @param baselinehazard A data.frame with two columns: (1) time, and (2)
-#'   estimated baseline hazard at that time. Only relevant if \code{model_type}
-#'   is "survival"; leave as NULL otherwise. If multiple existing models
-#'   entered, and model_type = survival, then \code{baselinehazard} should be
-#'   supplied as list of length equal to number of models.
+#'   estimated cumulative baseline hazard at that time. Only relevant if
+#'   \code{model_type} is "survival"; leave as NULL otherwise. If multiple
+#'   existing models entered, and model_type = survival, then
+#'   \code{baselinehazard} should be supplied as list of length equal to number
+#'   of models.
 #'
-#' @details This function will structure the relevant information (detailed
-#'   below) about one or more existing prediction model into a standardised
-#'   format, such that it can be used with other functions in the package.
+#' @details This function will structure the relevant information about one or
+#'   more existing prediction model(s) into a standardised format, such that it
+#'   can be used within other functions in the package.
 #'
 #'   First, the existing prediction model(s) will have a functional form (i.e.
 #'   the linear predictor of the model); unless otherwise stated by
@@ -36,7 +36,7 @@
 #'
 #'   Second, each of the predictor variables of the existing prediction model(s)
 #'   will have a published coefficient (e.g. log-odds-ratio or
-#'   log-hazard-ratio), which should each be given as the values in
+#'   log-hazard-ratio), which should each be given as the values of
 #'   \code{model_info}. If entering information about multiple existing
 #'   prediction models, then \code{model_info} will contain multiple rows (one
 #'   per existing model). Here, if a given model does not contain a predictor
@@ -50,40 +50,41 @@
 #'   \code{baselinehazard} should be provided and no "Intercept" column is
 #'   needed in \code{model_info}.
 #'
+#'   Note, the column names of \code{model_info} should match columns in any new
+#'   data that the existing model(s) will be applied to (i.e. any newdata that
+#'   will be provided to other functions within the package should have
+#'   corresponding predictor variables entered through \code{model_info}). See
+#'   \code{\link{pred_predict}} for more information.
+#'
 #' @return \code{\link{pred_input_info}} returns an object of class "predinfo",
 #'   with child classes per model_type. This is a standardised format, such that
 #'   it can be used with other functions in the package. An object of class
-#'   "predinfo" is a list containing at least the following components:
-#'   \itemize{ \item{model_type = this is the type of analytical model that the
-#'   existing prediction model is based upon ("logistic" or "survival")}
-#'   \item{coefs = this is the list of (previously estimated) coefficients for
-#'   each predictor variable} \item{coef_names = gives the names of each
-#'   predictor variable} \item{PredictionData = this is the data formed by any
-#'   subsequent predictions/model updating/ model aggregation will be based on
-#'   this data.} \item{Outcomes = vector of outcomes/endpoints (if specified in
-#'   the input).} }
+#'   "predinfo" is a list containing the following components: \itemize{ \item{M
+#'   = the number of existing models that information has been entered about}
+#'   \item{model_type = this is the type of analytical model that the existing
+#'   prediction model is based upon ("logistic" or "survival")} \item{coefs =
+#'   this is the list of (previously estimated) coefficients for each predictor
+#'   variable} \item{coef_names = gives the names of each predictor variable}
+#'   \item{formula = this is the functional form of the model's linear
+#'   predictor} \item{baselinehazard = if supplied, this is the cumulative
+#'   baseline hazard of the existing model(s)}}
 #'
 #' @examples
 #' #Example 1 - logistic regression existing model; uses
 #' #            an example dataset within the package
-#' pred_input_info(model_type = "logistic",
-#'                 model_info = SYNPM$Existing_models[1,])
+#' model1 <- pred_input_info(model_type = "logistic",
+#'                           model_info = SYNPM$Existing_models[1,])
+#' summary(model1)
 #'
 #' #Example 2 - survival model example; uses an example dataset within the
 #' #             package.
 #' pred_input_info(model_type = "survival",
-#'                 model_info = data.frame("SEX_M" = 0.53,
-#'                                         "AGE" = -0.05,
-#'                                         "SYSTBP" = -0.0055,
-#'                                         "BMIO" = 0.0325,
-#'                                         "CARDIAC" = -0.126,
-#'                                         "DIABETES" = -0.461),
-#'                  baselinehazard = data.frame("t" = 1:5,
-#'                                              "h" = c(0.12, 0.20, 0.26, 0.33, 0.38)))
+#'                 model_info = SMART$Existing_models["Framingham_Male_model_info",],
+#'                 baselinehazard = SMART$Framingham_Male_baseline)
 #'
 #' #Example 3 - Input information about multiple models
-#' pred_input_info(model_type = "logistic",
-#'                 model_info = SYNPM$Existing_models)
+#' summary(pred_input_info(model_type = "logistic",
+#'                         model_info = SYNPM$Existing_models))
 #'
 #' @export
 pred_input_info <- function(model_type = c("logistic", "survival"),
@@ -118,7 +119,8 @@ pred_input_info <- function(model_type = c("logistic", "survival"),
                         model_type = model_type,
                         coefs = existingcoefs,
                         coef_names = lapply(existingcoefs, names),
-                        formula = form)
+                        formula = form,
+                        model_info = model_info)
     } else {
       vars <- names(model_info[1,which(!is.na(model_info[1,]))])
       form <- stats::as.formula(paste("~",
@@ -130,7 +132,8 @@ pred_input_info <- function(model_type = c("logistic", "survival"),
                         model_type = model_type,
                         coefs = existingcoefs,
                         coef_names = names(existingcoefs),
-                        formula = form)
+                        formula = form,
+                        model_info = model_info)
     }
     #Set the S3 class
     class(info_vals) <- c("predinfo_logistic", "predinfo")
@@ -152,7 +155,8 @@ pred_input_info <- function(model_type = c("logistic", "survival"),
                         coefs = existingcoefs,
                         coef_names = lapply(existingcoefs, names),
                         formula = form,
-                        baselinehazard = baselinehazard)
+                        baselinehazard = baselinehazard,
+                        model_info = model_info)
     } else {
       vars <- names(model_info[1,which(!is.na(model_info[1,]))])
       form <- stats::as.formula(paste("~",
@@ -164,7 +168,8 @@ pred_input_info <- function(model_type = c("logistic", "survival"),
                         coefs = existingcoefs,
                         coef_names = names(existingcoefs),
                         formula = form,
-                        baselinehazard = baselinehazard)
+                        baselinehazard = baselinehazard,
+                        model_info = model_info)
     }
 
     #Set the S3 class
@@ -176,33 +181,23 @@ pred_input_info <- function(model_type = c("logistic", "survival"),
 
 
 #' @export
-print.predinfo <- function(x, ...) {
+summary.predinfo <- function(object, ...) {
 
-  if (is.list(x$formula) & is.list(x$coefs) & is.list(x$coef_names)) {
-    M <- length(x$formula)
+  cat(paste("Information about", object$M, "existing model(s)",
+            paste("of type '", object$model_type, "' \n", sep = ""), sep = " "))
+
+  cat("\nModel Coefficients \n",
+      "================================= \n", sep = "")
+  print(object$model_info)
+
+  cat("\nModel Functional Form \n",
+      "================================= \n", sep = "")
+  if(object$M == 1){
+    cat(as.character(object$formula)[2])
   } else{
-    M <- 1
-  }
-
-  cat(paste("Information about", M, "existing model(s)",
-            paste("of type '", x$model_type, "' \n \n", sep = ""), sep = " "))
-
-  if (M > 1) {
-    cat("Coefficients: \n")
-    print(lapply(x$coefs, function(X) paste(X, collapse = ", ")))
-  } else{
-    cat("Coefficients: \n")
-    print(paste(x$coefs, collapse = ", "))
-  }
-
-  if (M > 1) {
-    cat("Predictors: \n")
-    print(lapply(x$coef_names, function(X) paste(X, collapse = ", ")))
-    cat("\n \n")
-  } else{
-    cat("Predictors: \n")
-    print(paste(x$coef_names, collapse = ", "))
-    cat("\n \n")
+    for(m in 1:object$M){
+      cat(paste("Model ", m, ": ", as.character(object$formula[[m]])[2], "\n", sep  = ""))
+    }
   }
 }
 
