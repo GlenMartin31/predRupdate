@@ -31,7 +31,13 @@
 #'   be an observation (e.g. patient) and each variable/column should be a
 #'   predictor variable. The predictor variables need to include (as a minimum)
 #'   all of the predictor variables that are included in the existing prediction
-#'   model.
+#'   model (i.e., each of the variable names supplied to
+#'   \code{\link{pred_input_info}}, through the \code{model_info} parameter,
+#'   must match the name of a variables in \code{newdata}).
+#'
+#'   Any factor variables within \code{newdata} must be converted to dummy (0/1)
+#'   variables before calling this function. \code{\link{dummyvars}} can help
+#'   with this - see examples below.
 #'
 #'   \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
 #'   used to specify the outcome variable(s) within \code{newdata}, if relevant
@@ -43,47 +49,9 @@
 #'   dataset. If \code{newdata} does not contain outcomes, then leave these
 #'   inputs to the default of \code{NULL}.
 #'
-#' @return Returns a list of the predinfo object with the newdata and outcomes
+#' @return Returns a list of the predinfo object, the newdata, and outcomes.
 #'
-#' @examples
-#' #Example 1 - logistic regression existing model, with outcome specified; uses
-#' #            an example dataset within the package
-#' model1 <- pred_input_info(model_type = "logistic",
-#'                           model_info = SYNPM$Existing_models[1,])
-#' map_newdata(model1,
-#'             newdata = SYNPM$ValidationData,
-#'             binary_outcome = "Y")
-#'
-#' #Example 2 - survival model example; uses an example dataset within the
-#' #             package. Also shows use of pre-processing to handle
-#' #             categorical variables - need converting prior to call
-#' SMART_dummaryvars <- dummyvars(SMART)
-#' model2 <- pred_input_info(model_type = "survival",
-#'                           model_info = data.frame("SEX_M" = 0.53,
-#'                                                   "AGE" = -0.05,
-#'                                                   "SYSTBP" = -0.0055,
-#'                                                   "BMIO" = 0.0325,
-#'                                                   "CARDIAC" = -0.126,
-#'                                                   "DIABETES" = -0.461),
-#'                            baselinehazard = data.frame("t" = 1:5,
-#'                                                        "h" = c(0.12, 0.20,
-#'                                                                0.26, 0.33,
-#'                                                                0.38)))
-#' map_newdata(model2,
-#'             newdata = SMART_dummaryvars,
-#'             survival_time = "TEVENT",
-#'             event_indicator = "EVENT")
-#'
-#' #Example 3 - multiple existing models
-#' model3 <- pred_input_info(model_type = "logistic",
-#'                           model_info = SYNPM$Existing_models)
-#' map_newdata(model3,
-#'             newdata = SYNPM$ValidationData,
-#'             binary_outcome = "Y")
-#'
-#' @seealso \code{\link{pred_input_info}}
-#'
-#' @export
+#' @noRd
 map_newdata <- function(x,
                         newdata,
                         binary_outcome = NULL,
@@ -145,7 +113,7 @@ map_newdata.predinfo_logistic <- function(x,
     predictor_variables <- predictor_variables[-which(predictor_variables=="Intercept")]
   }
   if (all(predictor_variables %in% names(newdata)) == FALSE) {
-    stop("newdata does not contain some of the predictor variables for the model specified within the pminfo object")
+    stop("newdata does not contain some of the predictor variables for the model(s) specified within the pminfo object")
   }
 
 
@@ -216,9 +184,13 @@ map_newdata.predinfo_survival <- function(x,
 
   # Check that all predictor variables specified in the pminfo object are also
   # included in the 'newdata':
-  predictor_variables <- x$coef_names
+  if (x$M == 1) {
+    predictor_variables <- x$coef_names
+  } else{
+    predictor_variables <- unique(unlist(x$coef_names))
+  }
   if (all(predictor_variables %in% names(newdata)) == FALSE) {
-    stop("Ensure that all predictor variables specified in the pminfo object are also in 'newdata'")
+    stop("newdata does not contain some of the predictor variables for the model(s) specified within the pminfo object")
   }
 
 
