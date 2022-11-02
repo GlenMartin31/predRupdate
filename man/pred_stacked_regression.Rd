@@ -11,7 +11,7 @@ pred_stacked_regression(
   binary_outcome = NULL,
   survival_time = NULL,
   event_indicator = NULL,
-  time_horizon = NULL
+  baseline_dist = c(NULL, "weibull", "exponential")
 )
 }
 \arguments{
@@ -39,9 +39,10 @@ for \code{model_type}="survival"; leave as \code{NULL} otherwise.}
 event, 0 for censoring). Only relevant for \code{model_type}="survival";
 leave as \code{NULL} otherwise.}
 
-\item{time_horizon}{for survival models, an integer giving the time horizon
-(post baseline/time of prediction) at which a prediction is required.
-Currently, this must match a time in x$baselinehazard.}
+\item{baseline_dist}{character variable specifying the parametric form of the
+baseline hazard to use for the stacked regression if the \code{model_type}
+of the \code{predinfo} object is "survival". Leave as NULL (default) if
+existing models are not of type survival.}
 }
 \value{
 A object of class "predinfo" with subclass"\code{predSR}". This is
@@ -67,20 +68,54 @@ they were each developed for the same prediction task), it has been
 suggested to impose a positivity constraint on the weights of the stacked
 regression model (Debray et al. 2014.). If \code{positivity_constraint} is
 set to TRUE, then the stacked regression model will be estimated by
-optimising the (log-)likelihood of a logistic regression model using bound
-constrained optimization ("L-BFGS-B" in \code{stats::optim()}).
+optimising the (log-)likelihood using bound constrained optimization
+("L-BFGS-B" in \code{stats::optim()}).
+
+This is currently only implemented for logistic regression models (i.e., if
+x$model_type = "logistic"). For survival models, positivity_constraint =
+FALSE
+
+\code{newdata} should be a data.frame, where each row should be an
+observation (e.g. patient) and each variable/column should be a predictor
+variable. The predictor variables need to include (as a minimum) all of the
+predictor variables that are included in the existing prediction model
+(i.e., each of the variable names supplied to
+\code{\link{pred_input_info}}, through the \code{model_info} parameter,
+must match the name of a variables in \code{newdata}).
+
+Any factor variables within \code{newdata} must be converted to dummy (0/1)
+variables before calling this function. \code{\link{dummyvars}} can help
+with this - see examples below.
+
+\code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
+used to specify the outcome variable(s) within \code{newdata} (use
+\code{binary_outcome} if \code{x$model_type} = "logistic", or use
+\code{survival_time} and \code{event_indicator} if \code{x$model_type} =
+"survival").
 }
 \examples{
-model3 <- pred_input_info(model_type = "logistic",
-                          model_info = SYNPM$Existing_models)
-SR <- pred_stacked_regression(x = model3,
+LogisticModels <- pred_input_info(model_type = "logistic",
+                                  model_info = SYNPM$Existing_models)
+SR <- pred_stacked_regression(x = LogisticModels,
                               newdata = SYNPM$ValidationData,
                               binary_outcome = "Y")
-print(SR)
 summary(SR)
 #one could then validate this as follows (but this should be adjusted for
 #in-sample optimism):
 pred_validate(SR, newdata = SYNPM$ValidationData, binary_outcome = "Y")
+
+#Survival model example:
+SMART_Models <- pred_input_info(model_type = "survival",
+                                model_info = SMART$Existing_models,
+                                baselinehazard = list(SMART$Framingham_Male_baseline,
+                                                      SMART$Framingham_Female_baseline,
+                                                      SMART$PROCAM_baseline))
+SMART_dummaryvars <- dummyvars(SMART$SMART_dataset)
+SR <- pred_stacked_regression(x = SMART_Models,
+                              newdata = SMART_dummaryvars,
+                              survival_time = "TEVENT",
+                              event_indicator = "EVENT")
+summary(SR)
 
 }
 \references{
