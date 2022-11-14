@@ -99,7 +99,7 @@ Framingham_Male_model_info <- data.frame("AGE" = 0.04826,
                                          "DIABETES" = 0.42839,
                                          "SMOKING_yes" = 0.52337)
 Framingham_Male_baseline <- data.frame("t" = 10,
-                                       "h" = -log(0.90015))
+                                       "h" = -log(0.90015^exp(-3.0975)))
 
 Framingham_Female_model_info <- data.frame("AGE" = 0.33766,
                                            "AGE_squared" = -0.00268,
@@ -118,7 +118,7 @@ Framingham_Female_model_info <- data.frame("AGE" = 0.33766,
                                            "DIABETES" = 0.59626,
                                            "SMOKING_yes" = 0.29246)
 Framingham_Female_baseline <- data.frame("t" = 10,
-                                         "h" = -log(0.96246))
+                                         "h" = -log(0.96246^exp(-9.92545)))
 
 
 ####-------------------------------------------------------------------------------------------------------
