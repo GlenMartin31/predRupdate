@@ -88,7 +88,7 @@ dummyvars <- function(df) {
 
       #create sensible names
       colnames(dummy_mat) <- paste(j,
-                                   sub(".*j\\]", "", colnames(dummy_mat)),
+                                   sub(".*j\\]\\]", "", colnames(dummy_mat)),
                                    sep="_")
       df <- cbind(df, dummy_mat)
     }
