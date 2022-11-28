@@ -81,7 +81,7 @@ dummyvars <- function(df) {
     stop("data.frame contains no factor variables to convert to dummy variables")
   } else{
     for (j in names(df)[which(sapply(df, is.factor))]) {
-      dummy_mat <- stats::model.matrix.lm(~-1 + df[,j],
+      dummy_mat <- stats::model.matrix.lm(~-1 + df[[j]],
                                           na.action = "na.pass")
       #Note: above we keep NA's in the dummy variables; gives users flexibility
       #to decide how to handle in other functions
