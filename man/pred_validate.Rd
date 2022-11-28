@@ -36,9 +36,7 @@ leave as \code{NULL} otherwise.}
 (post baseline/time of prediction) at which a prediction is required.
 Currently, this must match a time in x$baselinehazard.}
 
-\item{...}{further arguments passed to other methods. See
-\code{\link{validate_probabilities}} for more details of arguments that can
-be passed}
+\item{...}{further arguments passed to other methods. See Details below.}
 }
 \value{
 A list of performance metrics, estimated by applying the existing
@@ -74,9 +72,30 @@ used to specify the outcome variable(s) within \code{newdata} (use
 \code{survival_time} and \code{event_indicator} if \code{x$model_type} =
 "survival").
 
-In the case of validating a logistic regression model, \code{pred_validate}
-internally calls \code{\link{validate_probabilities}}. See this function
-for details on the performance metrics that are estimated.
+In the case of validating a logistic regression model, this function
+assesses the predictive performance of the predicted risks against an
+observed binary outcome. Various metrics of calibration (agreement between
+the observed risk and the predicted risks, across the full risk range) and
+discrimination (ability of the model to distinguish between those who
+develop the outcome and those who do not) are calculated. For calibration,
+a calibration plot is produced, using either flexible methods or the
+binned/grouped approach. Calibration-in-the-large (CITL) and calibration
+slopes are also estimated. For CITL, we estimate the intercept by fitting a
+logistic regression model to the observed binary outcomes, with the linear
+predictor of the model as an offset. For calibration slope, a logistic
+regression model is fit to the observed binary outcome with the linear
+predictor from the model as the only covariate. For discrimination, we
+estimate the area under the receiver operating characteristic curve (AUC).
+Various other metrics are also calculated to assess overall accuracy (Brier
+score, Cox-Snell R2). Specify parameter \code{CalPlot} to indicate whether
+a calibration plot should be produced, and the method for doing so; set to
+"smooth" (default) if a flexible (smooth) calibration plot should be
+produced using natural cubic splines, set to "grouped" if a grouped/binned
+calibration plot should be produced, and set to "none" if no calibration
+plot should be produced. If set to grouped then specification of parameter
+\code{groups} specifies the number of groups to produce. Can also specify
+parameters \code{xlab}, \code{ylab}, \code{xlim},and \code{ylim} to change
+plotting characteristics for the calibration plot.
 
 In the case of validating a survival prediction model,...
 }
@@ -89,28 +108,18 @@ pred_validate(x = model1,
               newdata = SYNPM$ValidationData,
               binary_outcome = "Y")
 
-\dontrun{
 #Example 2 - survival model example; uses an example dataset within the
 #             package. Also shows use of pre-processing to handle
 #             categorical variables - need converting prior to call
-SMART_dummaryvars <- dummyvars(SMART)
+SMART_dummaryvars <- dummyvars(SMART$SMART_dataset)
 model2 <- pred_input_info(model_type = "survival",
-                          model_info = data.frame("SEX_M" = 0.53,
-                                                  "AGE" = -0.05,
-                                                  "SYSTBP" = -0.0055,
-                                                  "BMIO" = 0.0325,
-                                                  "CARDIAC" = -0.126,
-                                                  "DIABETES" = -0.461),
-                           baselinehazard = data.frame("t" = 1:5,
-                                                       "h" = c(0.12, 0.20,
-                                                               0.26, 0.33,
-                                                               0.38)))
+                          model_info = SMART$Existing_models[1,],
+                          baselinehazard = SMART$Framingham_Male_baseline)
 pred_validate(x = model2,
-              newdata = SMART_dummaryvars,
-              survival_time = "TEVENT",
-              event_indicator = "EVENT",
-              time_horizon = 2)
-}
+             newdata = SMART_dummaryvars,
+            survival_time = "TEVENT",
+            event_indicator = "EVENT",
+            time_horizon = 10)
 
 #Example 3 - multiple existing models
 model3 <- pred_input_info(model_type = "logistic",
@@ -121,5 +130,5 @@ pred_validate(x = model3,
 
 }
 \seealso{
-\code{\link{pred_input_info}} \code{\link{validate_probabilities}}
+\code{\link{pred_input_info}}
 }

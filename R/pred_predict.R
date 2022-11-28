@@ -218,7 +218,7 @@ pred_predict.predinfo_survival <- function(x,
       bh <- x$baselinehazard[x$baselinehazard[,1] == time_horizon,2]
 
       #Map to predicted risks
-      PR <- 1-exp(-bh)^exp(LP)
+      PR <- 1-(exp(-bh)^exp(LP))
     } else{
       PR <- NULL
     }
