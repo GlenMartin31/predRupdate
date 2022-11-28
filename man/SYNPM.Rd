@@ -5,34 +5,18 @@
 \alias{SYNPM}
 \title{SYNthetic Prediction Models (SYNPM) and Validation dataset}
 \format{
-A list with two elements.
-\enumerate{\item{The first element is a data frame with 3
-rows and 3 variables:
-\describe{
-\item{Model_Name}{An (arbitary) name of each of the existing models.}
-\item{Coeffs}{Values of the estimated coefficients from each model,
-where each predictor variable (coefficient) is separated
-with a '|'.}
-\item{Formula}{A string giving the functional form of the existing
-prediction model}
-}
-}
-\item{
-The second element is the (synthetic) validation dataset on which we want to
+A list with two elements. \enumerate{\item{The first element is a
+data frame with the information about the existing models} \item{ The
+second element is the (synthetic) validation dataset on which we want to
 validate the existing models. The dataset has 118150 rows and 7 variables:
-\describe{
-\item{Age}{The age of the individual at baseline}
-\item{Sex}{The sex of the individual (M = male; F = female)}
-\item{Smoking_Status}{Indicates whether the individual was or is a
-smoker (1=previous/ current smoker, 0=non-smoker)}
-\item{Diabetes}{Indicates whether the individual has diabetes
-(1=diabetic, 0=not diabetic)}
+\describe{ \item{Age}{The age of the individual at baseline} \item{Sex}{The
+sex of the individual (M = male; F = female)}
+\item{Smoking_Status}{Indicates whether the individual was or is a smoker
+(1=previous/ current smoker, 0=non-smoker)} \item{Diabetes}{Indicates
+whether the individual has diabetes (1=diabetic, 0=not diabetic)}
 \item{CKD}{Indicates whether the individual has chronic kidney disease
-(1=chronic kidney disease)}
-\item{Year}{The year the observation was made (2016-2021)}
-\item{Y}{Whether the binary outcome occured (1=yes, 0=no)}
-}
-}
+(1=chronic kidney disease)} \item{Year}{The year the observation was made
+(2016-2021)} \item{Y}{Whether the binary outcome occured (1=yes, 0=no)} } }
 }
 }
 \source{
@@ -42,9 +26,9 @@ Simulated Data; see \url{https://github.com/GlenMartin31/predRupdate}
 SYNPM
 }
 \description{
-A list containing: (1) information on some (synthetic) existing prediction models
-(representing those available/published, which we want to validate in another
-independent dataset); and (2) a synthetic dataset that we wish to validate the
-models on.
+A list containing: (1) information on some (synthetic) existing prediction
+models (representing those available/published, which we want to validate in
+another independent dataset); and (2) a synthetic dataset that we wish to
+validate the models on.
 }
 \keyword{datasets}

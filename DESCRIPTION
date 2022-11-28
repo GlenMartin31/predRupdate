@@ -1,5 +1,5 @@
 Package: predRupdate
-Title: Prognostic Model Updating and Validation in R
+Title: Prognostic Model Updating and Aggregation in R
 Version: 0.0.0.9000
 Authors@R: c(person(given = "Glen", family = "Martin", role = c("aut", "cre"), email = "glen.martin@manchester.ac.uk"),
              person(given = "Matthew", family = "Sperrin", role = c("aut"), email = "matthew.sperrin@manchester.ac.uk"),
@@ -22,7 +22,6 @@ Config/testthat/edition: 3
 Imports: 
     stats,
     graphics,
-    utils,
     survival,
     pROC
 Depends: 

@@ -6,14 +6,8 @@
 \usage{
 pred_input_info(
   model_type = c("logistic", "survival"),
-  existingcoefs,
-  formula,
-  newdata,
-  baselinehazard = NULL,
-  pre_processing = NULL,
-  binary_outcome = NULL,
-  survival_time = NULL,
-  event_indicator = NULL
+  model_info,
+  baselinehazard = NULL
 )
 }
 \arguments{
@@ -21,229 +15,91 @@ pred_input_info(
 model is based on; possible options are: \itemize{ \item {\code{"logistic"}
 indicates that the existing model was based on a logistic regression model
 (default)} \item {\code{"survival"} indicates that the existing model was
-based on a survival regression model} }}
+based on a survival regression model} } If multiple models are being
+entered, then all models need to be of the same type - otherwise call
+\code{pm_input_info()} multiple times for each type of model.}
 
-\item{existingcoefs}{a named vector of coefficients, taken exactly as
-published from the existing prediction model. Names much match variables in
-\code{newdata} (after any \code{pre_processing}). There should be one
-coefficient for each predictor variable in the model. If \code{model_type}
-is "logistic", then an intercept should be provided. See "Details".}
-
-\item{formula}{an object of class "\code{\link[stats]{formula}}" (or a
-character string that can be coerced to that class). This specifies the
-functional form of the existing prediction model. See "Details".}
-
-\item{newdata}{data.frame upon which the prediction model should be applied
-(for subsequent validation/model updating/model aggregation). Variable
-names must match those in \code{existingcoefs} and \code{formula} (after
-any \code{pre_processing}). See "Details".}
+\item{model_info}{a data.frame that contains the coefficients of the existing
+prediction model(s). Each column should be a predictor variable (with the
+name of the column being the name of the predictor variable), with the
+values being the coefficients, taken exactly as published from the existing
+prediction model(s). Multiple existing prediction models should be
+specified by entering multiple rows. If a predictor variable is not present
+in a given model then enter that cell of the data.frame as NA. See
+examples.}
 
 \item{baselinehazard}{A data.frame with two columns: (1) time, and (2)
-estimated baseline hazard at that time. Only relevant if \code{model_type}
-is "survival"; leave as NULL otherwise.}
-
-\item{pre_processing}{a list where each element is a function that describes
-transformations to apply to columns of \code{newdata}. See "Details".}
-
-\item{binary_outcome}{Character variable giving the name of the column in
-\code{newdata} that represents the observed outcomes. Only relevant for
-\code{model_type}="logistic"; leave as \code{NULL} otherwise. Leave as
-\code{NULL} if \code{newdata} does not contain any outcomes.}
-
-\item{survival_time}{Character variable giving the name of the column in
-\code{newdata} that represents the observed survival times. Only relevant
-for \code{model_type}="survival"; leave as \code{NULL} otherwise. Leave as
-\code{NULL} if \code{newdata} does not contain any survival outcomes.}
-
-\item{event_indicator}{Character variable giving the name of the column in
-\code{newdata} that represents the observed survival indicator (1 for
-event, 0 for censoring). Only relevant for \code{model_type}="survival";
-leave as \code{NULL} otherwise. Leave as \code{NULL} if \code{newdata} does
-not contain any survival outcomes.}
+estimated cumulative baseline hazard at that time. Only relevant if
+\code{model_type} is "survival"; leave as NULL otherwise. If multiple
+existing models entered, and model_type = survival, then
+\code{baselinehazard} should be supplied as list of length equal to number
+of models.}
 }
 \value{
-\code{\link{pred_input_info}} returns an object of class "predinfo", with
-child classes per model_type. This is a standardised format, such that it
-can be used with other functions in the package. An object of class
-"predinfo" is a list containing at least the following components:
-\itemize{
-\item{model_type = this is the type of analytical model that the
-existing prediction model is based upon ("logistic" or "survival")}
-\item{coefs = this is the list of (previously estimated) coefficients
-for each predictor variable}
-\item{coef_names = gives the names of each predictor variable}
-\item{PredictionData = this is the design matrix formed by mapping the
-specified \code{pre_processing} steps (if relevant) and functional form
-of the existing prediction model specified in \code{formula} onto
-\code{newdata}; any subsequent predictions/model updating/
-model aggregation will be based on this data.}
-\item{Outcomes = vector of outcomes/endpoints (if specified in the
-input).}
-}
+\code{\link{pred_input_info}} returns an object of class "predinfo",
+with child classes per model_type. This is a standardised format, such that
+it can be used with other functions in the package. An object of class
+"predinfo" is a list containing the following components: \itemize{ \item{M
+= the number of existing models that information has been entered about}
+\item{model_type = this is the type of analytical model that the existing
+prediction model is based upon ("logistic" or "survival")} \item{coefs =
+this is the list of (previously estimated) coefficients for each predictor
+variable} \item{coef_names = gives the names of each predictor variable}
+\item{formula = this is the functional form of the model's linear
+predictor} \item{baselinehazard = if supplied, this is the cumulative
+baseline hazard of the existing model(s)}}
 }
 \description{
-Input relevant information about an existing prediction model (i.e. the
-functional form and published coefficients), and a new dataset, to create a
-standardised 'blueprint' for further evaluation.
+Input coefficient information about one or multiple existing prediction
+model(s), for use in other functions in the package.
 }
 \details{
-This function will structure the relevant information about an
-existing prediction model and a new dataset (on which one wishes to make
-predictions/ apply model updating/ apply model aggregation) into a
-standardised format, such that it can be used with other functions in the
-package.
+This function will structure the relevant information about one or
+more existing prediction model(s) into a standardised format, such that it
+can be used within other functions in the package.
 
-The new dataset might be a validation dataset (to test the performance of
-the existing prediction model) and/or it might be the dataset on which one
-wishes to apply model updating methods to 'tweak' the model. In any case,
-this should be specified in \code{newdata} as a data.frame. Each row should
-be an observation (e.g. patient) and each variable/column should be a
-predictor variable. The predictor variables need to include (as a minimum)
-all of the predictor variables that are included in the existing prediction
-model (as specified in \code{formula} and \code{existingcoefs}).
+First, the existing prediction model(s) will have a functional form (i.e.
+the linear predictor of the model); unless otherwise stated by
+\code{formula}, this will be taken as being a linear combination of the
+variables specified by the columns of \code{model_info}.
 
-Sometimes, it is necessary to transform some variables in the dataset prior
-to applying the model (e.g., if the existing model includes splines, or
-non-linear variable transformations, such as squared terms).
-\code{\link{pred_input_info}} provides mechanisms for applying such
-transformations by specifying \code{pre_processing}. \code{pre_processing}
-should be a list where each element is a function that applies the desired
-transformations/ pre-processing steps. Each function (list element) should
-have one input (the new data) and return either a single transformed
-variable (vector) or a data.frame/ list of multiple transformed variables.
-In the case of returning a vector, the list element can be named such that
-the name of the list element becomes the new variable name; if returning a
-data.frame/list, then each new variable should be named internally within
-the function. See "Examples" below.
-
-The existing prediction model will have a functional form (i.e. the linear
-predictor of the model); this should be specified in \code{formula}. For
-example, if the existing prediction model included "age" and "BMI" as the
-predictor variables, then \code{formula} would be entered as "\code{~ age +
-  BMI}". Each variable name in \code{formula} must have a corresponding name
-in \code{newdata} (after applying any \code{pre_processing} steps).
-Additionally, each predictor variable specified in \code{formula} must have
-a corresponding named element in \code{existingcoefs}. Only the right hand
-side of the formula is needed.
-
-Each of the predictor variables included in the existing prediction model
+Second, each of the predictor variables of the existing prediction model(s)
 will have a published coefficient (e.g. log-odds-ratio or
-log-hazard-ratio), which should each be specified in \code{existingcoefs}.
-\code{existingcoefs} should be provided as a named numeric vector, where
-each name directly matches those in \code{formula} and in \code{newdata}
-(after applying any \code{pre_processing} steps). The values are the
-corresponding coefficient estimates taken \strong{exactly} as published by
-the existing model. Note, these coefficients should not normally be
-re-evaluated in the current data, especially if the \code{newdata} is being
-used for validation of the existing prediction model. In the case of
-\code{model_type} = "logistic", the intercept of the existing prediction
-model must be named as "(Intercept)". If \code{model_type} = "survival",
-then \code{baselinehazard} should be provided.
+log-hazard-ratio), which should each be given as the values of
+\code{model_info}. If entering information about multiple existing
+prediction models, then \code{model_info} will contain multiple rows (one
+per existing model). Here, if a given model does not contain a predictor
+variable that is included in another model, then set as NA; see examples of
+this below.
 
-\code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
-used to specify the outcome variable(s) within \code{newdata}, if relevant
-(use \code{binary_outcome} if \code{model_type} = "logistic", or use
-\code{survival_time} and \code{event_indicator} if \code{model_type} =
-"survival"). For example, if validating an existing model, then these
-inputs specify the columns of \code{newdata} that will be used for
-assessing predictive performance of the predictions in the validation
-dataset. If \code{newdata} does not contain outcomes, then leave
-these inputs to the default of \code{NULL}.
+In the case of \code{model_type} = "logistic", then \code{model_info} must
+contain a column named as "Intercept", which gives the intercept
+coefficient of each of the existing logistic regression models (taken
+exactly as previously published). If \code{model_type} = "survival", then
+\code{baselinehazard} should be provided and no "Intercept" column is
+needed in \code{model_info}.
+
+Note, the column names of \code{model_info} should match columns in any new
+data that the existing model(s) will be applied to (i.e. any newdata that
+will be provided to other functions within the package should have
+corresponding predictor variables entered through \code{model_info}). See
+\code{\link{pred_predict}} for more information.
 }
 \examples{
-#Example 1 - logistic regression existing model, with outcome specified, and
-#            handling of categorical variable in 'pre_processing'; uses
-#            package dataset
-existing_cpm_info <- pred_input_info(model_type = "logistic",
-                                     existingcoefs = c("(Intercept)" = -3.0893961710923,
-                                                       "Age" = 0.0230955938292795,
-                                                       "SexM" = 0.263578567485447,
-                                                       "Smoking_Status" = 0.689825139075564,
-                                                       "Diabetes" = 0.387810349702088,
-                                                       "CKD" = 0.56129156010678),
-                                     formula = formula(SYNPM$Existing_models$Formula[2]),
-                                     newdata = SYNPM$ValidationData,
-                                     pre_processing = list(function(df) {dummyvars(df)}),
-                                     binary_outcome = "Y")
+#Example 1 - logistic regression existing model; uses
+#            an example dataset within the package
+model1 <- pred_input_info(model_type = "logistic",
+                          model_info = SYNPM$Existing_models[1,])
+summary(model1)
 
-#Example 2 - survival model example; uses package dataset
+#Example 2 - survival model example; uses an example dataset within the
+#             package.
 pred_input_info(model_type = "survival",
-                existingcoefs = c("SEX" = 0.53,
-                                  "AGE" = -0.05,
-                                  "SYSTBP" = -0.0055,
-                                  "BMIO" = 0.0325,
-                                  "CARDIAC" = -0.126,
-                                  "DIABETES" = -0.461),
-                formula = ~ SEX + AGE + SYSTBP + BMIO + CARDIAC + DIABETES,
-                newdata = SMART,
-                baselinehazard = data.frame("t" = 1:5,
-                                            "h" = c(0.12, 0.20, 0.26, 0.33, 0.38)),
-                survival_time = "TEVENT",
-                event_indicator = "EVENT")
+                model_info = SMART$Existing_models["Framingham_Male_model_info",],
+                baselinehazard = SMART$Framingham_Male_baseline)
 
-
-#Example 3 - example of incorrect specification; here, the intercept in
-#            'existingcoefs' is incorrectly named; will return an error
-\dontrun{
-pred_input_info(model_type = "logistic",
-                existingcoefs = c("Intercept" = -2, "X" = 0.5),
-                formula = ~X,
-                newdata = data.frame("X" = rnorm(100)),
-                pre_processing = NULL)
-         }
-
-
-#Example 4 - example of incorrect specification; here, the existing
-#            prediction model is specified as having a functional form of
-#            X+Z (in 'formula') with corresponding 'existingcoefs', but Z does
-#            not exist in 'newdata'; will return an error
-\dontrun{
-pred_input_info(model_type = "logistic",
-                existingcoefs = c("(Intercept)" = -2, "X" = 0.5, "Z" = 0.9),
-                formula = ~X + Z,
-                newdata = data.frame("X" = rnorm(100)),
-                pre_processing = NULL)
-         }
-
-
-#Example 5 - showing use of 'pre_processing' - the following are all valid ways
-#            of specifying elements of 'pre_processing'
-pred_input_info(model_type = "logistic",
-                existingcoefs = c("(Intercept)" = -5,
-                                  "Age" = 0.05,
-                                  "Age_squared" = 0.0005,
-                                  "BMI_logged" = 0.006),
-                formula = ~Age + Age_squared + BMI_logged,
-                newdata = data.frame("Age" = rnorm(100, 50, 0.5),
-                                     "BMI" = rnorm(100, 25, 0.5)),
-                pre_processing = list("Age_squared" = function(df) df$Age^2,
-                                      "BMI_logged" = function(df) log(df$BMI)))
-pred_input_info(model_type = "logistic",
-                existingcoefs = c("(Intercept)" = -5,
-                                  "Age" = 0.05,
-                                  "Age_squared" = 0.0005,
-                                  "BMI_logged" = 0.006),
-                formula = ~Age + Age_squared + BMI_logged,
-                newdata = data.frame("Age" = rnorm(100, 50, 0.5),
-                                     "BMI" = rnorm(100, 25, 0.5)),
-                pre_processing = list(function(df) {
-                  Age_squared <- df$Age^2
-                  BMI_logged <- log(df$BMI)
-                  return(list("Age_squared" = Age_squared,
-                              "BMI_logged" = BMI_logged))
-                }))
-pred_input_info(model_type = "logistic",
-                existingcoefs = c("(Intercept)" = -5,
-                                  "Age" = 0.05,
-                                  "Age_squared" = 0.0005,
-                                  "BMI_logged" = 0.006),
-                formula = ~Age + Age_squared + BMI_logged,
-                newdata = data.frame("Age" = rnorm(100, 50, 0.5),
-                                     "BMI" = rnorm(100, 25, 0.5)),
-                pre_processing = list(function(df) {
-                  df$Age_squared <- df$Age^2
-                  df$BMI_logged <- log(df$BMI)
-                  return(df)
-                }))
+#Example 3 - Input information about multiple models
+summary(pred_input_info(model_type = "logistic",
+                        model_info = SYNPM$Existing_models))
 
 }
