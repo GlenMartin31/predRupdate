@@ -583,8 +583,8 @@ validate_survival <- function(ObservedOutcome,
        xlim = c(0,1),
        ylim = c(0,1),
        type = "n",
-       xlab = "Observed",
-       ylab = "Expected")
+       xlab = "Predicted Probability",
+       ylab = "Observed Probability")
   graphics::clip(xlim[1],xlim[2],ylim[1],ylim[2])
   graphics::abline(0,1)
   graphics::lines(x = val.df$Prob[order(val.df$Prob)],
