@@ -275,38 +275,44 @@ pred_stacked_regression.predinfo_survival <- function(x,
   names(SR_dat) <- c("Outcomes", paste("LP", 1:x$M, sep = ""))
 
   if (baseline_dist == "weibull") {
+
     SR <- survival::survreg(Outcomes ~ .,
                             data = SR_dat,
                             dist="weibull")
-    alpha <- stats::coef(SR)
-    AFT_intercept <- alpha[which(names(alpha)=="(Intercept)")]
-    alpha <- alpha[-which(names(alpha)=="(Intercept)")]
-    sigma <- SR$scale
+
+    gamma <- stats::coef(SR)
+    sigma <- summary(SR)$scale
+    mu <- gamma[which(names(gamma)=="(Intercept)")]
+    gamma <- gamma[-which(names(gamma)=="(Intercept)")]
+
+    weibull_scale <- exp(-mu / sigma)
+    weibull_shape <- 1 / sigma
+
+    beta <- -gamma / sigma
 
     baseline_times <- sort(unique(unlist(lapply(x$baselinehazard, function(X) X[,1]))))
-    shape <- 1/sigma
-    scale <- exp(-(AFT_intercept/sigma))
-    h0 <- scale*shape*(baseline_times^(shape-1))
-
+    H0 <- (baseline_times*weibull_scale)^(weibull_shape)
     baselinehazard <- data.frame("t" = baseline_times,
-                                 "h" = h0)
+                                 "h" = H0)
 
   } else if (baseline_dist == "exponential"){
     SR <- survival::survreg(Outcomes ~ .,
                             data = SR_dat,
                             dist="exponential")
-    alpha <- stats::coef(SR)
-    AFT_intercept <- alpha[which(names(alpha)=="(Intercept)")]
-    alpha <- alpha[-which(names(alpha)=="(Intercept)")]
-    sigma <- SR$scale
+    gamma <- stats::coef(SR)
+    sigma <- summary(SR)$scale
+    mu <- gamma[which(names(gamma)=="(Intercept)")]
+    gamma <- gamma[-which(names(gamma)=="(Intercept)")]
+
+    weibull_scale <- exp(-mu / sigma)
+    weibull_shape <- 1 / sigma
+
+    beta <- -gamma / sigma
 
     baseline_times <- sort(unique(unlist(lapply(x$baselinehazard, function(X) X[,1]))))
-    shape <- 1/sigma
-    scale <- exp(-(AFT_intercept/sigma))
-    h0 <- scale*shape*(baseline_times^(shape-1))
-
+    H0 <- (baseline_times*weibull_scale)^(weibull_shape)
     baselinehazard <- data.frame("t" = baseline_times,
-                                 "h" = h0)
+                                 "h" = H0)
 
   } else{
     stop("baseline_dist should not be NULL for aggregating survival models")
@@ -316,7 +322,7 @@ pred_stacked_regression.predinfo_survival <- function(x,
   coef_table <- x$model_info
   coef_table[is.na(coef_table)] <- 0
   for (m in 1:x$M) {
-    coef_table[m,] <- coef_table[m,] * as.numeric(alpha[m])
+    coef_table[m,] <- coef_table[m,] * as.numeric(beta[m])
   }
   coef_table <- colSums(coef_table)
 
@@ -331,7 +337,7 @@ pred_stacked_regression.predinfo_survival <- function(x,
                                                          sep="")),
                      "baselinehazard" = baselinehazard,
                      "model_info" = coef_table,
-                     "Stacked_Regression_Weights" = alpha)
+                     "Stacked_Regression_Weights" = beta)
 
   class(SR_results) <- c("predSR", "predinfo_survival", "predinfo")
   SR_results
