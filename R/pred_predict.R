@@ -194,7 +194,7 @@ pred_predict.predinfo_survival <- function(x,
     existingcoefs <- as.numeric(mapped_data$modelinfo$coefs)
     DM <- stats::model.matrix(mapped_data$modelinfo$formula,
                               mapped_data$PredictionData)
-    DM <- DM[,-which(colnames(DM) == "(Intercept)")]
+    DM <- DM[,-which(colnames(DM) == "(Intercept)"), drop = FALSE]
     #Double-check dimensions:
     if (ncol(DM) != length(existingcoefs)) {
       stop("Existing coefficients of the model and new data to make predictions on are non-conformable",

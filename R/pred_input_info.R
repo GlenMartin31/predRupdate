@@ -108,7 +108,7 @@ pred_input_info <- function(model_type = c("logistic", "survival"),
       form <- vector(mode = "list", length = M)
       vars <- vector(mode = "list", length = M)
       for (m in 1:M) {
-        vars[[m]] <- names(model_info[,which(!is.na(model_info[m,]))])
+        vars[[m]] <- names(model_info)[which(!is.na(model_info[m,]))]
         form[[m]] <- stats::as.formula(paste("~",
                                              paste(vars[[m]][-which(vars[[m]]=="Intercept")],
                                                    collapse = "+"),
@@ -122,7 +122,7 @@ pred_input_info <- function(model_type = c("logistic", "survival"),
                         formula = form,
                         model_info = model_info)
     } else {
-      vars <- names(model_info[1,which(!is.na(model_info[1,]))])
+      vars <- names(model_info)[which(!is.na(model_info[1,]))]
       form <- stats::as.formula(paste("~",
                                       paste(vars[-which(vars=="Intercept")],
                                             collapse = "+"),
@@ -144,7 +144,7 @@ pred_input_info <- function(model_type = c("logistic", "survival"),
       form <- vector(mode = "list", length = M)
       vars <- vector(mode = "list", length = M)
       for (m in 1:M) {
-        vars[[m]] <- names(model_info[,which(!is.na(model_info[m,]))])
+        vars[[m]] <- names(model_info)[which(!is.na(model_info[m,]))]
         form[[m]] <- stats::as.formula(paste("~",
                                              paste(vars[[m]], collapse = "+"),
                                              sep = ''))
@@ -158,7 +158,7 @@ pred_input_info <- function(model_type = c("logistic", "survival"),
                         baselinehazard = baselinehazard,
                         model_info = model_info)
     } else {
-      vars <- names(model_info[1,which(!is.na(model_info[1,]))])
+      vars <- names(model_info)[which(!is.na(model_info[1,]))]
       form <- stats::as.formula(paste("~",
                                       paste(vars, collapse = "+"),
                                       sep = ''))
