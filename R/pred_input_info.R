@@ -46,7 +46,8 @@
 #'   In the case of \code{model_type} = "logistic", then \code{model_info} must
 #'   contain a column named as "Intercept", which gives the intercept
 #'   coefficient of each of the existing logistic regression models (taken
-#'   exactly as previously published). If \code{model_type} = "survival", then
+#'   exactly as previously published); this should be the first column of
+#'   \code{model_info}. If \code{model_type} = "survival", then
 #'   \code{baselinehazard} should be provided and no "Intercept" column is
 #'   needed in \code{model_info}.
 #'
@@ -222,6 +223,12 @@ pred_input_info_input_checks <- function(model_type,
     #check that 'model_info' contains an intercept column for logistic models
     if ("Intercept" %in% names(model_info) == FALSE) {
       stop("When model_type=logistic, then 'model_info' should contain a column named 'Intercept'",
+           call. = FALSE)
+    }
+
+    #check that the intercept column is the first one
+    if (names(model_info)[1] != "Intercept"){
+      stop("When model_type=logistic, then first column of 'model_info' should be 'Intercept'",
            call. = FALSE)
     }
 
