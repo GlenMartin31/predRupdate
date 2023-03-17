@@ -29,11 +29,12 @@ in a given model then enter that cell of the data.frame as NA. See
 examples.}
 
 \item{baselinehazard}{A data.frame with two columns: (1) time, and (2)
-estimated cumulative baseline hazard at that time. Only relevant if
-\code{model_type} is "survival"; leave as NULL otherwise. If multiple
-existing models entered, and model_type = survival, then
-\code{baselinehazard} should be supplied as list of length equal to number
-of models.}
+estimated cumulative baseline hazard at that time. The first column (time)
+should be named 'time' and the second (cumulative baseline hazard) should
+be named 'hazard'. Only relevant if \code{model_type} is "survival"; leave
+as NULL otherwise. If multiple existing models entered, and model_type =
+survival, then \code{baselinehazard} should be supplied as list of length
+equal to number of models.}
 }
 \value{
 \code{\link{pred_input_info}} returns an object of class "predinfo",
@@ -75,7 +76,8 @@ this below.
 In the case of \code{model_type} = "logistic", then \code{model_info} must
 contain a column named as "Intercept", which gives the intercept
 coefficient of each of the existing logistic regression models (taken
-exactly as previously published). If \code{model_type} = "survival", then
+exactly as previously published); this should be the first column of
+\code{model_info}. If \code{model_type} = "survival", then
 \code{baselinehazard} should be provided and no "Intercept" column is
 needed in \code{model_info}.
 
@@ -89,17 +91,17 @@ corresponding predictor variables entered through \code{model_info}). See
 #Example 1 - logistic regression existing model; uses
 #            an example dataset within the package
 model1 <- pred_input_info(model_type = "logistic",
-                          model_info = SYNPM$Existing_models[1,])
+                          model_info = SYNPM$Existing_logistic_models[1,])
 summary(model1)
 
 #Example 2 - survival model example; uses an example dataset within the
 #             package.
 pred_input_info(model_type = "survival",
-                model_info = SMART$Existing_models["Framingham_Male_model_info",],
-                baselinehazard = SMART$Framingham_Male_baseline)
+                model_info = SYNPM$Existing_TTE_models[2,],
+                baselinehazard = SYNPM$TTE_mod2_baseline)
 
 #Example 3 - Input information about multiple models
 summary(pred_input_info(model_type = "logistic",
-                        model_info = SYNPM$Existing_models))
+                        model_info = SYNPM$Existing_logistic_models))
 
 }

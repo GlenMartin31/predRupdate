@@ -71,7 +71,7 @@
 #'
 #' @examples
 #' LogisticModels <- pred_input_info(model_type = "logistic",
-#'                                   model_info = SYNPM$Existing_models)
+#'                                   model_info = SYNPM$Existing_logistic_models)
 #' SR <- pred_stacked_regression(x = LogisticModels,
 #'                               newdata = SYNPM$ValidationData,
 #'                               binary_outcome = "Y")
@@ -81,16 +81,15 @@
 #' pred_validate(SR, newdata = SYNPM$ValidationData, binary_outcome = "Y")
 #'
 #' #Survival model example:
-#' SMART_Models <- pred_input_info(model_type = "survival",
-#'                                 model_info = SMART$Existing_models,
-#'                                 baselinehazard = list(SMART$Framingham_Male_baseline,
-#'                                                       SMART$Framingham_Female_baseline,
-#'                                                       SMART$PROCAM_baseline))
-#' SMART_dummaryvars <- dummyvars(SMART$SMART_dataset)
-#' SR <- pred_stacked_regression(x = SMART_Models,
-#'                               newdata = SMART_dummaryvars,
-#'                               survival_time = "TEVENT",
-#'                               event_indicator = "EVENT")
+#' TTModels <- pred_input_info(model_type = "survival",
+#'                             model_info = SYNPM$Existing_TTE_models,
+#'                             baselinehazard = list(SYNPM$TTE_mod1_baseline,
+#'                                                   SYNPM$TTE_mod2_baseline,
+#'                                                   SYNPM$TTE_mod3_baseline))
+#' SR <- pred_stacked_regression(x = TTModels,
+#'                               newdata = SYNPM$ValidationData,
+#'                               survival_time = "ETime",
+#'                               event_indicator = "Status")
 #' summary(SR)
 #'
 #' @references Debray, T.P., Koffijberg, H., Nieboer, D., Vergouwe, Y.,

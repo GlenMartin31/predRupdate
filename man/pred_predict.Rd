@@ -92,30 +92,23 @@ used to specify the outcome variable(s) within \code{newdata} (use
 #Example 1 - logistic regression existing model, with outcome specified; uses
 #            an example dataset within the package
 model1 <- pred_input_info(model_type = "logistic",
-                          model_info = SYNPM$Existing_models[1,])
+                          model_info = SYNPM$Existing_logistic_models[1,])
 pred_predict(x = model1,
              newdata = SYNPM$ValidationData,
              binary_outcome = "Y")
 
 #Example 2 - survival model example; uses an example dataset within the
-#             package. Also shows use of pre-processing to handle
-#             categorical variables - need converting prior to call
-SMART_dummaryvars <- dummyvars(SMART$SMART_dataset)
+#             package. Multiple existing models
 model2 <- pred_input_info(model_type = "survival",
-                          model_info = SMART$Existing_models[1,],
-                          baselinehazard = SMART$Framingham_Male_baseline)
+                          model_info = SYNPM$Existing_TTE_models,
+                          baselinehazard = list(SYNPM$TTE_mod1_baseline,
+                                                SYNPM$TTE_mod2_baseline,
+                                                SYNPM$TTE_mod3_baseline))
 pred_predict(x = model2,
-             newdata = SMART_dummaryvars,
-            survival_time = "TEVENT",
-            event_indicator = "EVENT",
-            time_horizon = 10)
-
-#Example 3 - multiple existing models
-model3 <- pred_input_info(model_type = "logistic",
-                          model_info = SYNPM$Existing_models)
-pred_predict(x = model3,
              newdata = SYNPM$ValidationData,
-             binary_outcome = "Y")
+            survival_time = "ETime",
+            event_indicator = "Status",
+            time_horizon = 5)
 
 }
 \seealso{

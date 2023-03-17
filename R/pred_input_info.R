@@ -19,11 +19,12 @@
 #'   in a given model then enter that cell of the data.frame as NA. See
 #'   examples.
 #' @param baselinehazard A data.frame with two columns: (1) time, and (2)
-#'   estimated cumulative baseline hazard at that time. Only relevant if
-#'   \code{model_type} is "survival"; leave as NULL otherwise. If multiple
-#'   existing models entered, and model_type = survival, then
-#'   \code{baselinehazard} should be supplied as list of length equal to number
-#'   of models.
+#'   estimated cumulative baseline hazard at that time. The first column (time)
+#'   should be named 'time' and the second (cumulative baseline hazard) should
+#'   be named 'hazard'. Only relevant if \code{model_type} is "survival"; leave
+#'   as NULL otherwise. If multiple existing models entered, and model_type =
+#'   survival, then \code{baselinehazard} should be supplied as list of length
+#'   equal to number of models.
 #'
 #' @details This function will structure the relevant information about one or
 #'   more existing prediction model(s) into a standardised format, such that it
@@ -74,18 +75,18 @@
 #' #Example 1 - logistic regression existing model; uses
 #' #            an example dataset within the package
 #' model1 <- pred_input_info(model_type = "logistic",
-#'                           model_info = SYNPM$Existing_models[1,])
+#'                           model_info = SYNPM$Existing_logistic_models[1,])
 #' summary(model1)
 #'
 #' #Example 2 - survival model example; uses an example dataset within the
 #' #             package.
 #' pred_input_info(model_type = "survival",
-#'                 model_info = SMART$Existing_models["Framingham_Male_model_info",],
-#'                 baselinehazard = SMART$Framingham_Male_baseline)
+#'                 model_info = SYNPM$Existing_TTE_models[2,],
+#'                 baselinehazard = SYNPM$TTE_mod2_baseline)
 #'
 #' #Example 3 - Input information about multiple models
 #' summary(pred_input_info(model_type = "logistic",
-#'                         model_info = SYNPM$Existing_models))
+#'                         model_info = SYNPM$Existing_logistic_models))
 #'
 #' @export
 pred_input_info <- function(model_type = c("logistic", "survival"),
@@ -189,7 +190,7 @@ summary.predinfo <- function(object, ...) {
 
   cat("\nModel Coefficients \n",
       "================================= \n", sep = "")
-  print(object$model_info)
+  print(object$coefs)
 
   cat("\nModel Functional Form \n",
       "================================= \n", sep = "")
@@ -254,6 +255,11 @@ pred_input_info_input_checks <- function(model_type,
         stop("each supplied baseline hazard should be a data.frame of two columns",
              call. = FALSE)
       }
+      if (any(sapply(baselinehazard, function(X) (names(X)[1] != "time" |
+                                                  names(X)[2] != "hazard")))) {
+        stop("each supplied baseline hazard should be a data.frame with columns being 'time' and 'hazard'",
+             call. = FALSE)
+      }
       if (any(sapply(baselinehazard, function(X) sum(duplicated(X[,1])) > 0))) {
         stop("all baseline hazard times must be unique",
              call. = FALSE)
@@ -271,6 +277,11 @@ pred_input_info_input_checks <- function(model_type,
       if (inherits(baselinehazard, "data.frame") == FALSE |
           ncol(baselinehazard) !=2) {
         stop("baseline hazard should be a data.frame of two columns",
+             call. = FALSE)
+      }
+      if (names(baselinehazard)[1] != "time" |
+          names(baselinehazard)[2] != "hazard") {
+        stop("baseline hazard should be a data.frame with columns being 'time' and 'hazard'",
              call. = FALSE)
       }
       if(sum(duplicated(baselinehazard[,1])) > 0){
