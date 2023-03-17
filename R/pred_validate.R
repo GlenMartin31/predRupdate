@@ -18,7 +18,10 @@
 #' @param time_horizon for survival models, an integer giving the time horizon
 #'   (post baseline/time of prediction) at which a prediction is required.
 #'   Currently, this must match a time in x$baselinehazard.
-#' @param ... further arguments passed to other methods. See Details below.
+#' @param CalPlot indicate if a flexible calibration plot should be produced
+#'   (TRUE) or not (FALSE)
+#' @param ... further plotting arguments for the calibration plot. See Details
+#'   below.
 #'
 #' @details This function takes an existing prediction model formatted according
 #'   to \code{\link{pred_input_info}}, and calculates measures of predictive
@@ -51,26 +54,31 @@
 #'   the observed risk and the predicted risks, across the full risk range) and
 #'   discrimination (ability of the model to distinguish between those who
 #'   develop the outcome and those who do not) are calculated. For calibration,
-#'   a calibration plot is produced, using either flexible methods or the
-#'   binned/grouped approach. Calibration-in-the-large (CITL) and calibration
-#'   slopes are also estimated. For CITL, we estimate the intercept by fitting a
+#'   a flexible calibration plot is produced. Calibration-in-the-large (CITL)
+#'   and calibration slopes are also estimated. CITL is estimated by fitting a
 #'   logistic regression model to the observed binary outcomes, with the linear
 #'   predictor of the model as an offset. For calibration slope, a logistic
 #'   regression model is fit to the observed binary outcome with the linear
-#'   predictor from the model as the only covariate. For discrimination, we
-#'   estimate the area under the receiver operating characteristic curve (AUC).
-#'   Various other metrics are also calculated to assess overall accuracy (Brier
-#'   score, Cox-Snell R2). Specify parameter \code{CalPlot} to indicate whether
-#'   a calibration plot should be produced, and the method for doing so; set to
-#'   "smooth" (default) if a flexible (smooth) calibration plot should be
-#'   produced using natural cubic splines, set to "grouped" if a grouped/binned
-#'   calibration plot should be produced, and set to "none" if no calibration
-#'   plot should be produced. If set to grouped then specification of parameter
-#'   \code{groups} specifies the number of groups to produce. Can also specify
-#'   parameters \code{xlab}, \code{ylab}, \code{xlim},and \code{ylim} to change
-#'   plotting characteristics for the calibration plot.
+#'   predictor from the model as the only covariate. For discrimination, the
+#'   function estimates the area under the receiver operating characteristic
+#'   curve (AUC). Various other metrics are also calculated to assess overall
+#'   accuracy (Brier score, Cox-Snell R2). Specify parameter \code{CalPlot} to
+#'   indicate whether a calibration plot should be produced (TRUE), or not
+#'   (FALSE). Can also specify parameters \code{xlab}, \code{ylab},
+#'   \code{xlim},and \code{ylim} to change plotting characteristics for the
+#'   calibration plot.
 #'
-#'   In the case of validating a survival prediction model,...
+#'   In the case of validating a survival prediction model, this function
+#'   assesses the predictive performance of the predicted event probabilities
+#'   (at a fixed time horizon) against an observed time-to-event outcome.
+#'   Various metrics of calibration and discrimination are calculated. For
+#'   calibration, a flexible calibration plot, observed-to-expected ratio and
+#'   calibration slope are produced (all at the specified \code{time_horizon}).
+#'   For discrimination, Harrell's C-statistic is calculated. Specify parameter
+#'   \code{CalPlot} to indicate whether a calibration plot should be produced
+#'   (TRUE), or not (FALSE). Can also specify parameters \code{xlab},
+#'   \code{ylab}, \code{xlim},and \code{ylim} to change plotting characteristics
+#'   for the calibration plot.
 #'
 #' @return A list of performance metrics, estimated by applying the existing
 #'   prediction model to the newdata.
@@ -81,30 +89,29 @@
 #' #Example 1 - logistic regression existing model, with outcome specified; uses
 #' #            an example dataset within the package
 #' model1 <- pred_input_info(model_type = "logistic",
-#'                           model_info = SYNPM$Existing_models[1,])
+#'                           model_info = SYNPM$Existing_logistic_models[1,])
 #' pred_validate(x = model1,
-#'               newdata = SYNPM$ValidationData,
-#'               binary_outcome = "Y")
+#'              newdata = SYNPM$ValidationData,
+#'              binary_outcome = "Y")
 #'
-#' #Example 2 - survival model example; uses an example dataset within the
-#' #             package. Also shows use of pre-processing to handle
-#' #             categorical variables - need converting prior to call
-#' SMART_dummaryvars <- dummyvars(SMART$SMART_dataset)
-#' model2 <- pred_input_info(model_type = "survival",
-#'                           model_info = SMART$Existing_models[1,],
-#'                           baselinehazard = SMART$Framingham_Male_baseline)
+#' #Example 2 - multiple existing model, with outcome specified; uses
+#' #            an example dataset within the package
+#' model2 <- pred_input_info(model_type = "logistic",
+#'                           model_info = SYNPM$Existing_logistic_models)
 #' pred_validate(x = model2,
-#'              newdata = SMART_dummaryvars,
-#'             survival_time = "TEVENT",
-#'             event_indicator = "EVENT",
-#'             time_horizon = 10)
+#'              newdata = SYNPM$ValidationData,
+#'              binary_outcome = "Y")
 #'
-#' #Example 3 - multiple existing models
-#' model3 <- pred_input_info(model_type = "logistic",
-#'                           model_info = SYNPM$Existing_models)
+#' #Example 3 - survival model example; uses an example dataset within the
+#' #             package.
+#' model3 <- pred_input_info(model_type = "survival",
+#'                           model_info = SYNPM$Existing_TTE_models[2,],
+#'                           baselinehazard = SYNPM$TTE_mod2_baseline)
 #' pred_validate(x = model3,
-#'               newdata = SYNPM$ValidationData,
-#'               binary_outcome = "Y")
+#'              newdata = SYNPM$ValidationData,
+#'             survival_time = "ETime",
+#'             event_indicator = "Status",
+#'             time_horizon = 5)
 #'
 #' @seealso \code{\link{pred_input_info}}
 pred_validate <- function(x,
@@ -112,7 +119,9 @@ pred_validate <- function(x,
                           binary_outcome = NULL,
                           survival_time = NULL,
                           event_indicator = NULL,
-                          time_horizon = NULL, ...) {
+                          time_horizon = NULL,
+                          CalPlot = TRUE,
+                          ...) {
   UseMethod("pred_validate")
 }
 
@@ -123,7 +132,8 @@ pred_validate.default <- function(x,
                                   binary_outcome = NULL,
                                   survival_time = NULL,
                                   event_indicator = NULL,
-                                  time_horizon = NULL, ...) {
+                                  time_horizon = NULL,
+                                  CalPlot = TRUE, ...) {
   stop("'x' is not of class 'predinfo'",
        call. = FALSE)
 }
@@ -136,7 +146,8 @@ pred_validate.predinfo_logistic <- function(x,
                                             binary_outcome = NULL,
                                             survival_time = NULL,
                                             event_indicator = NULL,
-                                            time_horizon = NULL, ...){
+                                            time_horizon = NULL,
+                                            CalPlot = TRUE, ...){
 
   #Check outcomes were inputted (needed to validate the model)
   if (is.null(binary_outcome)) {
@@ -302,9 +313,9 @@ print.predvalidate_survival <- function(x, ...) {
                    round((x$harrell_C - (stats::qnorm(0.975)*x$harrell_C_SE)), 4),
                    round((x$harrell_C + (stats::qnorm(0.975)*x$harrell_C_SE)), 4))
   print(results)
-  cat("\n")
-  cat("\nOverall Performance Measures \n",
-      "================================= \n", sep = "")
+  # cat("\n")
+  # cat("\nOverall Performance Measures \n",
+  #     "================================= \n", sep = "")
   # cat("Cox-Snell R-squared: ", round(x$R2_CoxSnell, 4), "\n", sep = "")
   # cat("Nagelkerke R-squared: ", round(x$R2_Nagelkerke, 4), "\n", sep = "")
   # cat("Brier Score: ", round(x$BrierScore, 4), "\n", sep = "")
@@ -315,40 +326,13 @@ print.predvalidate_survival <- function(x, ...) {
 
 # Internal functions for pred_validate.predinfo_logistic() ---------------------
 validate_logistic <- function(ObservedOutcome,
-                                   Prob,
-                                   LP,
-                                   CalPlot = c("smooth",
-                                               "grouped",
-                                               "none"),
-                                   groups = NULL,
-                                   xlab = "Predicted Probability",
-                                   ylab = "Observed Probability",
-                                   xlim = c(0,1),
-                                   ylim = c(0,1)) {
-
-  CalPlot <- match.arg(CalPlot)
-  if (CalPlot == "grouped" & is.null(groups)) {
-    stop("If CalPlot is set to 'grouped' then argument 'groups' must be specified",
-         call. = FALSE)
-  }
-  if (!is.null(groups)) {
-    if (length(groups) != 1 | !is.numeric(groups)) {
-      stop("Argument 'groups' must be either NULL or a numeric value of length 1",
-           calls. = FALSE)
-    }
-  }
-
-  if (length(Prob) != length(LP)) {
-    stop("Lengths of Prob and LP are different",
-         call. = FALSE)
-  }
-  if (length(Prob) != length(ObservedOutcome)) {
-    stop("Lengths of Prob and ObservedOutcome are different",
-         call. = FALSE)
-  } else if (length(LP) != length(ObservedOutcome)) {
-    stop("Lengths of LP and ObservedOutcome are different",
-         call. = FALSE)
-  }
+                              Prob,
+                              LP,
+                              CalPlot = TRUE,
+                              xlab = "Predicted Probability",
+                              ylab = "Observed Probability",
+                              xlim = c(0,1),
+                              ylim = c(0,1)) {
 
   # Test for 0 and 1 probabilities
   n_inf <- sum(is.infinite(LP))
@@ -359,25 +343,6 @@ validate_logistic <- function(ObservedOutcome,
     Prob <- Prob[-id]
     warning(paste(n_inf,
                   'observations deleted due to predicted risks being 0 and 1'))
-  }
-
-  # Remove any missing data in Prob, LP or ObservedOutcome
-  if(any(is.na(Prob)) |
-     any(is.na(LP)) |
-     any(is.na(ObservedOutcome))) {
-
-    ind_miss <- c(which(is.na(Prob)),
-                  which(is.na(LP)),
-                  which(is.na(ObservedOutcome)))
-    ind_miss <- sort(unique(ind_miss))
-
-    Prob <- Prob[-ind_miss]
-    LP <- LP[-ind_miss]
-    ObservedOutcome <- ObservedOutcome[-ind_miss]
-
-    warning(paste("Some values of Prob/LP/ObservedOutcome have been removed due to missing data.  \n",
-                  "Complete case may not be appropriate - consider alternative methods of handling missing data.",
-                  sep = ''))
   }
 
 
@@ -425,91 +390,21 @@ validate_logistic <- function(ObservedOutcome,
 
   # If not creating a calibration plot, then at least produce histogram of
   # predicted risks; otherwise this is embedded into the calibration plot
-  if (CalPlot == "none"){
+  if (CalPlot == FALSE){
     graphics::hist(Prob, breaks = seq(xlim[1], xlim[2],
                                       length.out = 20),
                    xlab = xlab,
                    main = "Histogram of the Probability Distribution")
-  }
-  # otherwise produce calibration plot
-  if (CalPlot != "none") {
-    ## set graphical parameters
-    graphics::layout(matrix(c(1,2), ncol=1),
-                     widths=c(1),
-                     heights=c(1/7, 6/7))
-    pardefault_mar <- graphics::par("mar") #save default plotting margin values
-    pardefault_oma <- graphics::par("oma") #save default outer margin values
-    graphics::par(mar=c(4, 4, 1, 1),
-                  oma=rep(0.5, 4)) # plot parameters
-
-    #return to default plotting parameters post function call:
-    on.exit(graphics::layout(1), add = TRUE)
-    on.exit(graphics::par(mar = pardefault_mar,
-                          oma = pardefault_oma),
-            add = TRUE,
-            after = TRUE)
-
-    #test supplied xlims to ensure not cutting-off Prob range
-    if(xlim[1] > min(Prob)){
-      xlim[1] <- min(Prob)
-      warning("Altering xlim range: specified range inconsistent with predicted risk range")
-    }
-    if(xlim[2] < max(Prob)){
-      xlim[2] <- max(Prob)
-      warning("Altering xlim range: specified range inconsistent with predicted risk range")
-    }
-
-    ## Produce histogram of predicted risks to show the distribution
-    xhist <- graphics::hist(Prob, breaks = seq(xlim[1], xlim[2],
-                                               length.out = 20),
-                            plot=FALSE)
-    graphics::par(mar=c(0, 4, 0, 0))
-    graphics::barplot(xhist$density, axes=FALSE,
-                      ylim=c(0, max(xhist$density)),
-                      space=0)
-
-    ## Produce calibration plot
-    graphics::par(mar=c(4, 4, 0, 0))
-    plot(0.5, 0.5,
-         xlim = xlim,
-         ylim = ylim,
-         type = "n",
-         xlab = xlab,
-         ylab = ylab)
-    graphics::clip(xlim[1],xlim[2],ylim[1],ylim[2])
-    graphics::abline(0,1)
-    if (CalPlot == "smooth") {
-      spline_model <- stats::glm(ObservedOutcome ~ splines::ns(LP, df = 3),
-                                 family = stats::binomial(link = "logit"))
-      spline_preds <- stats::predict(spline_model, type = "response", se = T)
-      plot_df <- data.frame("p" = Prob,
-                            "o" = spline_preds$fit)
-
-      graphics::lines(x = plot_df$p[order(plot_df$p)],
-                      y = plot_df$o[order(plot_df$p)])
-      rm(plot_df, spline_model, spline_preds)
-    } else if (CalPlot == "grouped") {
-      plot_df <- data.frame("p" = Prob,
-                            "y" = ObservedOutcome)
-      plot_df <- plot_df[order(plot_df$p), ]
-      plot_df$grouping <- cut(plot_df$p, groups)
-
-      plot_df_split <- split(plot_df, plot_df$grouping)
-      calibration_results <- lapply(plot_df_split,
-                                    function(x) {
-                                      data.frame('observed' = mean(x$y),
-                                                 'expected' = mean(x$p))
-                                    })
-      calibration_results <- as.data.frame(do.call(rbind, calibration_results))
-      smoother <- stats::loess(calibration_results$observed ~ calibration_results$expected)
-
-      graphics::points(x = calibration_results$expected,
-                       y = calibration_results$observed)
-      graphics::lines(x = calibration_results$expected,
-                      y = stats::predict(smoother, type = 'fitted'))
-
-      rm(plot_df, plot_df_split, calibration_results, smoother)
-    }
+  } else{
+    # otherwise produce calibration plot
+    flex_calplot(model_type = "logistic",
+                 ObservedOutcome = ObservedOutcome,
+                 Prob = Prob,
+                 LP = LP,
+                 xlim = xlim,
+                 ylim = ylim,
+                 xlab = xlab,
+                 ylab = ylab)
   }
 
   #Return results
@@ -534,16 +429,24 @@ validate_logistic <- function(ObservedOutcome,
 validate_survival <- function(ObservedOutcome,
                               Prob,
                               LP,
+                              CalPlot = TRUE,
                               time_horizon,
                               xlab = "Predicted Probability",
                               ylab = "Observed Probability",
                               xlim = c(0,1),
                               ylim = c(0,1)) {
 
+  # Test if max observed survival time in validation data is less than
+  # time_horizon that performance metrics as requested for:
+  if(max(ObservedOutcome[,1]) < time_horizon) {
+    stop("Maximum observed survival time in validation data is less than time_horizon",
+         call. = FALSE)
+  }
+
   # Test for 0 and 1 probabilities
-  n_inf <- sum(is.infinite(LP))
+  n_inf <- sum(Prob == 0 | Prob == 1)
   if (n_inf > 0) {
-    id <- which(is.infinite(LP))
+    id <- which(Prob == 0 | Prob == 1)
     ObservedOutcome <- ObservedOutcome[-id]
     LP <- LP[-id]
     Prob <- Prob[-id]
@@ -565,30 +468,31 @@ validate_survival <- function(ObservedOutcome,
   OE_ratio_SE <- sqrt(1 / KM_observed$n.event)
 
   #Estimate calibration slope
-  cloglog <- log(-log(1 - Prob))
-  CalSlope_mod <- survival::coxph(ObservedOutcome ~ cloglog)
+  CalSlope_mod <- survival::coxph(ObservedOutcome ~ LP)
   CalSlope <- as.numeric(CalSlope_mod$coefficients[1])
   CalSlopeSE <- sqrt(stats::vcov(CalSlope_mod)[1,1])
 
-  # Flexible calibration plot
-  val.df <- data.frame(ObservedOutcome,
-                       LP,
-                       Prob,
-                       cloglog)
-  vcal <- survival::coxph(ObservedOutcome ~ splines::ns(cloglog, df = 3),
-                          data = val.df)
-  bh <- survival::basehaz(vcal)
-  val.df$observed_risk <- 1 - (exp(-bh[(max(which(bh[,2] <= time_horizon))),1])^(exp(stats::predict(vcal, type = "lp", newdata = val.df))))
-  plot(0.5, 0.5,
-       xlim = c(0,1),
-       ylim = c(0,1),
-       type = "n",
-       xlab = "Predicted Probability",
-       ylab = "Observed Probability")
-  graphics::clip(xlim[1],xlim[2],ylim[1],ylim[2])
-  graphics::abline(0,1)
-  graphics::lines(x = val.df$Prob[order(val.df$Prob)],
-                  y = val.df$observed_risk[order(val.df$Prob)])
+
+  # If not creating a calibration plot, then at least produce histogram of
+  # predicted risks; otherwise this is embedded into the calibration plot
+  if (CalPlot == FALSE){
+    graphics::hist(Prob, breaks = seq(xlim[1], xlim[2],
+                                      length.out = 20),
+                   xlab = xlab,
+                   main = "Histogram of the Probability Distribution")
+  } else{
+    # otherwise produce calibration plot
+    flex_calplot(model_type = "survival",
+                 ObservedOutcome = ObservedOutcome,
+                 Prob = Prob,
+                 LP = LP,
+                 xlim = xlim,
+                 ylim = ylim,
+                 xlab = xlab,
+                 ylab = ylab,
+                 time_horizon = time_horizon)
+  }
+
 
   #Return results
   out <- list("OE_ratio" = OE_ratio,
@@ -601,3 +505,88 @@ validate_survival <- function(ObservedOutcome,
   out
 }
 
+
+
+# Internal functions for creating flexible calibration plots ---------------------
+flex_calplot <- function(model_type = c("logistic", "survival"),
+                         ObservedOutcome,
+                         Prob,
+                         LP,
+                         xlim,
+                         ylim,
+                         xlab,
+                         ylab,
+                         time_horizon = NULL) {
+
+  model_type <- as.character(match.arg(model_type))
+
+  ## set graphical parameters
+  graphics::layout(matrix(c(1,2), ncol=1),
+                   widths=c(1),
+                   heights=c(1/7, 6/7))
+  pardefault_mar <- graphics::par("mar") #save default plotting margin values
+  pardefault_oma <- graphics::par("oma") #save default outer margin values
+  graphics::par(mar=c(4, 4, 1, 1),
+                oma=rep(0.5, 4)) # plot parameters
+
+  #return to default plotting parameters post function call:
+  on.exit(graphics::layout(1), add = TRUE)
+  on.exit(graphics::par(mar = pardefault_mar,
+                        oma = pardefault_oma),
+          add = TRUE,
+          after = TRUE)
+
+  #test supplied xlims to ensure not cutting-off Prob range
+  if(xlim[1] > min(Prob)){
+    xlim[1] <- min(Prob)
+    warning("Altering xlim range: specified range inconsistent with predicted risk range")
+  }
+  if(xlim[2] < max(Prob)){
+    xlim[2] <- max(Prob)
+    warning("Altering xlim range: specified range inconsistent with predicted risk range")
+  }
+
+  ## Produce histogram of predicted risks to show the distribution
+  xhist <- graphics::hist(Prob, breaks = seq(xlim[1], xlim[2],
+                                             length.out = 20),
+                          plot=FALSE)
+  graphics::par(mar=c(0, 4, 0, 0))
+  graphics::barplot(xhist$density, axes=FALSE,
+                    ylim=c(0, max(xhist$density)),
+                    space=0)
+
+  ## Produce calibration plot
+  graphics::par(mar=c(4, 4, 0, 0))
+  plot(0.5, 0.5,
+       xlim = xlim,
+       ylim = ylim,
+       type = "n",
+       xlab = xlab,
+       ylab = ylab)
+  graphics::clip(xlim[1],xlim[2],ylim[1],ylim[2])
+  graphics::abline(0,1)
+  if(model_type == "logistic") {
+    spline_model <- stats::glm(ObservedOutcome ~ splines::ns(LP, df = 3),
+                               family = stats::binomial(link = "logit"))
+    spline_preds <- stats::predict(spline_model, type = "response", se = T)
+    plot_df <- data.frame("p" = Prob,
+                          "o" = spline_preds$fit)
+
+    graphics::lines(x = plot_df$p[order(plot_df$p)],
+                    y = plot_df$o[order(plot_df$p)])
+  } else {
+    cloglog <- log(-log(1 - Prob))
+    plot_df <- data.frame(ObservedOutcome,
+                          Prob,
+                          LP,
+                          cloglog)
+    vcal <- survival::coxph(ObservedOutcome ~ splines::ns(cloglog, df = 3),
+                            data = plot_df)
+    bh <- survival::basehaz(vcal)
+    plot_df$observed_risk <- 1 - (exp(-bh[(max(which(bh[,2] <= time_horizon))),1])^(exp(stats::predict(vcal, type = "lp"))))
+
+
+    graphics::lines(x = plot_df$Prob[order(plot_df$Prob)],
+                    y = plot_df$observed_risk[order(plot_df$Prob)])
+  }
+}
