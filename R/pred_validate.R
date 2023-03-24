@@ -158,7 +158,10 @@ pred_validate.predinfo_logistic <- function(x,
   #Make predictions within newdata using the existing prediction model(s)
   predictions <- predRupdate::pred_predict(x = x,
                                            newdata = newdata,
-                                           binary_outcome = binary_outcome)
+                                           binary_outcome = binary_outcome,
+                                           survival_time = survival_time,
+                                           event_indicator = event_indicator,
+                                           time_horizon = time_horizon)
 
   if (x$M == 1) {
     ### VALIDATION OF THE EXISTING MODEL
@@ -205,6 +208,7 @@ pred_validate.predinfo_survival <- function(x,
   #Make predictions within newdata using the existing prediction model(s)
   predictions <- predRupdate::pred_predict(x = x,
                                            newdata = newdata,
+                                           binary_outcome = binary_outcome,
                                            survival_time = survival_time,
                                            event_indicator = event_indicator,
                                            time_horizon = time_horizon)

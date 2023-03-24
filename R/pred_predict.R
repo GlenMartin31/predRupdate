@@ -123,7 +123,9 @@ pred_predict.predinfo_logistic <- function(x,
   #Map the pminfo object to the supplied new dataset:
   mapped_data <- map_newdata(x = x,
                              newdata = newdata,
-                             binary_outcome = binary_outcome)
+                             binary_outcome = binary_outcome,
+                             survival_time = survival_time,
+                             event_indicator = event_indicator)
   if (x$M == 1) {
     #Gather information from the predinfo blueprint:
     existingcoefs <- as.numeric(mapped_data$modelinfo$coefs)
@@ -178,8 +180,9 @@ pred_predict.predinfo_survival <- function(x,
                                            event_indicator = NULL,
                                            time_horizon = NULL){
   #Map the pminfo object to the supplied new dataset:
-  mapped_data <- map_newdata(x,
+  mapped_data <- map_newdata(x = x,
                              newdata = newdata,
+                             binary_outcome = binary_outcome,
                              survival_time = survival_time,
                              event_indicator = event_indicator)
   if (x$M == 1) {

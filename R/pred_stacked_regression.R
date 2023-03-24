@@ -56,7 +56,7 @@
 #'
 #'   Any factor variables within \code{newdata} must be converted to dummy (0/1)
 #'   variables before calling this function. \code{\link{dummyvars}} can help
-#'   with this - see examples below.
+#'   with this.
 #'
 #'   \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
 #'   used to specify the outcome variable(s) within \code{newdata} (use
@@ -151,7 +151,9 @@ pred_stacked_regression.predinfo_logistic <- function(x,
   #Make predictions within newdata using the existing prediction model(s)
   predictions <- predRupdate::pred_predict(x = x,
                                            newdata = newdata,
-                                           binary_outcome = binary_outcome)
+                                           binary_outcome = binary_outcome,
+                                           survival_time = survival_time,
+                                           event_indicator = event_indicator)
 
   #double-check all outcome columns identical across the M models (should be by definition)
   if((length(unique(lapply(predictions, function(X) X$Outcomes))) == 1) == FALSE){
@@ -258,8 +260,9 @@ pred_stacked_regression.predinfo_survival <- function(x,
   baseline_dist <- as.character(match.arg(baseline_dist))
 
   #Make predictions within newdata using the existing prediction model(s)
-  predictions <- predRupdate::pred_predict(x,
+  predictions <- predRupdate::pred_predict(x = x,
                                            newdata = newdata,
+                                           binary_outcome = binary_outcome,
                                            survival_time = survival_time,
                                            event_indicator = event_indicator)
 
