@@ -77,6 +77,11 @@ map_newdata.predinfo_logistic <- function(x,
                                           event_indicator = NULL){
 
   ########################## INPUT CHECKING #############################
+  # double-check x object
+  pred_input_info_input_checks(model_type = x$model_type,
+                               model_info = x$model_info,
+                               baselinehazard = NULL)
+
   # Check that supplied 'newdata' is a data.frame
   if (inherits(newdata, "data.frame") == FALSE) {
     stop("'newdata' should be a data.frame")
@@ -151,6 +156,11 @@ map_newdata.predinfo_survival <- function(x,
                                           event_indicator = NULL){
 
   ########################## INPUT CHECKING #############################
+  # double-check x object
+  pred_input_info_input_checks(model_type = x$model_type,
+                               model_info = x$model_info,
+                               baselinehazard = x$baselinehazard)
+
   # Check that supplied 'newdata' is a data.frame
   if (inherits(newdata, "data.frame") == FALSE) {
     stop("'newdata' should be a data.frame")
