@@ -4,6 +4,8 @@
 # predRupdate
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/GlenMartin31/predRupdate/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/GlenMartin31/predRupdate/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of predRupdate is to provide a suite of functions for
