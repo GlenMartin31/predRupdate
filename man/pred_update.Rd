@@ -103,6 +103,16 @@ recalibrated_model1$model_update_results #explore the model updating parameter e
 #in-sample optimism):
 pred_validate(recalibrated_model1, newdata = SYNPM$ValidationData, binary_outcome = "Y")
 
+#Example 2 - update time-to-event model
+model2 <- pred_input_info(model_type = "survival",
+                          model_info = SYNPM$Existing_TTE_models[1,],
+                          baselinehazard = SYNPM$TTE_mod1_baseline)
+recalibrated_model2 <- pred_update(x = model2,
+                                   newdata = SYNPM$ValidationData,
+                                   survival_time = "ETime",
+                                   event_indicator = "Status")
+summary(recalibrated_model2)
+
 }
 \references{
 Su TL, Jaki T, Hickey GL, Buchan I, Sperrin M. A review of

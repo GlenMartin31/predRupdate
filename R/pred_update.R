@@ -81,6 +81,16 @@
 #' #in-sample optimism):
 #' pred_validate(recalibrated_model1, newdata = SYNPM$ValidationData, binary_outcome = "Y")
 #'
+#' #Example 2 - update time-to-event model
+#' model2 <- pred_input_info(model_type = "survival",
+#'                           model_info = SYNPM$Existing_TTE_models[1,],
+#'                           baselinehazard = SYNPM$TTE_mod1_baseline)
+#' recalibrated_model2 <- pred_update(x = model2,
+#'                                    newdata = SYNPM$ValidationData,
+#'                                    survival_time = "ETime",
+#'                                    event_indicator = "Status")
+#' summary(recalibrated_model2)
+#'
 #' @references Su TL, Jaki T, Hickey GL, Buchan I, Sperrin M. A review of
 #'   statistical updating methods for clinical prediction models. \emph{Stat Methods
 #'   Med Res}. 2018 Jan;27(1):185-197. doi: 10.1177/0962280215626466.
@@ -174,6 +184,60 @@ pred_update.predinfo_survival <- function(x,
                                           binary_outcome = NULL,
                                           survival_time = NULL,
                                           event_indicator = NULL) {
-  stop("models of type 'survival' are not yet supported for 'pred_update'",
-       call. = FALSE)
+  #Check outcomes were inputted (needed to update the model)
+  if (is.null(survival_time) |
+      is.null(event_indicator)) {
+    stop("survival_time and event_indicator must be supplied to update the existing model(s)",
+         call. = FALSE)
+  }
+  #check only updating one model
+  if (x$M != 1) {
+    stop("M > 1,'pred_update' currently only supports updating a single model",
+         call. = FALSE)
+  }
+
+  update_type <- match.arg(update_type)
+
+  #Make predictions within newdata using the existing prediction model
+  predictions <- predRupdate::pred_predict(x = x,
+                                           newdata = newdata,
+                                           binary_outcome = binary_outcome,
+                                           survival_time = survival_time,
+                                           event_indicator = event_indicator)
+
+  if(update_type == "intercept_update") {
+    stop("not currently supported")
+  } else if(update_type == "recalibration") {
+    #Run model update
+    fit <- survival::coxph(predictions$Outcomes ~ predictions$LinearPredictor)
+    param <- data.frame(cbind(fit$coefficients, sqrt(diag(stats::vcov(fit)))))
+    rownames(param)[1] <- c("Slope")
+    names(param) <- c("Estimate", "Std. Error")
+
+    #Update old coefficients
+    coef_table <- x$coefs
+    coef_table <- coef_table * param["Slope","Estimate"]
+
+    #obtain new baseline cumulative hazard
+    BH <- survival::basehaz(fit, centered = FALSE)
+
+  } else if(update_type == "revision") {
+    stop("not currently supported")
+  }
+
+  #Return results and set S3 class
+  update_results <- list("M" = 1,
+                         "model_type" = x$model_type,
+                         "coefs" = data.frame(as.list(coef_table)),
+                         "coef_names" = names(coef_table),
+                         "formula" = stats::as.formula(paste("~",
+                                                             paste(names(coef_table)[which(!is.na(coef_table))],
+                                                                   collapse = "+"),
+                                                             sep="")),
+                         "baselinehazard" = data.frame("time" = BH$time,
+                                                       "hazard" = BH$hazard),
+                         "model_info" = coef_table,
+                         "model_update_results" = param)
+  class(update_results) <- c("predUpdate", "predinfo_survival", "predinfo")
+  update_results
 }
