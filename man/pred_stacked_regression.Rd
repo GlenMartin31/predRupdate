@@ -10,8 +10,7 @@ pred_stacked_regression(
   newdata,
   binary_outcome = NULL,
   survival_time = NULL,
-  event_indicator = NULL,
-  baseline_dist = c(NULL, "weibull", "exponential")
+  event_indicator = NULL
 )
 }
 \arguments{
@@ -38,11 +37,6 @@ for \code{model_type}="survival"; leave as \code{NULL} otherwise.}
 \code{newdata} that represents the observed survival indicator (1 for
 event, 0 for censoring). Only relevant for \code{model_type}="survival";
 leave as \code{NULL} otherwise.}
-
-\item{baseline_dist}{character variable specifying the parametric form of the
-baseline hazard to use for the stacked regression if the \code{model_type}
-of the \code{predinfo} object is "survival". Leave as NULL (default) if
-existing models are not of type survival.}
 }
 \value{
 A object of class "predinfo" with subclass"\code{predSR}". This is

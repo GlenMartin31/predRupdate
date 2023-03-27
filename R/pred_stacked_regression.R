@@ -22,10 +22,6 @@
 #'   \code{newdata} that represents the observed survival indicator (1 for
 #'   event, 0 for censoring). Only relevant for \code{model_type}="survival";
 #'   leave as \code{NULL} otherwise.
-#' @param baseline_dist character variable specifying the parametric form of the
-#'   baseline hazard to use for the stacked regression if the \code{model_type}
-#'   of the \code{predinfo} object is "survival". Leave as NULL (default) if
-#'   existing models are not of type survival.
 #'
 #' @details The aim of this function is to take a set of (previously estimated)
 #'   prediction models that were each originally developed for the same
@@ -103,10 +99,7 @@ pred_stacked_regression <- function(x,
                                     newdata,
                                     binary_outcome = NULL,
                                     survival_time = NULL,
-                                    event_indicator = NULL,
-                                    baseline_dist = c(NULL,
-                                                      "weibull",
-                                                      "exponential")) {
+                                    event_indicator = NULL) {
   UseMethod("pred_stacked_regression")
 }
 
@@ -117,10 +110,7 @@ pred_stacked_regression.default <- function(x,
                                             newdata,
                                             binary_outcome = NULL,
                                             survival_time = NULL,
-                                            event_indicator = NULL,
-                                            baseline_dist = c(NULL,
-                                                              "weibull",
-                                                              "exponential")) {
+                                            event_indicator = NULL) {
   stop("'x' is not of class 'predinfo'; please see pred_input_info()",
        call. = FALSE)
 }
@@ -132,10 +122,7 @@ pred_stacked_regression.predinfo_logistic <- function(x,
                                                       newdata,
                                                       binary_outcome = NULL,
                                                       survival_time = NULL,
-                                                      event_indicator = NULL,
-                                                      baseline_dist = c(NULL,
-                                                                        "weibull",
-                                                                        "exponential")) {
+                                                      event_indicator = NULL) {
 
   #Check outcomes were inputted (needed to validate the model)
   if (is.null(binary_outcome)) {
@@ -228,7 +215,7 @@ pred_stacked_regression.predinfo_logistic <- function(x,
                                                          ],
                                                          collapse = "+"),
                                                          sep="")),
-                     "model_info" = coef_table,
+                     "model_info" = data.frame(as.list(coef_table)),
                      "Stacked_Regression_Weights" = alpha)
 
   class(SR_results) <- c("predSR", "predinfo_logistic", "predinfo")
@@ -242,10 +229,7 @@ pred_stacked_regression.predinfo_survival <- function(x,
                                                       newdata,
                                                       binary_outcome = NULL,
                                                       survival_time = NULL,
-                                                      event_indicator = NULL,
-                                                      baseline_dist = c(NULL,
-                                                                        "weibull",
-                                                                        "exponential")){
+                                                      event_indicator = NULL){
   #Check outcomes were inputted (needed to validate the model)
   if (is.null(survival_time) | is.null(event_indicator)) {
     stop("survival_time and event_indicator must be supplied to aggregate the existing model(s)",
@@ -256,8 +240,6 @@ pred_stacked_regression.predinfo_survival <- function(x,
     stop("Multiple existing models should be included in predinfo object. Recall pred_input_info() with multiple models inputted.",
          call. = FALSE)
   }
-
-  baseline_dist <- as.character(match.arg(baseline_dist))
 
   #Make predictions within newdata using the existing prediction model(s)
   predictions <- predRupdate::pred_predict(x = x,
@@ -276,49 +258,15 @@ pred_stacked_regression.predinfo_survival <- function(x,
                                       function(X) X[names(X)=="LinearPredictor"])))
   names(SR_dat) <- c("Outcomes", paste("LP", 1:x$M, sep = ""))
 
-  if (baseline_dist == "weibull") {
 
-    SR <- survival::survreg(Outcomes ~ .,
-                            data = SR_dat,
-                            dist="weibull")
+  #Fit the SR cox model:
+  SR <- survival::coxph(Outcomes ~ .,
+                        data = SR_dat)
+  beta <- SR$coefficients
 
-    gamma <- stats::coef(SR)
-    sigma <- summary(SR)$scale
-    mu <- gamma[which(names(gamma)=="(Intercept)")]
-    gamma <- gamma[-which(names(gamma)=="(Intercept)")]
-
-    weibull_scale <- exp(-mu / sigma)
-    weibull_shape <- 1 / sigma
-
-    beta <- -gamma / sigma
-
-    baseline_times <- sort(unique(unlist(lapply(x$baselinehazard, function(X) X[,1]))))
-    H0 <- (baseline_times*weibull_scale)^(weibull_shape)
-    baselinehazard <- data.frame("t" = baseline_times,
-                                 "h" = H0)
-
-  } else if (baseline_dist == "exponential"){
-    SR <- survival::survreg(Outcomes ~ .,
-                            data = SR_dat,
-                            dist="exponential")
-    gamma <- stats::coef(SR)
-    sigma <- summary(SR)$scale
-    mu <- gamma[which(names(gamma)=="(Intercept)")]
-    gamma <- gamma[-which(names(gamma)=="(Intercept)")]
-
-    weibull_scale <- exp(-mu / sigma)
-    weibull_shape <- 1 / sigma
-
-    beta <- -gamma / sigma
-
-    baseline_times <- sort(unique(unlist(lapply(x$baselinehazard, function(X) X[,1]))))
-    H0 <- (baseline_times*weibull_scale)^(weibull_shape)
-    baselinehazard <- data.frame("t" = baseline_times,
-                                 "h" = H0)
-
-  } else{
-    stop("baseline_dist should not be NULL for aggregating survival models")
-  }
+  BH <- survival::basehaz(SR, centered = FALSE)
+  baselinehazard <- data.frame("time" = BH$time,
+                               "hazard" = BH$hazard)
 
   #Convert the results of stacked regression into the pooled model coefficients:
   coef_table <- x$model_info
@@ -338,7 +286,7 @@ pred_stacked_regression.predinfo_survival <- function(x,
                                                          collapse = "+"),
                                                          sep="")),
                      "baselinehazard" = baselinehazard,
-                     "model_info" = coef_table,
+                     "model_info" = data.frame(as.list(coef_table)),
                      "Stacked_Regression_Weights" = beta)
 
   class(SR_results) <- c("predSR", "predinfo_survival", "predinfo")

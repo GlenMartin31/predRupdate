@@ -133,7 +133,7 @@ $$
 
 This equation can be re-arranged to express in terms of the set of new (aggregated) predictor coefficients for each of the $P$ predictor variables. Given that the $M$ existing models all aim to predict the same outcome, there could be a high level of collinearity in the set of $M$ linear predictors. Therefore, there have been suggestions to fit the above stacked regression model under the constraint that all of $\gamma_1,...\gamma_M$ should be non-negative. __predRupdate__ allows stacked regression to either include this constraint or not. 
 
-__predRupdate__ can also implement stacked regression for $M$ existing time-to-event (survival) CPMs. The technical details are similar to those described above for logistic models, with the exception that the final model is fitted as a parametric time-to-event model; currently Exponential and Weibull parameterisations are allowed, with more to be added soon.
+__predRupdate__ can also implement stacked regression for $M$ existing time-to-event (survival) CPMs. The technical details are similar to those described above for logistic models, with the exception that the underlying model is changed to a Cox proportional hazards model (further parametric/ flexible parametric methods to be added in the future). 
 
 # References
 1. Riley RD, et al. Prognosis Research in Healthcare: Oxford University Press; 2019
