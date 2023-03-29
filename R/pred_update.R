@@ -97,7 +97,7 @@
 #'
 #' @export
 pred_update <- function(x,
-                        update_type = c("intercept_update", "recalibration", "revision"),
+                        update_type = c("intercept_update", "recalibration", "refit"),
                         newdata,
                         binary_outcome = NULL,
                         survival_time = NULL,
@@ -107,7 +107,7 @@ pred_update <- function(x,
 
 #' @export
 pred_update.default <- function(x,
-                                update_type = c("intercept_update", "recalibration", "revision"),
+                                update_type = c("intercept_update", "recalibration", "refit"),
                                 newdata,
                                 binary_outcome = NULL,
                                 survival_time = NULL,
@@ -118,7 +118,7 @@ pred_update.default <- function(x,
 
 #' @export
 pred_update.predinfo_logistic <- function(x,
-                                          update_type = c("intercept_update", "recalibration", "revision"),
+                                          update_type = c("intercept_update", "recalibration", "refit"),
                                           newdata,
                                           binary_outcome = NULL,
                                           survival_time = NULL,
@@ -145,7 +145,16 @@ pred_update.predinfo_logistic <- function(x,
                                            event_indicator = event_indicator)
 
   if(update_type == "intercept_update") {
-    stop("not currently supported")
+    #Run model update
+    fit <- stats::glm(predictions$Outcomes ~ offset(predictions$LinearPredictor),
+                      family = stats::binomial(link = "logit"))
+    param <- data.frame(cbind(fit$coefficients, sqrt(diag(stats::vcov(fit)))))
+    names(param) <- c("Estimate", "Std. Error")
+
+    #Update old coefficients
+    coef_table <- model1$coefs
+    coef_table["Intercept"] <- coef_table["Intercept"] + param["(Intercept)","Estimate"]
+
   } else if(update_type == "recalibration") {
     #Run model update
     fit <- stats::glm(predictions$Outcomes ~ predictions$LinearPredictor,
@@ -158,8 +167,18 @@ pred_update.predinfo_logistic <- function(x,
     coef_table <- x$coefs
     coef_table <- coef_table * param["Slope","Estimate"]
     coef_table["Intercept"] <- coef_table["Intercept"] + param["(Intercept)","Estimate"]
-  } else if(update_type == "revision") {
-    stop("not currently supported")
+
+  } else if(update_type == "refit") {
+    #Run model update
+    formula_text <- paste0(binary_outcome, model1$formula[1], model1$formula[2])
+    fit <- stats::glm(eval(parse(text=formula_text)), data = SYNPM$ValidationData,
+                      family = stats::binomial(link = "logit"))
+    param <- data.frame(cbind(fit$coefficients, sqrt(diag(stats::vcov(fit)))))
+    names(param) <- c("Estimate", "Std. Error")
+
+    #Update old coefficients
+    coef_table <- param$Estimate
+
   }
 
   #Return results and set S3 class
@@ -221,7 +240,7 @@ pred_update.predinfo_survival <- function(x,
     #obtain new baseline cumulative hazard
     BH <- survival::basehaz(fit, centered = FALSE)
 
-  } else if(update_type == "revision") {
+  } else if(update_type == "refit") {
     stop("not currently supported")
   }
 
