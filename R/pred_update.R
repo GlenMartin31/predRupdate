@@ -230,6 +230,10 @@ pred_update.predinfo_survival <- function(x,
     #obtain new baseline cumulative hazard
     BH <- survival::basehaz(fit, centered = FALSE)
 
+    #keep original coefficients
+    coef_table <- x$coefs
+    param <- NA
+
   } else if(update_type == "recalibration") {
     #Run model update
     fit <- survival::coxph(predictions$Outcomes ~ predictions$LinearPredictor)
