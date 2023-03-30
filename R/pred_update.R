@@ -29,7 +29,7 @@
 #'
 #'   The type of updating method is selected with the \code{update_type}
 #'   parameter, with options: "intercept_update", "recalibration" and
-#'   "revision". "intercept_update" corrects the overall
+#'   "refit". "intercept_update" corrects the overall
 #'   calibration-in-the-large of the model, through altering the model intercept
 #'   (or baseline hazard) to suit the new dataset. This is achieved by fitting a
 #'   logistic model (if the existing model is of type logistic) or time-to-event
@@ -39,10 +39,9 @@
 #'   calibration-in-the-large and any under/over-fitting, by fitting a logistic
 #'   model (if the existing model is of type logistic) or time-to-event model
 #'   (if the existing model if of type survival) to the new dataset, with the
-#'   linear predictor as the only covariate. Finally, "revision" is the same as
-#'   "recalibration" with the addition that individual covariates may also be
-#'   updated; this has the effect of also changing the discrimination of the
-#'   existing model.
+#'   linear predictor as the only covariate. Finally, "refit" takes the original
+#'   model structure and re-estimates all coefficients; this has the effect as
+#'   re-developing the original model in the new dat.
 #'
 #'   \code{newdata} should be a data.frame, where each row should be an
 #'   observation (e.g. patient) and each variable/column should be a predictor
@@ -170,8 +169,8 @@ pred_update.predinfo_logistic <- function(x,
 
   } else if(update_type == "refit") {
     #Run model update
-    formula_text <- paste0(binary_outcome, model1$formula[1], model1$formula[2])
-    fit <- stats::glm(eval(parse(text=formula_text)), data = SYNPM$ValidationData,
+    formula_text <- paste0(binary_outcome, x$formula[1], x$formula[2])
+    fit <- stats::glm(eval(parse(text=formula_text)), data = newdata,
                       family = stats::binomial(link = "logit"))
     param <- data.frame(cbind(fit$coefficients, sqrt(diag(stats::vcov(fit)))))
     names(param) <- c("Estimate", "Std. Error")
