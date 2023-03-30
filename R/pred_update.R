@@ -151,7 +151,7 @@ pred_update.predinfo_logistic <- function(x,
     names(param) <- c("Estimate", "Std. Error")
 
     #Update old coefficients
-    coef_table <- model1$coefs
+    coef_table <- x$coefs
     coef_table["Intercept"] <- coef_table["Intercept"] + param["(Intercept)","Estimate"]
 
   } else if(update_type == "recalibration") {
@@ -197,7 +197,7 @@ pred_update.predinfo_logistic <- function(x,
 
 #' @export
 pred_update.predinfo_survival <- function(x,
-                                          update_type = c("recalibration"),
+                                          update_type = c("intercept_update", "recalibration", "refit"),
                                           newdata,
                                           binary_outcome = NULL,
                                           survival_time = NULL,
@@ -224,7 +224,12 @@ pred_update.predinfo_survival <- function(x,
                                            event_indicator = event_indicator)
 
   if(update_type == "intercept_update") {
-    stop("not currently supported")
+    #Run model update
+    fit <- survival::coxph(predictions$Outcomes ~ offset(predictions$LinearPredictor))
+
+    #obtain new baseline cumulative hazard
+    BH <- survival::basehaz(fit, centered = FALSE)
+
   } else if(update_type == "recalibration") {
     #Run model update
     fit <- survival::coxph(predictions$Outcomes ~ predictions$LinearPredictor)
