@@ -1,4 +1,4 @@
 library(testthat)
-library(pmupdate)
+library(predRupdate)
 
-test_check("pmupdate")
+test_check("predRupdate")

@@ -10,8 +10,6 @@
 #' @return A numeric vector, with values between -Inf and Inf
 #' @export
 #'
-#' @author Glen Martin, \email{glen.martin@@manchester.ac.uk}
-#'
 #' @seealso \code{\link{inv_logit}}
 #'
 #' @examples
@@ -37,8 +35,6 @@ logit <- function(p) {
 #' @return Numeric vector of probabilities (i.e. values between 0 and 1)
 #' @export
 #'
-#' @author Glen Martin, \email{glen.martin@@manchester.ac.uk}
-#'
 #' @seealso \code{\link{logit}}
 #'
 #' @examples
@@ -51,19 +47,25 @@ inv_logit <- function(x) {
 
 
 
-
-#' Create dummy variables for all categorical variables in a data.frame. Can be
-#' used as a pre-processing step before \code{\link{pm_input_info}}.
+#' Create dummy variables for all categorical/factor variables in a data.frame
+#'
+#' Create dummy/indicator variables for all categorical variables in a
+#' data.frame. Can be used as a pre-processing step before calling other
+#' functions within the package.
 #'
 #' @param df a data.frame on which to make dummy variables for each
 #'   categorical/factor variable, based on contrasts.
 #'
-#' @return a data.frame in which the new columns are appended to the \code{df}.
-#'   Naming convention of the new dummy variables is variable_level. For
-#'   example, a factor variable called "colour" with levels "red", "green" and
-#'   "purple" (where "purple" is the reference) will have two new "dummy
-#'   variables" named colour_red and colour_green.
+#' @return a data.frame matching \code{df} but where where each categorical
+#'   variable in \code{df} is replaced with indicator variables. All
+#'   combinations of the indicator/dummy variable are returned. Naming
+#'   convention of the new dummy variables is variable_level. For example, a
+#'   factor variable in \code{df} named "colour" with levels "red", "green" and
+#'   "purple" will be replaced with three columns (the new dummy variables),
+#'   named colour_red,  colour_green and colour_purple.
 #' @export
+#'
+#' @seealso \code{\link{pred_input_info}}
 #'
 #' @examples
 #' dummyvars(data.frame("Colour" = factor(sample(c("red",
@@ -73,13 +75,25 @@ inv_logit <- function(x) {
 #'                                              500,
 #'                                              replace = TRUE))))
 dummyvars <- function(df) {
-  for (j in names(df)[which(sapply(df, is.factor))]) {
-    dummy_mat <- stats::model.matrix(~df[,j])[,-1]
-    colnames(dummy_mat) <- paste(j,
-                                 sub(".*j\\]", "", colnames(dummy_mat)),
-                                 sep="_")
-    df <- cbind(df, dummy_mat)
-    rm(dummy_mat)
+
+  #Check that df contains at least one factor variable
+  if (all(sapply(df, is.factor)==FALSE)) {
+    stop("data.frame contains no factor variables to convert to dummy variables")
+  } else{
+    for (j in names(df)[which(sapply(df, is.factor))]) {
+      dummy_mat <- stats::model.matrix.lm(~-1 + df[[j]],
+                                          na.action = "na.pass")
+      #Note: above we keep NA's in the dummy variables; gives users flexibility
+      #to decide how to handle in other functions
+
+      #create sensible names
+      colnames(dummy_mat) <- paste(j,
+                                   sub(".*j\\]\\]", "", colnames(dummy_mat)),
+                                   sep="_")
+      df <- cbind(df, dummy_mat)
+    }
+    #remove factor variables (replaced by dummay vars)
+    df <- df[,-which(sapply(df, is.factor))]
+    df
   }
-  df
 }
