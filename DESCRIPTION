@@ -1,5 +1,5 @@
 Package: predRupdate
-Title: Prognostic Model Updating and Aggregation in R
+Title: Prediction Model Validation and Updating in R
 Version: 0.0.0.9000
 Authors@R: c(person(given = "Glen", family = "Martin", role = c("aut", "cre"), email = "glen.martin@manchester.ac.uk"),
              person(given = "Matthew", family = "Sperrin", role = c("aut"), email = "matthew.sperrin@manchester.ac.uk"),
@@ -7,8 +7,8 @@ Authors@R: c(person(given = "Glen", family = "Martin", role = c("aut", "cre"), e
 Description: Evaluate the predictive performance of an existing (i.e. previously developed) 
     prediction/ prognostic model given relevant information about the existing 
     prediction model (e.g. coefficients) and a new dataset (e.g. external 
-    validation). The package also implements a range of model updating methods 
-    that help tailor the existing model to the local/ new dataset. 
+    validation). A range of model updating methods that help tailor the existing model 
+    to the local/ new dataset is also provided. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
