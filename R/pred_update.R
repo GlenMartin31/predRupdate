@@ -66,8 +66,7 @@
 #'   added element containing the estimates of the model updating.
 #'
 #' @examples
-#' #Example 1 - logistic regression existing model, with outcome specified; uses
-#' #            an example dataset within the package
+#' #Example 1 - logistic regression existing model, updated using recalibration:
 #' model1 <- pred_input_info(model_type = "logistic",
 #'                           model_info = SYNPM$Existing_logistic_models[1,])
 #' recalibrated_model1 <- pred_update(x = model1,
@@ -80,15 +79,23 @@
 #' #in-sample optimism):
 #' pred_validate(recalibrated_model1, newdata = SYNPM$ValidationData, binary_outcome = "Y")
 #'
-#' #Example 2 - update time-to-event model
+#' #Example 2 - update time-to-event model by updating the baseline hazard in new dataset
 #' model2 <- pred_input_info(model_type = "survival",
 #'                           model_info = SYNPM$Existing_TTE_models[1,],
 #'                           baselinehazard = SYNPM$TTE_mod1_baseline)
 #' recalibrated_model2 <- pred_update(x = model2,
+#'                                    update_type = "intercept_update",
 #'                                    newdata = SYNPM$ValidationData,
 #'                                    survival_time = "ETime",
 #'                                    event_indicator = "Status")
 #' summary(recalibrated_model2)
+#' #one could then validate this as follows (but this should be adjusted for
+#' #in-sample optimism):
+#' pred_validate(recalibrated_model2,
+#'               newdata = SYNPM$ValidationData,
+#'               event_indicator = "Status",
+#'               survival_time = "ETime",
+#'               time_horizon = 5)
 #'
 #' @references Su TL, Jaki T, Hickey GL, Buchan I, Sperrin M. A review of
 #'   statistical updating methods for clinical prediction models. \emph{Stat Methods
@@ -176,7 +183,9 @@ pred_update.predinfo_logistic <- function(x,
     names(param) <- c("Estimate", "Std. Error")
 
     #Update old coefficients
-    coef_table <- param$Estimate
+    coef_table <- data.frame(t(param$Estimate))
+    names(coef_table) <- names(stats::coef(fit))
+    names(coef_table)[which(names(coef_table) == "(Intercept)")] <- "Intercept"
 
   }
 
@@ -228,7 +237,9 @@ pred_update.predinfo_survival <- function(x,
     fit <- survival::coxph(predictions$Outcomes ~ offset(predictions$LinearPredictor))
 
     #obtain new baseline cumulative hazard
-    BH <- survival::basehaz(fit, centered = FALSE)
+    BH <- survival::basehaz(fit)
+    #undo the scaling of the offset term in the baseline hazard (above BH is for scaled LP):
+    BH$hazard <- BH$hazard / exp(mean(predictions$LinearPredictor))
 
     #keep original coefficients
     coef_table <- x$coefs
@@ -249,7 +260,20 @@ pred_update.predinfo_survival <- function(x,
     BH <- survival::basehaz(fit, centered = FALSE)
 
   } else if(update_type == "refit") {
-    stop("not currently supported")
+    #Run model update
+    DM <- data.frame("outcome" = predictions$Outcomes,
+                     newdata[,x$coef_names])
+    fit <- survival::coxph(outcome ~ ., data = DM)
+    param <- data.frame(cbind(fit$coefficients, sqrt(diag(stats::vcov(fit)))))
+    names(param) <- c("Estimate", "Std. Error")
+
+    #Update old coefficients
+    coef_table <- data.frame(t(param$Estimate))
+    names(coef_table) <- names(stats::coef(fit))
+
+    #obtain new baseline cumulative hazard
+    BH <- survival::basehaz(fit, centered = FALSE)
+
   }
 
   #Return results and set S3 class
