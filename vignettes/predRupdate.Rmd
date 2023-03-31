@@ -22,9 +22,9 @@ library(predRupdate)
 ```
 
 # Preamble
-The __predRupdate__ package includes a set of function to aid in the validation of a clinical prediction model (CPM) on a given dataset, and to apply various model updating and aggregation methods. This vignette aims to overview, through examples, some common workflows of using the __predRupdate__ package. For a technical vignette describing the methods underpinning the package, please see `vignette("predRupdate_technical")`. 
+The __predRupdate__ package includes a set of functions to aid in the validation of a clinical prediction model (CPM) on a given dataset, and to apply various model updating and aggregation methods. This vignette aims to overview, through examples, some common workflows of using the __predRupdate__ package. For a technical vignette describing the methods underpinning the package, please see `vignette("predRupdate_technical")`. 
 
-The package is focused on the situation where there is an existing CPM that has been developed (e.g., a model published in the literature), and one wishes to apply this model to a new dataset. We foresee at least three use-cases: (1) where one wishes to externally validate the existing CPM on the new data to tests the model's predictive performance, i.e., external validation; (2) where one wishes to apply model updating methods to the existing CPM to 'tailor' it to the new dataset; and (3) where there are multiple existing CPMs, and one wishes to apply model aggregation (meta-modelling) methods to pool these models into a single model for the new dataset. We therefore give three examples below for each of these use cases, using an example dataset and models. 
+The package is focused on the situation where there is an existing CPM (or multiple CPMs) that has been developed (e.g., a model published in the literature), and one wishes to apply this model to a new dataset. We foresee at least three use-cases: (1) where one wishes to externally validate the existing CPM on the new data to tests the model's predictive performance, i.e., external validation; (2) where one wishes to apply model updating methods to the existing CPM to 'tailor' it to the new dataset; and (3) where there are multiple existing CPMs, and one wishes to apply model aggregation (meta-modelling) methods to pool these models into a single model for the new dataset. We therefore give three examples below for each of these use cases. 
 
 # Data
 The data used throughout this vignette are available within the package, and can be loaded by 
@@ -45,11 +45,11 @@ names(coefs_table) <- c("Coefficient")
 knitr::kable(coefs_table, caption = "Table of coefficients for the existing logistic regression prediction model")
 ```
 
-The first step in using __predRupdate__ to validate this model is to input the model information. We start by creating a data.frame of the model coefficients, with the columns being the predictor variable names. Care should be taken around naming of the intercept variable (in the case of a logistic regression model). This information is then passed into the "pred_input_info()" function to input the information about the existing model. See the help file of "pred_input_info()" for details.
+The first step in using __predRupdate__ to validate this model is to input the model information. We start by creating a data.frame of the model coefficients, with the columns being the predictor variable names. This information is then passed into the "pred_input_info()" function to input the information about the existing model. See the help file of "pred_input_info()" for details.
 ```{r}
 # create a data.frame of the model coefficients, with columns being variables
-coefs_table <- data.frame("Intercept" = -3.4,
-                          "SexM" = 0.306,
+coefs_table <- data.frame("Intercept" = -3.4, #the intercept needs to be named exactly as given here
+                          "SexM" = 0.306, 
                           "Smoking_Status" = 0.628,
                           "Diabetes" = 0.499,
                           "CKD" = 0.538)
@@ -67,10 +67,10 @@ pred_validate(x = Existing_Logistic_Model,
               binary_outcome = "Y")
 ```
 
-This produces a flexible calibration plot, along with outputting various metrics of model calibration (e.g., calibration intercept and slope),  discrimination (e.g., area under the ROC curve) and overall performance (e.g. R-squared).
+This produces a flexible calibration plot, along with outputting various metrics of model calibration (e.g., calibration intercept and slope),  discrimination (e.g., area under the ROC curve) and overall performance (e.g., R-squared). We can see that this model has poor calibration (calibration plot deviating from the y=x line, with calibration intercept and slope significantly different from 0 and 1, respectively), and poor discrimination. One may wish to update this model to the new dataset - see Example 2 below.
 
 ## Survival analysis model
-The above example considered the validation of an existing CPM that was based on logistic regression. __predRupdate__ also contains functionality to validate CPMs that are based on time-to-event (survival) models (e.g. a Cox proportional hazards model). The key difference with the above is that the baseline cumulative hazard of the model should be specified. 
+The above example considered the validation of an existing CPM that was based on logistic regression. __predRupdate__ also contains functionality to validate CPMs that are based on time-to-event (survival) models (e.g. a Cox proportional hazards model). In such a case, the baseline cumulative hazard of the model should also be specified, along with the regression coefficients. 
 
 For example, suppose an existing CPM was developed using Cox proportional hazards to predict time-to-death after surgery, with the following predictor parameters (log hazard ratios):
 ```{r, echo = FALSE}
@@ -85,7 +85,7 @@ BH_table <- SYNPM$TTE_mod1_baseline
 knitr::kable(BH_table, caption = "Table of baseline cumulative hazard")
 ```
 
-We can then use the "pred_validate()" function to validate this model in the new dataset. This follows a similar syntax to above for the logistic model. We need to specify a time during follow-up that we;d like to validate the model against - this time must also be avaliable in the baseline cumulative hazards. Lets imagine we wish to validate the models at 5 months follow-up.
+We can then use the "pred_validate()" function to validate this model in the new dataset. This follows a similar syntax to above for the logistic model. We need to specify a time during follow-up that we'd like to validate the model against - this time must also be available in the baseline cumulative hazards. Lets imagine we wish to validate the models at 5 months follow-up.
 ```{r}
 # create a data.frame of the model coefficients, with columns being variables
 coefs_table <- data.frame("Age" = 0.008,
@@ -109,7 +109,6 @@ pred_validate(x = Existing_TTE_Model,
 
 # Example 2: model updating on new data
 In the validation of an existing logistic regression model in Example 1 above, we found that the existing model was miscalibrated in the new data. One strategy to handle this is to apply model updating methods. See `vignette("predRupdate_technical")` for a technical discussion of these methods. 
-
 We here choose to apply model re-calibration; to do so, we can use the "pred_update()" function:
 ```{r}
 # create a data.frame of the model coefficients, with columns being variables
@@ -130,7 +129,7 @@ Updated_model <- pred_update(Existing_Logistic_Model,
                              binary_outcome = "Y")
 ```
 
-One could then validate this updated model using "pred_validate()", but given we have updated the model in the newdata, then any such performance estimates would need to be adjusted for in-sample optimism (e.g., using cross-validation or bootstrap internal validation):
+One could then validate this updated model using "pred_validate()", but given we have updated the model in the new data, then any such performance estimates would need to be adjusted for in-sample optimism (e.g., using cross-validation or bootstrap internal validation):
 ```{r}
 pred_validate(Updated_model, 
               newdata = SYNPM$ValidationData, 
@@ -175,7 +174,7 @@ SR <- pred_stacked_regression(x = multiple_mods,
 summary(SR)
 ```
 
-One could then validate this updated model using "pred_validate()", but given we have updated the model in the newdata, then any such performance estimates would need to be adjusted for in-sample optimism (e.g., using cross-validation or bootstrap internal validation):
+One could then validate this updated model using "pred_validate()", but given we have updated the model in the new data, then any such performance estimates would need to be adjusted for in-sample optimism (e.g., using cross-validation or bootstrap internal validation):
 ```{r}
 pred_validate(SR, 
               newdata = SYNPM$ValidationData, 

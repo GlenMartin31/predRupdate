@@ -22,7 +22,7 @@ library(predRupdate)
 ```
 
 # Preamble
-The __predRupdate__ package includes a set of function to aid in the validation of a clinical prediction model (CPM) on a given dataset, and to apply various model updating and aggregation methods. This vignette aims to overview the technical details of the methods that are implemented within the __predRupdate__ package. For an introduction to using the package, please see `vignette("predRupdate")`.  
+The __predRupdate__ package includes a set of functions to aid in the validation of a clinical prediction model (CPM) on a given dataset, and to apply various model updating and aggregation methods. This vignette aims to overview the technical details of the methods that are implemented within the __predRupdate__ package. For an introduction to using the package, please see `vignette("predRupdate")`.  
 
 # Clinical Prediction Models
 Clinical prediction models (CPMs) are statistical models that aim to predict the presence (diagnostic models) or future occurrence (prognostic models) of an outcome of interest for an individual, using information (predictor variables) that are available about that individual at the time the prediction is made. For example, we might use someone's age, sex, smoking status and family medical history to predict their risk of developing cardiovascular disease in the next ten years. These models can be used to aid clinical decision-making, form the cornerstone of decision support systems, and underpin clinical audit and feedback tasks. 
@@ -31,20 +31,20 @@ The usual stages for the production of CPMs are: (i) model development and inter
 
 ```{r, echo = FALSE}
 knitr::kable(data.frame("Phase" = c("Model Development and internal validation", "External validation", "Impact Assessment"),
-                        "Description" = c("The development of the model uses a cohort of patients, where the predictor variables and outcomes are known, to select the variables to include within the model and estimate their prognostic effect (coefficient) on the outcome of interest. This is followed by assessment of predictive performance within that data, adjusting for in-sample optimism", "Aims to asses the predictive performance of the developed model in data that are different to those used to develop the model (e.g., temporally or geographically different). If performance is deemed unsuitable, the model may undergo updating to tailor it more closely to the new data", "Impact assessment investigate the extent to which the model changes clinical practice and improves patient outcomes")), caption = "Phases of clinical prediction model production")
+                        "Description" = c("The development of the model uses a cohort of patients, where the predictor variables and outcomes are known, to perform variable selection and estimate the prognostic effect (coefficient) of each predictor on the outcome of interest. This is followed by assessment of predictive performance within that data, adjusting for in-sample optimism", "Aims to assess the predictive performance of the developed model in data that are different to those used to develop the model (e.g., temporally or geographically different). If performance is deemed unsuitable, the model may undergo updating to tailor it more closely to the new data", "Impact assessment investigates the extent to which the model changes clinical practice and improves patient outcomes")), caption = "Phases of clinical prediction model production")
 ```
 
 The aim of __predRupdate__ is to provide tools for stage (ii). Specifically, the package is intended for the situation where a CPM has already been developed (e.g., a model available in the literature), and one wishes to apply the model to a new dataset for validation, updating, or both. The package assumes that one has access to the reported model parameters (all those that are required to make a prediction of risk for a new observation) and an individual participant dataset in which one wishes to apply the model. 
 
-this vignette is not intended to be a detailed tutorial of prediction modelling. For that, we refer readers to Riley et al. 2019 and Steyerberg 2009. Instead, this vignette is intended to describe the technical details of how certain methodologies have been implemented in __predRupdate__; we refer to wider reading for further methodological details. 
+This vignette is not intended to be a detailed tutorial of prediction modelling. For that, we refer readers to Riley et al. 2019 and Steyerberg 2009. Instead, this vignette is intended to describe the technical details of how certain methodologies have been implemented in __predRupdate__. 
 
 # Predictive Performance Metrics
-The predictive performance of a CPM is summarised by its calibration, discrimination and overall accuracy. We provide a brief overview of the technical details that are implemented in __predRupdate__, but refer readers to the literature for a more detailed overview (Riley et al. 2019; Steyerberg et al. 2013; Moons et al. 2012; Altman and Royston 2000; Van Calster et al. 2016; McLernon et al. 2023). 
+The predictive performance of a CPM is summarised by its calibration, discrimination and overall accuracy. We provide a brief overview of the technical details that are implemented in __predRupdate__, but refer readers to the literature for a detailed overview (Riley et al. 2019; Steyerberg et al. 2013; Moons et al. 2012; Altman and Royston 2000; Van Calster et al. 2016; McLernon et al. 2023). 
 
 ## calibration
 Calibration is the agreement of the predicted risks from the CPM with the observed risks in the validation dataset, across the full risk range. A primary method of assessing calibration is to produce a flexible calibration plot, which graphically depicts the estimated risk (x-axis) and the observed probabilities (y-axis). The observed probabilities are obtained by regressing the observed outcomes in the validation dataset against the linear predictor (calculated for each individual in the validation dataset), using loess or splines. 
 
-Specifically, suppose an existing (logistic regression) CPM has been developed (in anotehr dataset) to predict the probability of a binary outcome, $Y$. This CPM is given by  
+Specifically, suppose an existing (logistic regression) CPM has been developed (in another dataset) to predict the probability of a binary outcome, $Y$. This CPM is given by  
 
 $$
 \log\left(\frac{\pi_i}{1-\pi_i}\right) = \hat{\beta}_0 + \hat{\beta}_1X_{i,1} + \hat{\beta}_2X_{i,2} + ... + \hat{\beta}_PX_{i,P}
@@ -58,20 +58,20 @@ $$
 \log\left(\frac{\pi_i}{1-\pi_i}\right) = \alpha_0 + S(LP_i)
 $$
 
-where $s(.)$ is some smooth function; in __predRupdate__ this is a natural cubic spline. This model is then used to obtain observed probabilities for each individual in the validation dataset, which are plotted against the corresponding predicted risks obtained from the CPM. A resulting curve close to the diagonal (y=x line) indicates that predicted risks correspond well to observed proportions. In __predRupdate__ a histogram of the predicted risk distribution is overlaid with the calibration plot; if a calibration plot is not requested, this histogram is always produced.
+where $s(.)$ is some smooth function; in __predRupdate__ this is a natural cubic spline. This model is then used to obtain observed probabilities for each individual in the validation dataset, which are plotted against the corresponding predicted risks obtained from the CPM. A resulting curve close to the diagonal (y=x line) indicates that predicted risks correspond well to observed proportions. In __predRupdate__ a histogram of the predicted risk distribution is overlaid with the calibration plot, to visually summarise the probability distribution.
 
-If validating an existing time-to-event CPM, __predRupdate__ also produces a flexible calibration plot using methods similar to those described above for logistic regression models. The only difference is that the observed probabilities are obtained by using a Cox proportional hazards model to regress the linear predictor of the model (under natural cubic spline) against the time-to-event outcome in the validation dataset. A time horizon must also be specified (i.e., the time of follow-up in which to assess calibration against).
+If validating an existing time-to-event CPM, __predRupdate__ produces the flexible calibration plot using methods similar to those described above for logistic regression models. Here, the observed probabilities are obtained by fitting a Cox proportional hazards model to regress the linear predictor of the model (under natural cubic spline) against the time-to-event outcome in the validation dataset. A time horizon must also be specified (i.e., the time during follow-up in which to assess calibration).
 
-Alongside flexible calibration plots, __predRupdate__ also calculates the calibration slope. The calibration slope (ideal value 1) indicates the level of overfitting of the model, with values less than 1 indicating more overfitting. In __predRupdate__ this is estimated by fitting a logistic regression model (if the existing CPM is a logistic model) or Cox proportion hazards model (if the existing CPM is of type survival) to the observed outcomes in the validation dataset with the linear predictor from the CPM as the only covariate. 
+Alongside flexible calibration plots, __predRupdate__ also calculates the calibration slope. The calibration slope (ideal value 1) indicates the level of over-fitting of the model, with values less than 1 indicating more over-fitting. In __predRupdate__ this is estimated by fitting a logistic regression model (if the existing CPM is a logistic model) or Cox proportion hazards model (if the existing CPM is a survival model) to the observed outcomes in the validation dataset with the linear predictor from the CPM as the only covariate. 
 
-Finally, calibration-in-the-large summarises how close the mean predicted risk is to the mean outcome proportion in the validation dataset. If validating a logistic regression CPM, this is quantified using the calibration intercept, estimated using the same model as estiamting the calibration slope, with the with the slope is fixed at unity. Here, a calibration intercept less than 0 would denote the mean predicted risk is higher than the observed outcome proportion. If validating a time-to-event (survival) CPM, then calibration-in-the-large is quantified with the observed:expected ratio (ideal value 1) at a fixed time horizon. Here, the observed proportion is obtained using Kaplan-Meier estimate.
+Finally, calibration-in-the-large summarises how close the mean predicted risk is to the mean outcome proportion in the validation dataset. If validating a logistic regression CPM, this is quantified using the calibration intercept, estimated using the same model as estimating the calibration slope, with the slope fixed at unity. Here, a calibration intercept less than 0 would indicate that the mean predicted risk is higher than the observed outcome proportion. If validating a time-to-event (survival) CPM, then calibration-in-the-large is quantified with the observed:expected ratio (ideal value 1) at a fixed time horizon. Here, the observed proportion is obtained using Kaplan-Meier estimate.
 
 
 ## Discrimination
-Discrimination of a CPM refers to the ability of the model to differentiate those who experience the outcome from those who do not; i.e., does the model estimate a higher predicted risks, on average, for those who experience the outcome, from those who do not. For validating logistic regression CPMs, _predRupdate__ calculates the area under the receiver operating characteristic curve (AUC) of the CPM. For validating time-to-event (survival) CPMs, __predRupdate__ calculates Harrell's C-statistic. An AUC/C-statistic of 0.5 would indicate discrimination no better than chance, whereas a value of 1 indicates perfect calibration.
+Discrimination of a CPM is the ability of the model to differentiate those who experience the outcome from those who do not; i.e., does the model estimate a higher predicted risk, on average, for those who experience the outcome, compared to those who do not experience the outcome. For validating logistic regression CPMs, _predRupdate__ calculates the area under the receiver operating characteristic curve (AUC) of the CPM. For validating time-to-event (survival) CPMs, __predRupdate__ calculates Harrell's C-statistic. An AUC/C-statistic of 0.5 would indicate discrimination no better than chance, whereas a value of 1 indicates perfect calibration.
 
 ## Overall Accuracy
-For validating a logistic regression model, then __predRupdate__ also produces two additional metrics of overall accuracy of the model. The first is the Cox-Snell and Nagelkerke R-squared values. Here, higher R-squared values indicate better overall performance of the model. 
+For validating a logistic regression model, __predRupdate__ also produces two additional metrics of overall accuracy of the model. The first is the Cox-Snell and Nagelkerke R-squared values. Here, higher R-squared values indicate better overall performance of the model. 
 
 In __predRupdate__ the Cox-Snell R-squared is estimated by 
 
@@ -85,39 +85,41 @@ $$
 LR = -2(L_{null} - L_{model})
 $$
 
-with $L_{model}$ being the log-likelihood of the CPM on the validation dataset, and $L_{null}$ is the log-likelihod of an intercept-only model in the validation dataset. Nagelkerke R-squared is then a scaled version of Cox-Snell R-squared, such that 1 is the 'best' value (unlike Cox-Snell R-squared). 
+with $L_{model}$ being the log-likelihood of the CPM on the validation dataset, and $L_{null}$ is the log-likelihood of an intercept-only model in the validation dataset. Nagelkerke R-squared is then a scaled version of Cox-Snell R-squared, such that 1 is the 'best' value (unlike Cox-Snell R-squared). 
 
 Finally, __predRupdate__ also calculates the Brier score of the logistic regression CPM, as the average squared difference between the observed outcome and the predicted risks from the model.
 
 # Model Updating Methods
-Upon validating an existing CPM in new data (external validation) it is not uncommon to find that the models predictive performance deteriorates. Rather than developing a new model in the new data, an alternative strategy is to apply model updating methods. These tailor the model to the new data, using various degrees of model updating. See Moons et al. 2012 and Su et al. 2018 for a detailed overview of these methods. The extent of model updating depends on the issues identified during model validation. 
+Upon validating an existing CPM in new data (external validation) it is not uncommon to find that the models predictive performance deteriorates. Rather than developing a new model in the new data, an alternative strategy is to apply model updating methods. See Moons et al. 2012 and Su et al. 2018 for a detailed overview of these methods. The extent of model updating depends on the issues identified during model validation. 
 
-If the model validation identifies that calibration-in-the-large is inadequate in the validation, then a simple updating strategy is "intercept update". For a logistic regression CPM, __predRupdate__ fits the following model in the new dataset using maximum likelihood estimation:
+If the model validation identifies that the CPM has poor calibration-in-the-large, then a simple updating strategy is "intercept update". For a logistic regression CPM, __predRupdate__ fits the following model in the new dataset using maximum likelihood estimation:
 
 $$
 \log\left(\frac{\pi_i}{1-\pi_i}\right) = \alpha_0 + LP_i = \alpha_0 + (\hat{\beta}_0 + \hat{\beta}_1X_{i,1} + ... + \hat{\beta}_PX_{i,P})
 $$
 
-Here, $\alpha_0$ serves to update the intercept of the original model such that the mean predicted risk from the (updated) CPM matches the observed event proportion in the new dataset. Specifically, the new intercept will be $\alpha_0 + \hat{\beta}_0$. 
+Here, $\alpha_0$ serves to update the intercept of the original model such that the mean predicted risk from the (updated) CPM matches the observed event proportion in the new dataset. Specifically, the new intercept will be $\alpha_0 + \hat{\beta}_0$. All other terms ($\beta_{1},...,\beta_{P}$) remain the same as originally published. 
 
-Often, the original model will also demonstrate elements of overfitting (i.e., the calibration slope of the model is <1 in the validation data). In such a case, the model can be re-calibrated in the new dataset. For a logistic regression CPM, __predRupdate__ fits the following model in the new dataset using maximum likelihood estimation:
+Often, the original model will also demonstrate elements of over-fitting (i.e., the calibration slope of the model is <1 in the validation data). In such a case, the model can be re-calibrated in the new dataset. For a logistic regression CPM, __predRupdate__ fits the following model in the new dataset using maximum likelihood estimation:
 
 $$
 \log\left(\frac{\pi_i}{1-\pi_i}\right) = \alpha_0 + \alpha_1LP_i = \alpha_0 + \alpha_1(\hat{\beta}_0 + \hat{\beta}_1X_{i,1} + ... + \hat{\beta}_PX_{i,P})
 $$
 
-This has the effect of multiplying each original model coefficient by $\alpha_1$, to improve calibration in the new dataset. Specifically, the new (updated) regression coefficients will be $\alpha_1 \times \beta{p}$, and the new model intercept is $\alpha_0 + (\alpha_1 \times \hat{\beta}_0)$. 
+This has the effect of multiplying each original model coefficient by $\alpha_1$. Specifically, the new (updated) regression coefficients will be $\alpha_1 \times \beta{p}$, and the new model intercept is $\alpha_0 + (\alpha_1 \times \hat{\beta}_0)$. 
 
-Neither of the above methods alter the discrimination of the model within the new dataset. For this, model revision is needed, which fits the same model as above for model re-calibration, with the addition of also re-estimating individual predictor variables. For example, we could revise a model in terms of $X_1$, bu fitting the following model in the new dataset using maximum likelihood estimation:
+Neither of the above methods alter the discrimination of the model within the new dataset. For this, one option is to refit the model to the new dataset. Here, one would fit the following model in the new dataset using maximum likelihood estimation:
 
 $$
-\log\left(\frac{\pi_i}{1-\pi_i}\right) = \alpha_0 + \alpha_1LP_i + \alpha_2\hat{\beta}_1X_{i,1}
+\log\left(\frac{\pi_i}{1-\pi_i}\right) = \hat{\alpha}_0 + \hat{\alpha}_1X_{i,1} + \hat{\alpha}_2X_{i,2} + ... + \hat{\alpha}_PX_{i,P}
 $$
+
+Here, $\alpha_{0},...,\alpha_{P}$ become the new regression coefficients of the updated model. There is also a less extreme version of model refitting, where one only re-estimates certain parameters. This will be implemented into the package in the near future.
 
 While we describe the updating methods above for logistic regression models, __predRupdate__ also implements these approaches for time-to-event (survival) CPMs. The principles above are similar, expect the underlying model is changed to a Cox proportional hazards model (further parametric/ flexible parametric methods to be added in the future). 
 
 # Model Aggregation Methods
-In some situations, there are instances where multiple existing CPMs are available for the same prediction task (e.g., existing models developed across different countries). Here, model aggregation methods can be used to pool these existing CPMs into a single model in the new data. Various methods exist for this (Martin et al. 2017), with __predRupdate__ currently implementing stacked regression (Debray et al. 2014). 
+In some situations, there are instances where multiple existing CPMs are available for the same prediction task (e.g., existing models developed across different countries). Here, model aggregation methods can be used to pool these existing CPMs into a single model in the new data. Various methods exist for this (Martin et al. 2017), with __predRupdate__ currently implementing stacked regression (Debray et al. 2014). More methods will be added in the future.
 
 Specifically, suppose there are a collection of $M$ existing logistic regression CPMs, which all aim to predict the same binary outcome, $Y$, but where developed in different populations $j=1,...,M$. The models may contain different predictor variables. Each model has a linear predictor (LP) given by 
 
@@ -131,7 +133,7 @@ $$
 \log\left(\frac{\pi_i}{1-\pi_i}\right) = \gamma_0 + \gamma_1LP_{i,1} + ... + \gamma_MLP_{i,M}
 $$
 
-This equation can be re-arranged to express in terms of the set of new (aggregated) predictor coefficients for each of the $P$ predictor variables. Given that the $M$ existing models all aim to predict the same outcome, there could be a high level of collinearity in the set of $M$ linear predictors. Therefore, there have been suggestions to fit the above stacked regression model under the constraint that all of $\gamma_1,...\gamma_M$ should be non-negative. __predRupdate__ allows stacked regression to either include this constraint or not. 
+This equation can be re-arranged to express in terms of the set of new (aggregated) predictor coefficients for each of the $P$ predictor variables. Given that the $M$ existing models all aim to predict the same outcome, there could be a high level of co-linearity in the set of $M$ linear predictors. Therefore, there have been suggestions to fit the above stacked regression model under the constraint that all of $\gamma_1,...\gamma_M$ should be non-negative. __predRupdate__ implements stacked regression with and without this constraint. 
 
 __predRupdate__ can also implement stacked regression for $M$ existing time-to-event (survival) CPMs. The technical details are similar to those described above for logistic models, with the exception that the underlying model is changed to a Cox proportional hazards model (further parametric/ flexible parametric methods to be added in the future). 
 
