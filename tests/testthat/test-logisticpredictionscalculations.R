@@ -22,7 +22,7 @@ test_that("pred_input_info() and pred_predict() lead to correct predicted
                              "Diabetes" = 0.387810349702088,
                              "CKD" = 0.56129156010678)
             manual_LP <- as.vector(test_mm %*% input_coefs)
-            manual_PR <- exp(manual_LP) / (1 + exp(manual_LP))
+            manual_PR <- 1 / (1 + exp(-manual_LP))
 
             # Compare the outputs
             expect_true(identical(manual_LP,

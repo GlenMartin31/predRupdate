@@ -79,8 +79,8 @@ predictor variables that are included in the existing prediction model
 must match the name of a variables in \code{newdata}).
 
 Any factor variables within \code{newdata} must be converted to dummy (0/1)
-variables before calling this function. \code{\link{dummyvars}} can help
-with this - see examples below.
+variables before calling this function. \code{\link{dummy_vars}} can help
+with this.
 
 \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
 used to specify the outcome variable(s) within \code{newdata} (use

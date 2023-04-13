@@ -42,7 +42,7 @@ logit <- function(p) {
 #' inv_logit(c(-2,-1,0,1,2))
 #' plot(inv_logit(seq(from=-10, to=10, by=1)), type='l', ylab = "Prob")
 inv_logit <- function(x) {
-  exp(x) / (1 + exp(x))
+  1 / (1 + exp(-x))
 }
 
 
@@ -68,13 +68,13 @@ inv_logit <- function(x) {
 #' @seealso \code{\link{pred_input_info}}
 #'
 #' @examples
-#' dummyvars(data.frame("Colour" = factor(sample(c("red",
-#'                                                 "azure",
-#'                                                 "green",
-#'                                                 "white"),
-#'                                              500,
-#'                                              replace = TRUE))))
-dummyvars <- function(df) {
+#' dummy_vars(data.frame("Colour" = factor(sample(c("red",
+#'                                                  "azure",
+#'                                                  "green",
+#'                                                  "white"),
+#'                                               500,
+#'                                               replace = TRUE))))
+dummy_vars <- function(df) {
 
   #Check that df contains at least one factor variable
   if (all(sapply(df, is.factor)==FALSE)) {
