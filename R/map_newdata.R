@@ -3,8 +3,7 @@
 #' This function takes a predinfo object and applies (maps) a new data to this
 #' object to check there is consistency between the two. This function is not
 #' usually called directly, but rather within  other functions within the
-#' package, such as \code{pred_predict}, \code{pred_validate} and
-#' \code{pred_stacked_regression}.
+#' package, such as \code{pred_predict}.
 #'
 #' @param x an object of class "predinfo"
 #' @param new_data data.frame upon which the prediction model should be applied

@@ -30,7 +30,7 @@ Clinical prediction models (CPMs) are statistical models that aim to predict the
 The usual stages for the production of CPMs are: (i) model development and internal validation, (ii) external validation in new data, potentially with updating as needed, and (iii) impact assessment. These are summarised in the table below:
 
 ```{r, echo = FALSE}
-knitr::kable(data.frame("Phase" = c("Model Development and internal validation", "External validation", "Impact Assessment"),
+knitr::kable(data.frame("Phase" = c("(i) Model Development and internal validation", "(ii) External validation", "(iii) Impact Assessment"),
                         "Description" = c("The development of the model uses a cohort of patients, where the predictor variables and outcomes are known, to perform variable selection and estimate the prognostic effect (coefficient) of each predictor on the outcome of interest. This is followed by assessment of predictive performance within that data, adjusting for in-sample optimism", "Aims to assess the predictive performance of the developed model in data that are different to those used to develop the model (e.g., temporally or geographically different). If performance is deemed unsuitable, the model may undergo updating to tailor it more closely to the new data", "Impact assessment investigates the extent to which the model changes clinical practice and improves patient outcomes")), caption = "Phases of clinical prediction model production")
 ```
 
@@ -41,7 +41,7 @@ This vignette is not intended to be a detailed tutorial of prediction modelling.
 # Predictive Performance Metrics
 The predictive performance of a CPM is summarised by its calibration, discrimination and overall accuracy. We provide a brief overview of the technical details that are implemented in __predRupdate__, but refer readers to the literature for a detailed overview (Riley et al. 2019; Steyerberg et al. 2013; Moons et al. 2012; Altman and Royston 2000; Van Calster et al. 2016; McLernon et al. 2023). 
 
-## calibration
+## Calibration
 Calibration is the agreement of the predicted risks from the CPM with the observed risks in the validation dataset, across the full risk range. A primary method of assessing calibration is to produce a flexible calibration plot, which graphically depicts the estimated risk (x-axis) and the observed probabilities (y-axis). The observed probabilities are obtained by regressing the observed outcomes in the validation dataset against the linear predictor (calculated for each individual in the validation dataset), using loess or splines. 
 
 Specifically, suppose an existing (logistic regression) CPM has been developed (in another dataset) to predict the probability of a binary outcome, $Y$. This CPM is given by  
@@ -55,16 +55,16 @@ where $\pi_{i} = P(Y_i = 1)$, with $\hat{\beta}_{0},...\hat{\beta}_{P}$ being th
 To obtain a flexible calibration plot of this model within the validation data, __predRupdate__ fits the following model in the validation data:
 
 $$
-\log\left(\frac{\pi_i}{1-\pi_i}\right) = \alpha_0 + S(LP_i)
+\log\left(\frac{\pi_i}{1-\pi_i}\right) = \alpha_0 + s(LP_i)
 $$
 
 where $s(.)$ is some smooth function; in __predRupdate__ this is a natural cubic spline. This model is then used to obtain observed probabilities for each individual in the validation dataset, which are plotted against the corresponding predicted risks obtained from the CPM. A resulting curve close to the diagonal (y=x line) indicates that predicted risks correspond well to observed proportions. In __predRupdate__ a histogram of the predicted risk distribution is overlaid with the calibration plot, to visually summarise the probability distribution.
 
-If validating an existing time-to-event CPM, __predRupdate__ produces the flexible calibration plot using methods similar to those described above for logistic regression models. Here, the observed probabilities are obtained by fitting a Cox proportional hazards model to regress the linear predictor of the model (under natural cubic spline) against the time-to-event outcome in the validation dataset. A time horizon must also be specified (i.e., the time during follow-up in which to assess calibration).
+If validating an existing time-to-event CPM, __predRupdate__ produces the flexible calibration plot using methods similar to those described above for logistic regression models. Here, the observed probabilities are obtained by fitting a Cox proportional hazards model to regress the linear predictor of the model (under natural cubic spline) against the time-to-event outcome in the validation dataset. A time horizon must also be specified (i.e., the time during follow-up in which to assess calibration). Such a plot can only be produced for an existing time-to-event CPM if the cumulative baseline hazard of the model is supplied.
 
 Alongside flexible calibration plots, __predRupdate__ also calculates the calibration slope. The calibration slope (ideal value 1) indicates the level of over-fitting of the model, with values less than 1 indicating more over-fitting. In __predRupdate__ this is estimated by fitting a logistic regression model (if the existing CPM is a logistic model) or Cox proportion hazards model (if the existing CPM is a survival model) to the observed outcomes in the validation dataset with the linear predictor from the CPM as the only covariate. 
 
-Finally, calibration-in-the-large summarises how close the mean predicted risk is to the mean outcome proportion in the validation dataset. If validating a logistic regression CPM, this is quantified using the calibration intercept, estimated using the same model as estimating the calibration slope, with the slope fixed at unity. Here, a calibration intercept less than 0 would indicate that the mean predicted risk is higher than the observed outcome proportion. If validating a time-to-event (survival) CPM, then calibration-in-the-large is quantified with the observed:expected ratio (ideal value 1) at a fixed time horizon. Here, the observed proportion is obtained using Kaplan-Meier estimate.
+Finally, calibration-in-the-large summarises how close the mean predicted risk is to the mean outcome proportion in the validation dataset. If validating a logistic regression CPM, this is quantified using the calibration intercept, estimated using the same model as estimating the calibration slope, with the slope fixed at unity. Here, a calibration intercept less than 0 would indicate that the mean predicted risk is higher than the observed outcome proportion. If validating a time-to-event (survival) CPM, then calibration-in-the-large is quantified with the observed:expected ratio (ideal value 1) at a fixed time horizon. Here, the observed proportion is obtained using Kaplan-Meier estimate. Such a metric can only be produced for an existing time-to-event CPM if the cumulative baseline hazard of the model is supplied such that the predicted risks at the time horizon can be calculated.
 
 
 ## Discrimination
@@ -116,7 +116,16 @@ $$
 
 Here, $\alpha_{0},...,\alpha_{P}$ become the new regression coefficients of the updated model. There is also a less extreme version of model refitting, where one only re-estimates certain parameters. This will be implemented into the package in the near future.
 
-While we describe the updating methods above for logistic regression models, __predRupdate__ also implements these approaches for time-to-event (survival) CPMs. The principles above are similar, expect the underlying model is changed to a Cox proportional hazards model (further parametric/ flexible parametric methods to be added in the future). 
+While we describe the updating methods above for logistic regression models, __predRupdate__ also implements these approaches for time-to-event (survival) CPMs. The principles above are similar, expect the underlying model is changed to a Cox proportional hazards model (further parametric/ flexible parametric methods to be added in the future). Specifically, "intercept update" for a survival (time-to-event) CPM, has the following form:
+$$
+h(t|X) = h_0(t)\exp(LP_i) = h_0(t)\exp(\hat{\beta}_1X_{i,1} + ... + \hat{\beta}_PX_{i,P})
+$$
+
+which has the effect of only re-estimating the baseline hazard in the new data. For re-calibration, the updated survival (time-to-event) CPM would be:
+$$
+h(t|X) = h_0(t)\exp(\alpha_1LP_i) = h_0(t)\exp(\alpha_1(\hat{\beta}_1X_{i,1} + ... + \hat{\beta}_PX_{i,P}))
+$$
+This has the effect of multiplying each original model coefficient (log-hazard ratios) by $\alpha_1$, and estimating a new baseline hazard in the new data. 
 
 # Model Aggregation Methods
 In some situations, there are instances where multiple existing CPMs are available for the same prediction task (e.g., existing models developed across different countries). Here, model aggregation methods can be used to pool these existing CPMs into a single model in the new data. Various methods exist for this (Martin et al. 2017), with __predRupdate__ currently implementing stacked regression (Debray et al. 2014). More methods will be added in the future.

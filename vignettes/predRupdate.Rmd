@@ -27,12 +27,7 @@ The __predRupdate__ package includes a set of functions to aid in the validation
 The package is focused on the situation where there is an existing CPM (or multiple CPMs) that has been developed (e.g., a model published in the literature), and one wishes to apply this model to a new dataset. We foresee at least three use-cases: (1) where one wishes to externally validate the existing CPM on the new data to tests the model's predictive performance, i.e., external validation; (2) where one wishes to apply model updating methods to the existing CPM to 'tailor' it to the new dataset; and (3) where there are multiple existing CPMs, and one wishes to apply model aggregation (meta-modelling) methods to pool these models into a single model for the new dataset. We therefore give three examples below for each of these use cases. 
 
 # Data
-The data used throughout this vignette are available within the package, and can be loaded by 
-```{r dataload}
-data(SYNPM)
-```
-
-See "?SYNPM" for details. The data and models included in this object are synthetic, but for the purposes of this vignette, we imagine that one is interested in predicting someone's risk of mortality after surgery. Data are available on `r nrow(SYNPM$ValidationData)` people, which records each individuals age, gender, smoking status, diabetes status, and chronic kidney disease (CKD) status at the time of surgery. The data includes the outcomes of "ETime" representing the time (months) between surgery and either death or end-of-follow-up (5 months), whichever occurred first. The variable "Status" indicates if the patient died (1) or was right-censored (0), and Y denotes a binary variable indicating if the patient died within 1 month. 
+The data used throughout this vignette are available within the package, called _SYNPM_. These data are available to users of __predRupdate__ after installing and loading the package. See "?SYNPM" for details of these data. In short, the data and models included in _SYNPM_ are synthetic, but for the purposes of this vignette, we imagine that one is interested in predicting someone's risk of mortality after surgery. Data are available on `r nrow(SYNPM$ValidationData)` people, which records each individuals age, gender, smoking status, diabetes status, and chronic kidney disease (CKD) status at the time of surgery. The data includes the outcomes of "ETime" representing the time (months) between surgery and either death or end-of-follow-up (5 months), whichever occurred first. The variable "Status" indicates if the patient died (1) or was right-censored (0), and Y denotes a binary variable indicating if the patient died within 1 month. 
 
 # Example 1: validating an existing prediction model on new data
 In this first example, we take a situation where a CPM has previously been developed (in another dataset) to predict the risk of mortality within 1 month of surgery, and we wish to validate this model in our dataset to test the predictive performance (e.g., an external validation study). 
@@ -72,6 +67,8 @@ This produces a flexible calibration plot, along with outputting various metrics
 ## Survival analysis model
 The above example considered the validation of an existing CPM that was based on logistic regression. __predRupdate__ also contains functionality to validate CPMs that are based on time-to-event (survival) models (e.g. a Cox proportional hazards model). In such a case, the baseline cumulative hazard of the model should also be specified, along with the regression coefficients. 
 
+In many cases, the baseline cumulative hazard of an existing CPM will not be reported in "full", but rather estimates of the baseline cumulative hazard will be given at set follow-up times. To use __predRupdate__, users should specify the baseline cumulative hazard at the times at which one wishes to make predictions (or validate/update the model). 
+
 For example, suppose an existing CPM was developed using Cox proportional hazards to predict time-to-death after surgery, with the following predictor parameters (log hazard ratios):
 ```{r, echo = FALSE}
 coefs_table <- as.data.frame(round(t(SYNPM$Existing_TTE_models[1,which(!is.na(SYNPM$Existing_TTE_models[1,]))]), 3))
@@ -79,13 +76,13 @@ names(coefs_table) <- c("Coefficient")
 knitr::kable(coefs_table, caption = "Table of coefficients for the existing time-to-event regression prediction model")
 ```
 
-and with the following baseline cumulative hazard:
+and with the following baseline cumulative hazard reported at discrete times of months 1-5 post surgery:
 ```{r, echo = FALSE}
 BH_table <- SYNPM$TTE_mod1_baseline
 knitr::kable(BH_table, caption = "Table of baseline cumulative hazard")
 ```
 
-We can then use the "pred_validate()" function to validate this model in the new dataset. This follows a similar syntax to above for the logistic model. We need to specify a time during follow-up that we'd like to validate the model against - this time must also be available in the baseline cumulative hazards. Lets imagine we wish to validate the models at 5 months follow-up.
+We can then use the "pred_validate()" function to validate this model at 1, 2, 3, 4 or 5 months follow-up in the new dataset. To achieve this, one follows a similar syntax to above for the logistic model. The main difference is that one needs to specify a time during follow-up that we'd like to validate the model against - this time must also be available in the baseline cumulative hazard provided. 
 ```{r}
 # create a data.frame of the model coefficients, with columns being variables
 coefs_table <- data.frame("Age" = 0.008,
@@ -106,6 +103,35 @@ pred_validate(x = Existing_TTE_Model,
               event_indicator = "Status",
               time_horizon = 5)
 ```
+
+### Specifying the baseline cumulative hazard
+In the above example, we assumed that the baseline cumulative hazard of the existing CPM was available at discrete follow-up times. In some situations, the entire baseline cumulative hazard curve may be presented, or indeed a parametric form of the baseline cumulative hazard may be provided. In such a situation, one should extract (from the plot) or calculate (from the parametric form) the baseline cumulative hazard at multiple follow-up times of interest (the times at which one wishes to validate the model at).  
+
+Additionally, in some cases, the baseline cumulative hazard of an existing survival (time-to-event) CPM may not be reported/available. In such a situation, one can still use __predRupdate__ to validate such a model. However, only a limited number of metrics will be produced (i.e., only those that require the linear predictor, not absolute risk predictions at a given follow-up time). Specifically, the observed:expected ration and the calibration plot will not be produced. 
+
+For example, suppose the baseline cumulative hazard for the above model was not avaliable. We could validate this model using __predRupdate__ as follows:
+```{r}
+# create a data.frame of the model coefficients, with columns being variables
+coefs_table <- data.frame("Age" = 0.008,
+                          "SexM" = 0.257,
+                          "Smoking_Status" = 0.697,
+                          "Diabetes" = 0.310,
+                          "CKD" = 0.636)
+
+#pass this into pred_input_info()
+Existing_TTE_Model <- pred_input_info(model_type = "survival",
+                                      model_info = coefs_table,
+                                      cum_hazard = NULL) #leave as NULL if the baseline not avaliable
+
+#now validate against the time-to-event outcomes in the new dataset:
+pred_validate(x = Existing_TTE_Model,
+              new_data = SYNPM$ValidationData,
+              survival_time = "ETime",
+              event_indicator = "Status",
+              time_horizon = 5)
+```
+
+Here, we see that no calibration plot is produced, and the observed:expected ratio is NA. A warning message is given to highlight this.
 
 # Example 2: model updating on new data
 In the validation of an existing logistic regression model in Example 1 above, we found that the existing model was miscalibrated in the new data. One strategy to handle this is to apply model updating methods. See `vignette("predRupdate_technical")` for a technical discussion of these methods. 

@@ -464,39 +464,46 @@ validate_survival <- function(ObservedOutcome,
   harrell_C_est <- harrell_C$concordance
   harrell_C_SE <- sqrt(harrell_C$var)
 
-
-  #Estimate calibration-in-the-large: observed-expected ratio
-  KM_observed <- summary(survival::survfit(ObservedOutcome ~ 1),
-                         times = time_horizon)
-  OE_ratio <- (1 - KM_observed$surv) / mean(Prob)
-  OE_ratio_SE <- sqrt(1 / KM_observed$n.event)
-
   #Estimate calibration slope
   CalSlope_mod <- survival::coxph(ObservedOutcome ~ LP)
   CalSlope <- as.numeric(CalSlope_mod$coefficients[1])
   CalSlopeSE <- sqrt(stats::vcov(CalSlope_mod)[1,1])
 
+  # Check if predicted risks are available for stronger calibration assessments
+  if (is.null(Prob)) {
+    warning("Predicted risks are not available for some models: limited calibration metrics returned and no calibration plot produced",
+            call. = FALSE)
 
-  # If not creating a calibration plot, then at least produce histogram of
-  # predicted risks; otherwise this is embedded into the calibration plot
-  if (cal_plot == FALSE){
-    graphics::hist(Prob, breaks = seq(xlim[1], xlim[2],
-                                      length.out = 20),
-                   xlab = xlab,
-                   main = "Histogram of the Probability Distribution")
+    OE_ratio <- NA
+    OE_ratio_SE <- NA
+
   } else{
-    # otherwise produce calibration plot
-    flex_calplot(model_type = "survival",
-                 ObservedOutcome = ObservedOutcome,
-                 Prob = Prob,
-                 LP = LP,
-                 xlim = xlim,
-                 ylim = ylim,
-                 xlab = xlab,
-                 ylab = ylab,
-                 time_horizon = time_horizon)
-  }
+    #Estimate calibration-in-the-large: observed-expected ratio
+    KM_observed <- summary(survival::survfit(ObservedOutcome ~ 1),
+                           times = time_horizon)
+    OE_ratio <- (1 - KM_observed$surv) / mean(Prob)
+    OE_ratio_SE <- sqrt(1 / KM_observed$n.event)
 
+    # If not creating a calibration plot, then at least produce histogram of
+    # predicted risks; otherwise this is embedded into the calibration plot
+    if (cal_plot == FALSE){
+      graphics::hist(Prob, breaks = seq(xlim[1], xlim[2],
+                                        length.out = 20),
+                     xlab = xlab,
+                     main = "Histogram of the Probability Distribution")
+    } else{
+      # otherwise produce calibration plot
+      flex_calplot(model_type = "survival",
+                   ObservedOutcome = ObservedOutcome,
+                   Prob = Prob,
+                   LP = LP,
+                   xlim = xlim,
+                   ylim = ylim,
+                   xlab = xlab,
+                   ylab = ylab,
+                   time_horizon = time_horizon)
+    }
+  }
 
   #Return results
   out <- list("OE_ratio" = OE_ratio,

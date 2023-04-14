@@ -18,13 +18,13 @@
 #'   specified by entering multiple rows. If a predictor variable is not present
 #'   in a given model then enter that cell of the data.frame as NA. See
 #'   examples.
-#' @param cum_hazard A data.frame with two columns: (1) time, and (2)
-#'   estimated cumulative baseline hazard at that time. The first column (time)
-#'   should be named 'time' and the second (cumulative baseline hazard) should
-#'   be named 'hazard'. Only relevant if \code{model_type} is "survival"; leave
-#'   as NULL otherwise. If multiple existing models entered, and model_type =
-#'   survival, then \code{cum_hazard} should be supplied as list of length
-#'   equal to number of models.
+#' @param cum_hazard A data.frame with two columns: (1) time, and (2) estimated
+#'   cumulative baseline hazard at that time. The first column (time) should be
+#'   named 'time' and the second (cumulative baseline hazard) should be named
+#'   'hazard'. Only relevant if \code{model_type} is "survival"; leave as NULL
+#'   otherwise. If multiple existing models entered, and model_type = survival,
+#'   then \code{cum_hazard} should be supplied as list of length equal to number
+#'   of models.
 #'
 #' @details This function will structure the relevant information about one or
 #'   more existing prediction model(s) into a standardised format, such that it
@@ -47,9 +47,13 @@
 #'   contain a column named as "Intercept", which gives the intercept
 #'   coefficient of each of the existing logistic regression models (taken
 #'   exactly as previously published); this should be the first column of
-#'   \code{model_info}. If \code{model_type} = "survival", then
-#'   \code{cum_hazard} should be provided and no "Intercept" column is
-#'   needed in \code{model_info}.
+#'   \code{model_info}.
+#'
+#'   If \code{model_type} = "survival", then the baseline cumulative hazard of
+#'   the model(s) can be specified in \code{cum_hazard}. If the baseline
+#'   cumulative hazard of the existing survival model is not available, then
+#'   leave as NULL; this will limit any validation metrics that can be
+#'   calculated.
 #'
 #'   Note, the column names of \code{model_info} should match columns in any new
 #'   data that the existing model(s) will be applied to (i.e. any new_data that
@@ -244,65 +248,66 @@ pred_input_info_input_checks <- function(model_type,
     }
 
   } else if (model_type == "survival") {
-    #check baseline hazard specification
-    if (is.null(cum_hazard)) {
-      stop("'cum_hazard' should be provided if model_type=survival",
-           call. = FALSE)
-    }
-
+    #check baseline hazard specifications
     if (nrow(model_info) > 1) {
       if ((inherits(cum_hazard, "list") == FALSE) |
-         (length(cum_hazard) != nrow(model_info) )) {
+          (length(cum_hazard) != nrow(model_info) )) {
         stop("If multiple existing models entered, and model_type = survival, then 'cum_hazard' should be supplied as list of length equal to number of models",
              call. = FALSE)
       }
-      if (any(sapply(cum_hazard, function(X) (inherits(X, "data.frame") == FALSE) | ncol(X) !=2))) {
-        stop("each supplied baseline hazard should be a data.frame of two columns",
-             call. = FALSE)
-      }
-      if (any(sapply(cum_hazard, function(X) (names(X)[1] != "time" |
-                                                  names(X)[2] != "hazard")))) {
-        stop("each supplied baseline hazard should be a data.frame with columns being 'time' and 'hazard'",
-             call. = FALSE)
-      }
-      if (any(sapply(cum_hazard, function(X) sum(duplicated(X[,1])) > 0))) {
-        stop("all baseline hazard times must be unique",
-             call. = FALSE)
-      }
-      if (any(sapply(cum_hazard, function(X) min(X[,1]) <= 0))) {
-        stop("all baseline hazard times must be positive",
-             call. = FALSE)
-      }
-      if (any(sapply(cum_hazard, function(X) min(X[,2]) < 0))) {
-        stop("all baseline hazards must be nonnegative",
-             call. = FALSE)
+
+      for(m in 1:nrow(model_info)) {
+        if (!is.null(cum_hazard[[m]])){
+          if (inherits(cum_hazard[[m]], "data.frame") == FALSE |
+              ncol(cum_hazard[[m]]) !=2) {
+            stop("all supplied baseline hazards should be a data.frame of two columns",
+                 call. = FALSE)
+          }
+          if (names(cum_hazard[[m]])[1] != "time" |
+              names(cum_hazard[[m]])[2] != "hazard") {
+            stop("all supplied baseline hazards should be a data.frame with columns being 'time' and 'hazard'",
+                 call. = FALSE)
+          }
+          if(sum(duplicated(cum_hazard[[m]][,1])) > 0){
+            stop("all supplied baseline hazard times must be unique",
+                 call. = FALSE)
+          }
+          if(min(cum_hazard[[m]][,1]) <= 0){
+            stop("all supplied baseline hazard times must be positive",
+                 call. = FALSE)
+          }
+          if(min(cum_hazard[[m]][,2]) < 0){
+            stop("all supplied baseline hazards must be nonnegative",
+                 call. = FALSE)
+          }
+        }
       }
 
     } else {
-      if (inherits(cum_hazard, "data.frame") == FALSE |
-          ncol(cum_hazard) !=2) {
-        stop("baseline hazard should be a data.frame of two columns",
-             call. = FALSE)
-      }
-      if (names(cum_hazard)[1] != "time" |
-          names(cum_hazard)[2] != "hazard") {
-        stop("baseline hazard should be a data.frame with columns being 'time' and 'hazard'",
-             call. = FALSE)
-      }
-      if(sum(duplicated(cum_hazard[,1])) > 0){
-        stop("all baseline hazard times must be unique",
-             call. = FALSE)
-      }
-      if(min(cum_hazard[,1]) <= 0){
-        stop("all baseline hazard times must be positive",
-             call. = FALSE)
-      }
-      if(min(cum_hazard[,2]) < 0){
-        stop("all baseline hazards must be nonnegative",
-             call. = FALSE)
+      if (!is.null(cum_hazard)){
+        if (inherits(cum_hazard, "data.frame") == FALSE |
+            ncol(cum_hazard) !=2) {
+          stop("baseline hazard should be a data.frame of two columns",
+               call. = FALSE)
+        }
+        if (names(cum_hazard)[1] != "time" |
+            names(cum_hazard)[2] != "hazard") {
+          stop("baseline hazard should be a data.frame with columns being 'time' and 'hazard'",
+               call. = FALSE)
+        }
+        if(sum(duplicated(cum_hazard[,1])) > 0){
+          stop("all baseline hazard times must be unique",
+               call. = FALSE)
+        }
+        if(min(cum_hazard[,1]) <= 0){
+          stop("all baseline hazard times must be positive",
+               call. = FALSE)
+        }
+        if(min(cum_hazard[,2]) < 0){
+          stop("all baseline hazards must be nonnegative",
+               call. = FALSE)
+        }
       }
     }
-
   }
-
 }

@@ -28,13 +28,13 @@ specified by entering multiple rows. If a predictor variable is not present
 in a given model then enter that cell of the data.frame as NA. See
 examples.}
 
-\item{cum_hazard}{A data.frame with two columns: (1) time, and (2)
-estimated cumulative baseline hazard at that time. The first column (time)
-should be named 'time' and the second (cumulative baseline hazard) should
-be named 'hazard'. Only relevant if \code{model_type} is "survival"; leave
-as NULL otherwise. If multiple existing models entered, and model_type =
-survival, then \code{cum_hazard} should be supplied as list of length
-equal to number of models.}
+\item{cum_hazard}{A data.frame with two columns: (1) time, and (2) estimated
+cumulative baseline hazard at that time. The first column (time) should be
+named 'time' and the second (cumulative baseline hazard) should be named
+'hazard'. Only relevant if \code{model_type} is "survival"; leave as NULL
+otherwise. If multiple existing models entered, and model_type = survival,
+then \code{cum_hazard} should be supplied as list of length equal to number
+of models.}
 }
 \value{
 \code{\link{pred_input_info}} returns an object of class "predinfo",
@@ -76,9 +76,13 @@ In the case of \code{model_type} = "logistic", then \code{model_info} must
 contain a column named as "Intercept", which gives the intercept
 coefficient of each of the existing logistic regression models (taken
 exactly as previously published); this should be the first column of
-\code{model_info}. If \code{model_type} = "survival", then
-\code{cum_hazard} should be provided and no "Intercept" column is
-needed in \code{model_info}.
+\code{model_info}.
+
+If \code{model_type} = "survival", then the baseline cumulative hazard of
+the model(s) can be specified in \code{cum_hazard}. If the baseline
+cumulative hazard of the existing survival model is not available, then
+leave as NULL; this will limit any validation metrics that can be
+calculated.
 
 Note, the column names of \code{model_info} should match columns in any new
 data that the existing model(s) will be applied to (i.e. any new_data that

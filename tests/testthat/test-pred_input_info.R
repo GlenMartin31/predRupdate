@@ -53,10 +53,4 @@ test_that("pred_input_info() returns errors when input not correct", {
                                                        "Age_logged" = 0.06))
   ) #no specification of intercept in model_info
 
-  expect_error(pred_input_info(model_type = "survival",
-                               model_info = data.frame("Age" = 5,
-                                                       "Age_squared" = 0.05,
-                                                       "Age_logged" = 0.06))
-  ) #no specification of baseline when model_type = "survival
-
 })

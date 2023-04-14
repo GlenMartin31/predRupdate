@@ -11,7 +11,7 @@ pred_validate(
   survival_time = NULL,
   event_indicator = NULL,
   time_horizon = NULL,
-  CalPlot = TRUE,
+  cal_plot = TRUE,
   ...
 )
 }
@@ -37,7 +37,7 @@ leave as \code{NULL} otherwise.}
 (post baseline/time of prediction) at which a prediction is required.
 Currently, this must match a time in x$cum_hazard.}
 
-\item{CalPlot}{indicate if a flexible calibration plot should be produced
+\item{cal_plot}{indicate if a flexible calibration plot should be produced
 (TRUE) or not (FALSE)}
 
 \item{...}{further plotting arguments for the calibration plot. See Details
@@ -91,7 +91,7 @@ regression model is fit to the observed binary outcome with the linear
 predictor from the model as the only covariate. For discrimination, the
 function estimates the area under the receiver operating characteristic
 curve (AUC). Various other metrics are also calculated to assess overall
-accuracy (Brier score, Cox-Snell R2). Specify parameter \code{CalPlot} to
+accuracy (Brier score, Cox-Snell R2). Specify parameter \code{cal_plot} to
 indicate whether a calibration plot should be produced (TRUE), or not
 (FALSE). Can also specify parameters \code{xlab}, \code{ylab},
 \code{xlim},and \code{ylim} to change plotting characteristics for the
@@ -104,7 +104,7 @@ Various metrics of calibration and discrimination are calculated. For
 calibration, a flexible calibration plot, observed-to-expected ratio and
 calibration slope are produced (all at the specified \code{time_horizon}).
 For discrimination, Harrell's C-statistic is calculated. Specify parameter
-\code{CalPlot} to indicate whether a calibration plot should be produced
+\code{cal_plot} to indicate whether a calibration plot should be produced
 (TRUE), or not (FALSE). Can also specify parameters \code{xlab},
 \code{ylab}, \code{xlim},and \code{ylim} to change plotting characteristics
 for the calibration plot.

@@ -40,7 +40,8 @@ leave as \code{NULL} otherwise.}
 \value{
 A object of class "predinfo" with subclass"\code{predUpdate}". This
 is the same as that detailed in \code{\link{pred_input_info}}, with the
-added element containing the estimates of the model updating.
+added element containing the estimates of the model updating and the
+update_type.
 }
 \description{
 This function takes an existing (previously developed) prediction model and
@@ -54,20 +55,20 @@ estimated) prediction model, and apply various model discrete model
 updating methods (see Su et al. 2018) to tailor the model to a new dataset.
 
 The type of updating method is selected with the \code{update_type}
-parameter, with options: "intercept_update", "recalibration" and
-"refit". "intercept_update" corrects the overall
-calibration-in-the-large of the model, through altering the model intercept
-(or baseline hazard) to suit the new dataset. This is achieved by fitting a
-logistic model (if the existing model is of type logistic) or time-to-event
-model (if the existing model if of type survival) to the new dataset, with
-the linear predictor as the only covariate, with the coefficient fixed at
-unity (i.e. as an offset). "recalibration" corrects the
-calibration-in-the-large and any under/over-fitting, by fitting a logistic
-model (if the existing model is of type logistic) or time-to-event model
-(if the existing model if of type survival) to the new dataset, with the
-linear predictor as the only covariate. Finally, "refit" takes the original
-model structure and re-estimates all coefficients; this has the effect as
-re-developing the original model in the new dat.
+parameter, with options: "intercept_update", "recalibration" and "refit".
+"intercept_update" corrects the overall calibration-in-the-large of the
+model, through altering the model intercept (or baseline hazard) to suit
+the new dataset. This is achieved by fitting a logistic model (if the
+existing model is of type logistic) or time-to-event model (if the existing
+model if of type survival) to the new dataset, with the linear predictor as
+the only covariate, with the coefficient fixed at unity (i.e. as an
+offset). "recalibration" corrects the calibration-in-the-large and any
+under/over-fitting, by fitting a logistic model (if the existing model is
+of type logistic) or time-to-event model (if the existing model if of type
+survival) to the new dataset, with the linear predictor as the only
+covariate. Finally, "refit" takes the original model structure and
+re-estimates all coefficients; this has the effect as re-developing the
+original model in the new dat.
 
 \code{new_data} should be a data.frame, where each row should be an
 observation (e.g. patient) and each variable/column should be a predictor
@@ -77,9 +78,9 @@ predictor variables that are included in the existing prediction model
 \code{\link{pred_input_info}}, through the \code{model_info} parameter,
 must match the name of a variables in \code{new_data}).
 
-Any factor variables within \code{new_data} must be converted to dummy (0/1)
-variables before calling this function. \code{\link{dummy_vars}} can help
-with this.
+Any factor variables within \code{new_data} must be converted to dummy
+(0/1) variables before calling this function. \code{\link{dummy_vars}} can
+help with this.
 
 \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
 used to specify the outcome variable(s) within \code{new_data} (use
