@@ -9,7 +9,7 @@
 #'   (default)} \item {\code{"survival"} indicates that the existing model was
 #'   based on a survival regression model} } If multiple models are being
 #'   entered, then all models need to be of the same type - otherwise call
-#'   \code{pm_input_info()} multiple times for each type of model.
+#'   function multiple times for each type of model.
 #' @param model_info a data.frame that contains the coefficients of the existing
 #'   prediction model(s). Each column should be a predictor variable (with the
 #'   name of the column being the name of the predictor variable), with the
@@ -31,9 +31,8 @@
 #'   can be used within other functions in the package.
 #'
 #'   First, the existing prediction model(s) will have a functional form (i.e.
-#'   the linear predictor of the model); unless otherwise stated by
-#'   \code{formula}, this will be taken as being a linear combination of the
-#'   variables specified by the columns of \code{model_info}.
+#'   the linear predictor of the model); this will be taken as being a linear
+#'   combination of the variables specified by the columns of \code{model_info}.
 #'
 #'   Second, each of the predictor variables of the existing prediction model(s)
 #'   will have a published coefficient (e.g. log-odds-ratio or
@@ -72,11 +71,17 @@
 #'   baseline hazard of the existing model(s)}}
 #'
 #' @examples
-#' #Example 1 - logistic regression existing model; uses
-#' #            an example dataset within the package
-#' model1 <- pred_input_info(model_type = "logistic",
-#'                           model_info = SYNPM$Existing_logistic_models[1,])
-#' summary(model1)
+#' #Example 1 - logistic regression existing model
+#' # create a data.frame of the model coefficients, with columns being variables
+#' coefs_table <- data.frame("Intercept" = -3.4,
+#'                           "SexM" = 0.306,
+#'                           "Smoking_Status" = 0.628,
+#'                           "Diabetes" = 0.499,
+#'                           "CKD" = 0.538)
+#' #pass this into pred_input_info()
+#' Existing_Logistic_Model <- pred_input_info(model_type = "logistic",
+#'                                            model_info = coefs_table)
+#' summary(Existing_Logistic_Model)
 #'
 #' #Example 2 - survival model example; uses an example dataset within the
 #' #             package.

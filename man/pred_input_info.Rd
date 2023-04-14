@@ -17,7 +17,7 @@ indicates that the existing model was based on a logistic regression model
 (default)} \item {\code{"survival"} indicates that the existing model was
 based on a survival regression model} } If multiple models are being
 entered, then all models need to be of the same type - otherwise call
-\code{pm_input_info()} multiple times for each type of model.}
+function multiple times for each type of model.}
 
 \item{model_info}{a data.frame that contains the coefficients of the existing
 prediction model(s). Each column should be a predictor variable (with the
@@ -60,9 +60,8 @@ more existing prediction model(s) into a standardised format, such that it
 can be used within other functions in the package.
 
 First, the existing prediction model(s) will have a functional form (i.e.
-the linear predictor of the model); unless otherwise stated by
-\code{formula}, this will be taken as being a linear combination of the
-variables specified by the columns of \code{model_info}.
+the linear predictor of the model); this will be taken as being a linear
+combination of the variables specified by the columns of \code{model_info}.
 
 Second, each of the predictor variables of the existing prediction model(s)
 will have a published coefficient (e.g. log-odds-ratio or
