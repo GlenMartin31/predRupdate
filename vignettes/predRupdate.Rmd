@@ -97,7 +97,7 @@ coefs_table <- data.frame("Age" = 0.008,
 #pass this into pred_input_info()
 Existing_TTE_Model <- pred_input_info(model_type = "survival",
                                       model_info = coefs_table,
-                                      baselinehazard = BH_table) #where BH_table is the baseline hazard above
+                                      cum_hazard = BH_table) #where BH_table is the baseline hazard above
 
 #now validate against the time-to-event outcomes in the new dataset:
 pred_validate(x = Existing_TTE_Model,

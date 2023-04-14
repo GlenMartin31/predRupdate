@@ -104,7 +104,7 @@ pred_validate(recalibrated_model1, newdata = SYNPM$ValidationData, binary_outcom
 #Example 2 - update time-to-event model by updating the baseline hazard in new dataset
 model2 <- pred_input_info(model_type = "survival",
                           model_info = SYNPM$Existing_TTE_models[1,],
-                          baselinehazard = SYNPM$TTE_mod1_baseline)
+                          cum_hazard = SYNPM$TTE_mod1_baseline)
 recalibrated_model2 <- pred_update(x = model2,
                                    update_type = "intercept_update",
                                    newdata = SYNPM$ValidationData,

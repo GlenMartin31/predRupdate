@@ -39,7 +39,7 @@ not contain any survival outcomes.}
 \item{time_horizon}{for survival models, an integer giving the time horizon
 (post baseline/time of prediction) at which a prediction is required (i.e.
 the t at which P(T<t) should be estiamted). Currently, this must match a
-time in x$baselinehazard. If left as NULL, no predicted risks will be
+time in x$cum_hazard. If left as NULL, no predicted risks will be
 returned, just the linear predictor.}
 }
 \value{
@@ -101,7 +101,7 @@ pred_predict(x = model1,
 #             package. Multiple existing models
 model2 <- pred_input_info(model_type = "survival",
                           model_info = SYNPM$Existing_TTE_models,
-                          baselinehazard = list(SYNPM$TTE_mod1_baseline,
+                          cum_hazard = list(SYNPM$TTE_mod1_baseline,
                                                 SYNPM$TTE_mod2_baseline,
                                                 SYNPM$TTE_mod3_baseline))
 pred_predict(x = model2,

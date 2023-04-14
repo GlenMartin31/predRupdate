@@ -23,7 +23,7 @@
 #' @param time_horizon for survival models, an integer giving the time horizon
 #'   (post baseline/time of prediction) at which a prediction is required (i.e.
 #'   the t at which P(T<t) should be estiamted). Currently, this must match a
-#'   time in x$baselinehazard. If left as NULL, no predicted risks will be
+#'   time in x$cum_hazard. If left as NULL, no predicted risks will be
 #'   returned, just the linear predictor.
 #'
 #' @details This function takes the relevant information about the existing
@@ -79,7 +79,7 @@
 #' #             package. Multiple existing models
 #' model2 <- pred_input_info(model_type = "survival",
 #'                           model_info = SYNPM$Existing_TTE_models,
-#'                           baselinehazard = list(SYNPM$TTE_mod1_baseline,
+#'                           cum_hazard = list(SYNPM$TTE_mod1_baseline,
 #'                                                 SYNPM$TTE_mod2_baseline,
 #'                                                 SYNPM$TTE_mod3_baseline))
 #' pred_predict(x = model2,
@@ -206,12 +206,12 @@ pred_predict.predinfo_survival <- function(x,
         stop("only one time_horizon can be specified",
              call. = FALSE)
       }
-      if(!(time_horizon %in% x$baselinehazard[,1])){
-        stop("time_horizon is not available in baselinehazard",
+      if(!(time_horizon %in% x$cum_hazard[,1])){
+        stop("time_horizon is not available in cum_hazard",
              call. = FALSE)
       }
       #extract baseline hazard value for required time_horizon:
-      bh <- x$baselinehazard[x$baselinehazard[,1] == time_horizon,2]
+      bh <- x$cum_hazard[x$cum_hazard[,1] == time_horizon,2]
 
       #Map to predicted risks
       PR <- 1-(exp(-bh)^exp(LP))
@@ -248,13 +248,13 @@ pred_predict.predinfo_survival <- function(x,
           stop("only one time_horizon can be specified",
                call. = FALSE)
         }
-        if(!(time_horizon %in% x$baselinehazard[[m]][,1])){
-          stop("time_horizon is not available in baselinehazard",
+        if(!(time_horizon %in% x$cum_hazard[[m]][,1])){
+          stop("time_horizon is not available in cum_hazard",
                call. = FALSE)
         }
 
         #extract baseline hazard value for required time_horizon:
-        bh <- x$baselinehazard[[m]][x$baselinehazard[[m]][,1] == time_horizon,2]
+        bh <- x$cum_hazard[[m]][x$cum_hazard[[m]][,1] == time_horizon,2]
         #Map to predicted risks
         PR <- 1-exp(-bh)^exp(LP)
       } else {

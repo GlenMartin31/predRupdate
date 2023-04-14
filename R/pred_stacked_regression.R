@@ -79,7 +79,7 @@
 #' #Survival model example:
 #' TTModels <- pred_input_info(model_type = "survival",
 #'                             model_info = SYNPM$Existing_TTE_models,
-#'                             baselinehazard = list(SYNPM$TTE_mod1_baseline,
+#'                             cum_hazard = list(SYNPM$TTE_mod1_baseline,
 #'                                                   SYNPM$TTE_mod2_baseline,
 #'                                                   SYNPM$TTE_mod3_baseline))
 #' SR <- pred_stacked_regression(x = TTModels,
@@ -265,8 +265,8 @@ pred_stacked_regression.predinfo_survival <- function(x,
   beta <- SR$coefficients
 
   BH <- survival::basehaz(SR, centered = FALSE)
-  baselinehazard <- data.frame("time" = BH$time,
-                               "hazard" = BH$hazard)
+  cum_hazard <- data.frame("time" = BH$time,
+                           "hazard" = BH$hazard)
 
   #Convert the results of stacked regression into the pooled model coefficients:
   coef_table <- x$model_info
@@ -285,7 +285,7 @@ pred_stacked_regression.predinfo_survival <- function(x,
                                                          paste(names(coef_table),
                                                          collapse = "+"),
                                                          sep="")),
-                     "baselinehazard" = baselinehazard,
+                     "cum_hazard" = cum_hazard,
                      "model_info" = data.frame(as.list(coef_table)),
                      "Stacked_Regression_Weights" = beta)
 

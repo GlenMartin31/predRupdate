@@ -101,7 +101,7 @@ pred_validate(SR, newdata = SYNPM$ValidationData, binary_outcome = "Y")
 #Survival model example:
 TTModels <- pred_input_info(model_type = "survival",
                             model_info = SYNPM$Existing_TTE_models,
-                            baselinehazard = list(SYNPM$TTE_mod1_baseline,
+                            cum_hazard = list(SYNPM$TTE_mod1_baseline,
                                                   SYNPM$TTE_mod2_baseline,
                                                   SYNPM$TTE_mod3_baseline))
 SR <- pred_stacked_regression(x = TTModels,

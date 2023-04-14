@@ -80,7 +80,7 @@ map_newdata.predinfo_logistic <- function(x,
   # double-check x object
   pred_input_info_input_checks(model_type = x$model_type,
                                model_info = x$model_info,
-                               baselinehazard = NULL)
+                               cum_hazard = NULL)
 
   # Check that supplied 'newdata' is a data.frame
   if (inherits(newdata, "data.frame") == FALSE) {
@@ -159,7 +159,7 @@ map_newdata.predinfo_survival <- function(x,
   # double-check x object
   pred_input_info_input_checks(model_type = x$model_type,
                                model_info = x$model_info,
-                               baselinehazard = x$baselinehazard)
+                               cum_hazard = x$cum_hazard)
 
   # Check that supplied 'newdata' is a data.frame
   if (inherits(newdata, "data.frame") == FALSE) {

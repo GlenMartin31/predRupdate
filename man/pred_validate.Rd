@@ -35,7 +35,7 @@ leave as \code{NULL} otherwise.}
 
 \item{time_horizon}{for survival models, an integer giving the time horizon
 (post baseline/time of prediction) at which a prediction is required.
-Currently, this must match a time in x$baselinehazard.}
+Currently, this must match a time in x$cum_hazard.}
 
 \item{CalPlot}{indicate if a flexible calibration plot should be produced
 (TRUE) or not (FALSE)}
@@ -69,7 +69,7 @@ must match the name of a variables in \code{newdata}).
 
 Any factor variables within \code{newdata} must be converted to dummy (0/1)
 variables before calling this function. \code{\link{dummy_vars}} can help
-with this.
+with this - see examples below.
 
 \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
 used to specify the outcome variable(s) within \code{newdata} (use
@@ -130,7 +130,7 @@ pred_validate(x = model2,
 #             package.
 model3 <- pred_input_info(model_type = "survival",
                           model_info = SYNPM$Existing_TTE_models[2,],
-                          baselinehazard = SYNPM$TTE_mod2_baseline)
+                          cum_hazard = SYNPM$TTE_mod2_baseline)
 pred_validate(x = model3,
              newdata = SYNPM$ValidationData,
             survival_time = "ETime",

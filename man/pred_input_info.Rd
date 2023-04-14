@@ -7,7 +7,7 @@
 pred_input_info(
   model_type = c("logistic", "survival"),
   model_info,
-  baselinehazard = NULL
+  cum_hazard = NULL
 )
 }
 \arguments{
@@ -28,12 +28,12 @@ specified by entering multiple rows. If a predictor variable is not present
 in a given model then enter that cell of the data.frame as NA. See
 examples.}
 
-\item{baselinehazard}{A data.frame with two columns: (1) time, and (2)
+\item{cum_hazard}{A data.frame with two columns: (1) time, and (2)
 estimated cumulative baseline hazard at that time. The first column (time)
 should be named 'time' and the second (cumulative baseline hazard) should
 be named 'hazard'. Only relevant if \code{model_type} is "survival"; leave
 as NULL otherwise. If multiple existing models entered, and model_type =
-survival, then \code{baselinehazard} should be supplied as list of length
+survival, then \code{cum_hazard} should be supplied as list of length
 equal to number of models.}
 }
 \value{
@@ -47,7 +47,7 @@ prediction model is based upon ("logistic" or "survival")} \item{coefs =
 this is the list of (previously estimated) coefficients for each predictor
 variable} \item{coef_names = gives the names of each predictor variable}
 \item{formula = this is the functional form of the model's linear
-predictor} \item{baselinehazard = if supplied, this is the cumulative
+predictor} \item{cum_hazard = if supplied, this is the cumulative
 baseline hazard of the existing model(s)}}
 }
 \description{
@@ -77,7 +77,7 @@ contain a column named as "Intercept", which gives the intercept
 coefficient of each of the existing logistic regression models (taken
 exactly as previously published); this should be the first column of
 \code{model_info}. If \code{model_type} = "survival", then
-\code{baselinehazard} should be provided and no "Intercept" column is
+\code{cum_hazard} should be provided and no "Intercept" column is
 needed in \code{model_info}.
 
 Note, the column names of \code{model_info} should match columns in any new
@@ -87,17 +87,23 @@ corresponding predictor variables entered through \code{model_info}). See
 \code{\link{pred_predict}} for more information.
 }
 \examples{
-#Example 1 - logistic regression existing model; uses
-#            an example dataset within the package
-model1 <- pred_input_info(model_type = "logistic",
-                          model_info = SYNPM$Existing_logistic_models[1,])
-summary(model1)
+#Example 1 - logistic regression existing model
+# create a data.frame of the model coefficients, with columns being variables
+coefs_table <- data.frame("Intercept" = -3.4,
+                          "SexM" = 0.306,
+                          "Smoking_Status" = 0.628,
+                          "Diabetes" = 0.499,
+                          "CKD" = 0.538)
+#pass this into pred_input_info()
+Existing_Logistic_Model <- pred_input_info(model_type = "logistic",
+                                           model_info = coefs_table)
+summary(Existing_Logistic_Model)
 
 #Example 2 - survival model example; uses an example dataset within the
 #             package.
 pred_input_info(model_type = "survival",
                 model_info = SYNPM$Existing_TTE_models[2,],
-                baselinehazard = SYNPM$TTE_mod2_baseline)
+                cum_hazard = SYNPM$TTE_mod2_baseline)
 
 #Example 3 - Input information about multiple models
 summary(pred_input_info(model_type = "logistic",

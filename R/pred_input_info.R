@@ -18,12 +18,12 @@
 #'   specified by entering multiple rows. If a predictor variable is not present
 #'   in a given model then enter that cell of the data.frame as NA. See
 #'   examples.
-#' @param baselinehazard A data.frame with two columns: (1) time, and (2)
+#' @param cum_hazard A data.frame with two columns: (1) time, and (2)
 #'   estimated cumulative baseline hazard at that time. The first column (time)
 #'   should be named 'time' and the second (cumulative baseline hazard) should
 #'   be named 'hazard'. Only relevant if \code{model_type} is "survival"; leave
 #'   as NULL otherwise. If multiple existing models entered, and model_type =
-#'   survival, then \code{baselinehazard} should be supplied as list of length
+#'   survival, then \code{cum_hazard} should be supplied as list of length
 #'   equal to number of models.
 #'
 #' @details This function will structure the relevant information about one or
@@ -48,7 +48,7 @@
 #'   coefficient of each of the existing logistic regression models (taken
 #'   exactly as previously published); this should be the first column of
 #'   \code{model_info}. If \code{model_type} = "survival", then
-#'   \code{baselinehazard} should be provided and no "Intercept" column is
+#'   \code{cum_hazard} should be provided and no "Intercept" column is
 #'   needed in \code{model_info}.
 #'
 #'   Note, the column names of \code{model_info} should match columns in any new
@@ -67,7 +67,7 @@
 #'   this is the list of (previously estimated) coefficients for each predictor
 #'   variable} \item{coef_names = gives the names of each predictor variable}
 #'   \item{formula = this is the functional form of the model's linear
-#'   predictor} \item{baselinehazard = if supplied, this is the cumulative
+#'   predictor} \item{cum_hazard = if supplied, this is the cumulative
 #'   baseline hazard of the existing model(s)}}
 #'
 #' @examples
@@ -87,7 +87,7 @@
 #' #             package.
 #' pred_input_info(model_type = "survival",
 #'                 model_info = SYNPM$Existing_TTE_models[2,],
-#'                 baselinehazard = SYNPM$TTE_mod2_baseline)
+#'                 cum_hazard = SYNPM$TTE_mod2_baseline)
 #'
 #' #Example 3 - Input information about multiple models
 #' summary(pred_input_info(model_type = "logistic",
@@ -96,14 +96,14 @@
 #' @export
 pred_input_info <- function(model_type = c("logistic", "survival"),
                             model_info,
-                            baselinehazard = NULL) {
+                            cum_hazard = NULL) {
 
   ########################## INPUT CHECKING #############################
   model_type <- match.arg(model_type)
 
   pred_input_info_input_checks(model_type = model_type,
                                model_info = model_info,
-                               baselinehazard = baselinehazard)
+                               cum_hazard = cum_hazard)
 
   M <- nrow(model_info) #number of existing models
 
@@ -162,7 +162,7 @@ pred_input_info <- function(model_type = c("logistic", "survival"),
                         coefs = existingcoefs,
                         coef_names = lapply(existingcoefs, names),
                         formula = form,
-                        baselinehazard = baselinehazard,
+                        cum_hazard = cum_hazard,
                         model_info = model_info)
     } else {
       vars <- names(model_info)[which(!is.na(model_info[1,]))]
@@ -175,7 +175,7 @@ pred_input_info <- function(model_type = c("logistic", "survival"),
                         coefs = existingcoefs,
                         coef_names = names(existingcoefs),
                         formula = form,
-                        baselinehazard = baselinehazard,
+                        cum_hazard = cum_hazard,
                         model_info = model_info)
     }
 
@@ -214,7 +214,7 @@ summary.predinfo <- function(object, ...) {
 
 pred_input_info_input_checks <- function(model_type,
                                          model_info,
-                                         baselinehazard) {
+                                         cum_hazard) {
 
   #check that model_info is provided as a data.frame
   if (inherits(model_info, "data.frame") == FALSE) {
@@ -238,66 +238,66 @@ pred_input_info_input_checks <- function(model_type,
            call. = FALSE)
     }
 
-    if (!is.null(baselinehazard)) {
-      stop("'baselinehazard' should be set to NULL if model_type=logistic",
+    if (!is.null(cum_hazard)) {
+      stop("'cum_hazard' should be set to NULL if model_type=logistic",
            call. = FALSE)
     }
 
   } else if (model_type == "survival") {
     #check baseline hazard specification
-    if (is.null(baselinehazard)) {
-      stop("'baselinehazard' should be provided if model_type=survival",
+    if (is.null(cum_hazard)) {
+      stop("'cum_hazard' should be provided if model_type=survival",
            call. = FALSE)
     }
 
     if (nrow(model_info) > 1) {
-      if ((inherits(baselinehazard, "list") == FALSE) |
-         (length(baselinehazard) != nrow(model_info) )) {
-        stop("If multiple existing models entered, and model_type = survival, then 'baselinehazard' should be supplied as list of length equal to number of models",
+      if ((inherits(cum_hazard, "list") == FALSE) |
+         (length(cum_hazard) != nrow(model_info) )) {
+        stop("If multiple existing models entered, and model_type = survival, then 'cum_hazard' should be supplied as list of length equal to number of models",
              call. = FALSE)
       }
-      if (any(sapply(baselinehazard, function(X) (inherits(X, "data.frame") == FALSE) | ncol(X) !=2))) {
+      if (any(sapply(cum_hazard, function(X) (inherits(X, "data.frame") == FALSE) | ncol(X) !=2))) {
         stop("each supplied baseline hazard should be a data.frame of two columns",
              call. = FALSE)
       }
-      if (any(sapply(baselinehazard, function(X) (names(X)[1] != "time" |
+      if (any(sapply(cum_hazard, function(X) (names(X)[1] != "time" |
                                                   names(X)[2] != "hazard")))) {
         stop("each supplied baseline hazard should be a data.frame with columns being 'time' and 'hazard'",
              call. = FALSE)
       }
-      if (any(sapply(baselinehazard, function(X) sum(duplicated(X[,1])) > 0))) {
+      if (any(sapply(cum_hazard, function(X) sum(duplicated(X[,1])) > 0))) {
         stop("all baseline hazard times must be unique",
              call. = FALSE)
       }
-      if (any(sapply(baselinehazard, function(X) min(X[,1]) <= 0))) {
+      if (any(sapply(cum_hazard, function(X) min(X[,1]) <= 0))) {
         stop("all baseline hazard times must be positive",
              call. = FALSE)
       }
-      if (any(sapply(baselinehazard, function(X) min(X[,2]) < 0))) {
+      if (any(sapply(cum_hazard, function(X) min(X[,2]) < 0))) {
         stop("all baseline hazards must be nonnegative",
              call. = FALSE)
       }
 
     } else {
-      if (inherits(baselinehazard, "data.frame") == FALSE |
-          ncol(baselinehazard) !=2) {
+      if (inherits(cum_hazard, "data.frame") == FALSE |
+          ncol(cum_hazard) !=2) {
         stop("baseline hazard should be a data.frame of two columns",
              call. = FALSE)
       }
-      if (names(baselinehazard)[1] != "time" |
-          names(baselinehazard)[2] != "hazard") {
+      if (names(cum_hazard)[1] != "time" |
+          names(cum_hazard)[2] != "hazard") {
         stop("baseline hazard should be a data.frame with columns being 'time' and 'hazard'",
              call. = FALSE)
       }
-      if(sum(duplicated(baselinehazard[,1])) > 0){
+      if(sum(duplicated(cum_hazard[,1])) > 0){
         stop("all baseline hazard times must be unique",
              call. = FALSE)
       }
-      if(min(baselinehazard[,1]) <= 0){
+      if(min(cum_hazard[,1]) <= 0){
         stop("all baseline hazard times must be positive",
              call. = FALSE)
       }
-      if(min(baselinehazard[,2]) < 0){
+      if(min(cum_hazard[,2]) < 0){
         stop("all baseline hazards must be nonnegative",
              call. = FALSE)
       }
