@@ -18,7 +18,7 @@
 #' @param time_horizon for survival models, an integer giving the time horizon
 #'   (post baseline/time of prediction) at which a prediction is required.
 #'   Currently, this must match a time in x$cum_hazard.
-#' @param CalPlot indicate if a flexible calibration plot should be produced
+#' @param cal_plot indicate if a flexible calibration plot should be produced
 #'   (TRUE) or not (FALSE)
 #' @param ... further plotting arguments for the calibration plot. See Details
 #'   below.
@@ -62,7 +62,7 @@
 #'   predictor from the model as the only covariate. For discrimination, the
 #'   function estimates the area under the receiver operating characteristic
 #'   curve (AUC). Various other metrics are also calculated to assess overall
-#'   accuracy (Brier score, Cox-Snell R2). Specify parameter \code{CalPlot} to
+#'   accuracy (Brier score, Cox-Snell R2). Specify parameter \code{cal_plot} to
 #'   indicate whether a calibration plot should be produced (TRUE), or not
 #'   (FALSE). Can also specify parameters \code{xlab}, \code{ylab},
 #'   \code{xlim},and \code{ylim} to change plotting characteristics for the
@@ -75,7 +75,7 @@
 #'   calibration, a flexible calibration plot, observed-to-expected ratio and
 #'   calibration slope are produced (all at the specified \code{time_horizon}).
 #'   For discrimination, Harrell's C-statistic is calculated. Specify parameter
-#'   \code{CalPlot} to indicate whether a calibration plot should be produced
+#'   \code{cal_plot} to indicate whether a calibration plot should be produced
 #'   (TRUE), or not (FALSE). Can also specify parameters \code{xlab},
 #'   \code{ylab}, \code{xlim},and \code{ylim} to change plotting characteristics
 #'   for the calibration plot.
@@ -120,7 +120,7 @@ pred_validate <- function(x,
                           survival_time = NULL,
                           event_indicator = NULL,
                           time_horizon = NULL,
-                          CalPlot = TRUE,
+                          cal_plot = TRUE,
                           ...) {
   UseMethod("pred_validate")
 }
@@ -133,7 +133,7 @@ pred_validate.default <- function(x,
                                   survival_time = NULL,
                                   event_indicator = NULL,
                                   time_horizon = NULL,
-                                  CalPlot = TRUE, ...) {
+                                  cal_plot = TRUE, ...) {
   stop("'x' is not of class 'predinfo'",
        call. = FALSE)
 }
@@ -147,7 +147,7 @@ pred_validate.predinfo_logistic <- function(x,
                                             survival_time = NULL,
                                             event_indicator = NULL,
                                             time_horizon = NULL,
-                                            CalPlot = TRUE, ...){
+                                            cal_plot = TRUE, ...){
 
   #Check outcomes were inputted (needed to validate the model)
   if (is.null(binary_outcome)) {
@@ -332,7 +332,7 @@ print.predvalidate_survival <- function(x, ...) {
 validate_logistic <- function(ObservedOutcome,
                               Prob,
                               LP,
-                              CalPlot = TRUE,
+                              cal_plot = TRUE,
                               xlab = "Predicted Probability",
                               ylab = "Observed Probability",
                               xlim = c(0,1),
@@ -394,7 +394,7 @@ validate_logistic <- function(ObservedOutcome,
 
   # If not creating a calibration plot, then at least produce histogram of
   # predicted risks; otherwise this is embedded into the calibration plot
-  if (CalPlot == FALSE){
+  if (cal_plot == FALSE){
     graphics::hist(Prob, breaks = seq(xlim[1], xlim[2],
                                       length.out = 20),
                    xlab = xlab,
@@ -433,7 +433,7 @@ validate_logistic <- function(ObservedOutcome,
 validate_survival <- function(ObservedOutcome,
                               Prob,
                               LP,
-                              CalPlot = TRUE,
+                              cal_plot = TRUE,
                               time_horizon,
                               xlab = "Predicted Probability",
                               ylab = "Observed Probability",
@@ -479,7 +479,7 @@ validate_survival <- function(ObservedOutcome,
 
   # If not creating a calibration plot, then at least produce histogram of
   # predicted risks; otherwise this is embedded into the calibration plot
-  if (CalPlot == FALSE){
+  if (cal_plot == FALSE){
     graphics::hist(Prob, breaks = seq(xlim[1], xlim[2],
                                       length.out = 20),
                    xlab = xlab,
