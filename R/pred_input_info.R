@@ -52,7 +52,7 @@
 #'   needed in \code{model_info}.
 #'
 #'   Note, the column names of \code{model_info} should match columns in any new
-#'   data that the existing model(s) will be applied to (i.e. any newdata that
+#'   data that the existing model(s) will be applied to (i.e. any new_data that
 #'   will be provided to other functions within the package should have
 #'   corresponding predictor variables entered through \code{model_info}). See
 #'   \code{\link{pred_predict}} for more information.

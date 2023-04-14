@@ -9,7 +9,7 @@ test_that("pred_input_info() and pred_predict() lead to correct predicted
                                                                  "Diabetes" = 0.387810349702088,
                                                                  "CKD" = 0.56129156010678))
             test_predictions <- pred_predict(x = test_info,
-                                             newdata = SYNPM$ValidationData,
+                                             new_data = SYNPM$ValidationData,
                                              binary_outcome = "Y")
 
             # Perform same task manually:

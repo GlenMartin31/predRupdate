@@ -10,16 +10,16 @@
 #'   existing prediction model.
 #' @param update_type character variable specifying the level of updating that
 #'   is required
-#' @param newdata data.frame upon which the prediction models should be
+#' @param new_data data.frame upon which the prediction models should be
 #'   aggregated
 #' @param binary_outcome Character variable giving the name of the column in
-#'   \code{newdata} that represents the observed outcomes. Only relevant for
+#'   \code{new_data} that represents the observed outcomes. Only relevant for
 #'   \code{model_type}="logistic"; leave as \code{NULL} otherwise.
 #' @param survival_time Character variable giving the name of the column in
-#'   \code{newdata} that represents the observed survival times. Only relevant
+#'   \code{new_data} that represents the observed survival times. Only relevant
 #'   for \code{model_type}="survival"; leave as \code{NULL} otherwise.
 #' @param event_indicator Character variable giving the name of the column in
-#'   \code{newdata} that represents the observed survival indicator (1 for
+#'   \code{new_data} that represents the observed survival indicator (1 for
 #'   event, 0 for censoring). Only relevant for \code{model_type}="survival";
 #'   leave as \code{NULL} otherwise.
 #'
@@ -28,42 +28,43 @@
 #'   updating methods (see Su et al. 2018) to tailor the model to a new dataset.
 #'
 #'   The type of updating method is selected with the \code{update_type}
-#'   parameter, with options: "intercept_update", "recalibration" and
-#'   "refit". "intercept_update" corrects the overall
-#'   calibration-in-the-large of the model, through altering the model intercept
-#'   (or baseline hazard) to suit the new dataset. This is achieved by fitting a
-#'   logistic model (if the existing model is of type logistic) or time-to-event
-#'   model (if the existing model if of type survival) to the new dataset, with
-#'   the linear predictor as the only covariate, with the coefficient fixed at
-#'   unity (i.e. as an offset). "recalibration" corrects the
-#'   calibration-in-the-large and any under/over-fitting, by fitting a logistic
-#'   model (if the existing model is of type logistic) or time-to-event model
-#'   (if the existing model if of type survival) to the new dataset, with the
-#'   linear predictor as the only covariate. Finally, "refit" takes the original
-#'   model structure and re-estimates all coefficients; this has the effect as
-#'   re-developing the original model in the new dat.
+#'   parameter, with options: "intercept_update", "recalibration" and "refit".
+#'   "intercept_update" corrects the overall calibration-in-the-large of the
+#'   model, through altering the model intercept (or baseline hazard) to suit
+#'   the new dataset. This is achieved by fitting a logistic model (if the
+#'   existing model is of type logistic) or time-to-event model (if the existing
+#'   model if of type survival) to the new dataset, with the linear predictor as
+#'   the only covariate, with the coefficient fixed at unity (i.e. as an
+#'   offset). "recalibration" corrects the calibration-in-the-large and any
+#'   under/over-fitting, by fitting a logistic model (if the existing model is
+#'   of type logistic) or time-to-event model (if the existing model if of type
+#'   survival) to the new dataset, with the linear predictor as the only
+#'   covariate. Finally, "refit" takes the original model structure and
+#'   re-estimates all coefficients; this has the effect as re-developing the
+#'   original model in the new dat.
 #'
-#'   \code{newdata} should be a data.frame, where each row should be an
+#'   \code{new_data} should be a data.frame, where each row should be an
 #'   observation (e.g. patient) and each variable/column should be a predictor
 #'   variable. The predictor variables need to include (as a minimum) all of the
 #'   predictor variables that are included in the existing prediction model
 #'   (i.e., each of the variable names supplied to
 #'   \code{\link{pred_input_info}}, through the \code{model_info} parameter,
-#'   must match the name of a variables in \code{newdata}).
+#'   must match the name of a variables in \code{new_data}).
 #'
-#'   Any factor variables within \code{newdata} must be converted to dummy (0/1)
-#'   variables before calling this function. \code{\link{dummy_vars}} can help
-#'   with this.
+#'   Any factor variables within \code{new_data} must be converted to dummy
+#'   (0/1) variables before calling this function. \code{\link{dummy_vars}} can
+#'   help with this.
 #'
 #'   \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
-#'   used to specify the outcome variable(s) within \code{newdata} (use
+#'   used to specify the outcome variable(s) within \code{new_data} (use
 #'   \code{binary_outcome} if \code{x$model_type} = "logistic", or use
 #'   \code{survival_time} and \code{event_indicator} if \code{x$model_type} =
 #'   "survival").
 #'
 #' @return A object of class "predinfo" with subclass"\code{predUpdate}". This
 #'   is the same as that detailed in \code{\link{pred_input_info}}, with the
-#'   added element containing the estimates of the model updating.
+#'   added element containing the estimates of the model updating and the
+#'   update_type.
 #'
 #' @examples
 #' #Example 1 - logistic regression existing model, updated using recalibration:
@@ -71,13 +72,13 @@
 #'                           model_info = SYNPM$Existing_logistic_models[1,])
 #' recalibrated_model1 <- pred_update(x = model1,
 #'                                    update_type = "recalibration",
-#'                                    newdata = SYNPM$ValidationData,
+#'                                    new_data = SYNPM$ValidationData,
 #'                                    binary_outcome = "Y")
 #' summary(recalibrated_model1)
 #' recalibrated_model1$model_update_results #explore the model updating parameter estimates
 #' #one could then validate this as follows (but this should be adjusted for
 #' #in-sample optimism):
-#' pred_validate(recalibrated_model1, newdata = SYNPM$ValidationData, binary_outcome = "Y")
+#' pred_validate(recalibrated_model1, new_data = SYNPM$ValidationData, binary_outcome = "Y")
 #'
 #' #Example 2 - update time-to-event model by updating the baseline hazard in new dataset
 #' model2 <- pred_input_info(model_type = "survival",
@@ -85,14 +86,14 @@
 #'                           cum_hazard = SYNPM$TTE_mod1_baseline)
 #' recalibrated_model2 <- pred_update(x = model2,
 #'                                    update_type = "intercept_update",
-#'                                    newdata = SYNPM$ValidationData,
+#'                                    new_data = SYNPM$ValidationData,
 #'                                    survival_time = "ETime",
 #'                                    event_indicator = "Status")
 #' summary(recalibrated_model2)
 #' #one could then validate this as follows (but this should be adjusted for
 #' #in-sample optimism):
 #' pred_validate(recalibrated_model2,
-#'               newdata = SYNPM$ValidationData,
+#'               new_data = SYNPM$ValidationData,
 #'               event_indicator = "Status",
 #'               survival_time = "ETime",
 #'               time_horizon = 5)
@@ -104,7 +105,7 @@
 #' @export
 pred_update <- function(x,
                         update_type = c("intercept_update", "recalibration", "refit"),
-                        newdata,
+                        new_data,
                         binary_outcome = NULL,
                         survival_time = NULL,
                         event_indicator = NULL) {
@@ -114,7 +115,7 @@ pred_update <- function(x,
 #' @export
 pred_update.default <- function(x,
                                 update_type = c("intercept_update", "recalibration", "refit"),
-                                newdata,
+                                new_data,
                                 binary_outcome = NULL,
                                 survival_time = NULL,
                                 event_indicator = NULL) {
@@ -125,7 +126,7 @@ pred_update.default <- function(x,
 #' @export
 pred_update.predinfo_logistic <- function(x,
                                           update_type = c("intercept_update", "recalibration", "refit"),
-                                          newdata,
+                                          new_data,
                                           binary_outcome = NULL,
                                           survival_time = NULL,
                                           event_indicator = NULL) {
@@ -143,9 +144,9 @@ pred_update.predinfo_logistic <- function(x,
 
   update_type <- match.arg(update_type)
 
-  #Make predictions within newdata using the existing prediction model
+  #Make predictions within new_data using the existing prediction model
   predictions <- predRupdate::pred_predict(x = x,
-                                           newdata = newdata,
+                                           new_data = new_data,
                                            binary_outcome = binary_outcome,
                                            survival_time = survival_time,
                                            event_indicator = event_indicator)
@@ -177,7 +178,7 @@ pred_update.predinfo_logistic <- function(x,
   } else if(update_type == "refit") {
     #Run model update
     formula_text <- paste0(binary_outcome, x$formula[1], x$formula[2])
-    fit <- stats::glm(eval(parse(text=formula_text)), data = newdata,
+    fit <- stats::glm(eval(parse(text=formula_text)), data = new_data,
                       family = stats::binomial(link = "logit"))
     param <- data.frame(cbind(fit$coefficients, sqrt(diag(stats::vcov(fit)))))
     names(param) <- c("Estimate", "Std. Error")
@@ -199,7 +200,8 @@ pred_update.predinfo_logistic <- function(x,
                                                              collapse = "+"),
                                                              sep="")),
                          "model_info" = coef_table,
-                         "model_update_results" = param)
+                         "model_update_results" = param,
+                         "update_type" = update_type)
   class(update_results) <- c("predUpdate", "predinfo_logistic", "predinfo")
   update_results
 }
@@ -207,7 +209,7 @@ pred_update.predinfo_logistic <- function(x,
 #' @export
 pred_update.predinfo_survival <- function(x,
                                           update_type = c("intercept_update", "recalibration", "refit"),
-                                          newdata,
+                                          new_data,
                                           binary_outcome = NULL,
                                           survival_time = NULL,
                                           event_indicator = NULL) {
@@ -225,9 +227,9 @@ pred_update.predinfo_survival <- function(x,
 
   update_type <- match.arg(update_type)
 
-  #Make predictions within newdata using the existing prediction model
+  #Make predictions within new_data using the existing prediction model
   predictions <- predRupdate::pred_predict(x = x,
-                                           newdata = newdata,
+                                           new_data = new_data,
                                            binary_outcome = binary_outcome,
                                            survival_time = survival_time,
                                            event_indicator = event_indicator)
@@ -262,7 +264,7 @@ pred_update.predinfo_survival <- function(x,
   } else if(update_type == "refit") {
     #Run model update
     DM <- data.frame("outcome" = predictions$Outcomes,
-                     newdata[,x$coef_names])
+                     new_data[,x$coef_names])
     fit <- survival::coxph(outcome ~ ., data = DM)
     param <- data.frame(cbind(fit$coefficients, sqrt(diag(stats::vcov(fit)))))
     names(param) <- c("Estimate", "Std. Error")
@@ -288,7 +290,8 @@ pred_update.predinfo_survival <- function(x,
                          "cum_hazard" = data.frame("time" = BH$time,
                                                    "hazard" = BH$hazard),
                          "model_info" = coef_table,
-                         "model_update_results" = param)
+                         "model_update_results" = param,
+                         "update_type" = update_type)
   class(update_results) <- c("predUpdate", "predinfo_survival", "predinfo")
   update_results
 }

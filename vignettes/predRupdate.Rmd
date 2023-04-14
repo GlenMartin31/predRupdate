@@ -63,7 +63,7 @@ summary(Existing_Logistic_Model)
 Next we wish to apply this model to our dataset to calculate the predicted risks for each individual, and then compare these predictions with the observed outcomes to calculate predictive performance. This can all be achieved with the "pred_validate()" function, as follows:
 ```{r}
 pred_validate(x = Existing_Logistic_Model,
-              newdata = SYNPM$ValidationData,
+              new_data = SYNPM$ValidationData,
               binary_outcome = "Y")
 ```
 
@@ -101,7 +101,7 @@ Existing_TTE_Model <- pred_input_info(model_type = "survival",
 
 #now validate against the time-to-event outcomes in the new dataset:
 pred_validate(x = Existing_TTE_Model,
-              newdata = SYNPM$ValidationData,
+              new_data = SYNPM$ValidationData,
               survival_time = "ETime",
               event_indicator = "Status",
               time_horizon = 5)
@@ -125,14 +125,14 @@ Existing_Logistic_Model <- pred_input_info(model_type = "logistic",
 #apply the pred_update function to update the model to the new dataset:
 Updated_model <- pred_update(Existing_Logistic_Model,
                              update_type = "recalibration",
-                             newdata = SYNPM$ValidationData,
+                             new_data = SYNPM$ValidationData,
                              binary_outcome = "Y")
 ```
 
 One could then validate this updated model using "pred_validate()", but given we have updated the model in the new data, then any such performance estimates would need to be adjusted for in-sample optimism (e.g., using cross-validation or bootstrap internal validation):
 ```{r}
 pred_validate(Updated_model, 
-              newdata = SYNPM$ValidationData, 
+              new_data = SYNPM$ValidationData, 
               binary_outcome = "Y")
 ```
 
@@ -169,7 +169,7 @@ summary(multiple_mods)
 We can then use "pred_stacked_regression()" function to apply stacked regression to pool these models into a single model for the new dataset:
 ```{r}
 SR <- pred_stacked_regression(x = multiple_mods,
-                              newdata = SYNPM$ValidationData,
+                              new_data = SYNPM$ValidationData,
                               binary_outcome = "Y")
 summary(SR)
 ```
@@ -177,7 +177,7 @@ summary(SR)
 One could then validate this updated model using "pred_validate()", but given we have updated the model in the new data, then any such performance estimates would need to be adjusted for in-sample optimism (e.g., using cross-validation or bootstrap internal validation):
 ```{r}
 pred_validate(SR, 
-              newdata = SYNPM$ValidationData, 
+              new_data = SYNPM$ValidationData, 
               binary_outcome = "Y")
 ```
 

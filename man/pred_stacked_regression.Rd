@@ -7,7 +7,7 @@
 pred_stacked_regression(
   x,
   positivity_constraint = FALSE,
-  newdata,
+  new_data,
   binary_outcome = NULL,
   survival_time = NULL,
   event_indicator = NULL
@@ -22,19 +22,19 @@ existing prediction models.}
 stacked regression model should be constrained to be non-negative (TRUE) or
 should be allowed to take any value (FALSE). See details}
 
-\item{newdata}{data.frame upon which the prediction models should be
+\item{new_data}{data.frame upon which the prediction models should be
 aggregated}
 
 \item{binary_outcome}{Character variable giving the name of the column in
-\code{newdata} that represents the observed outcomes. Only relevant for
+\code{new_data} that represents the observed outcomes. Only relevant for
 \code{model_type}="logistic"; leave as \code{NULL} otherwise.}
 
 \item{survival_time}{Character variable giving the name of the column in
-\code{newdata} that represents the observed survival times. Only relevant
+\code{new_data} that represents the observed survival times. Only relevant
 for \code{model_type}="survival"; leave as \code{NULL} otherwise.}
 
 \item{event_indicator}{Character variable giving the name of the column in
-\code{newdata} that represents the observed survival indicator (1 for
+\code{new_data} that represents the observed survival indicator (1 for
 event, 0 for censoring). Only relevant for \code{model_type}="survival";
 leave as \code{NULL} otherwise.}
 }
@@ -69,20 +69,20 @@ This is currently only implemented for logistic regression models (i.e., if
 x$model_type = "logistic"). For survival models, positivity_constraint =
 FALSE
 
-\code{newdata} should be a data.frame, where each row should be an
+\code{new_data} should be a data.frame, where each row should be an
 observation (e.g. patient) and each variable/column should be a predictor
 variable. The predictor variables need to include (as a minimum) all of the
 predictor variables that are included in the existing prediction model
 (i.e., each of the variable names supplied to
 \code{\link{pred_input_info}}, through the \code{model_info} parameter,
-must match the name of a variables in \code{newdata}).
+must match the name of a variables in \code{new_data}).
 
-Any factor variables within \code{newdata} must be converted to dummy (0/1)
+Any factor variables within \code{new_data} must be converted to dummy (0/1)
 variables before calling this function. \code{\link{dummy_vars}} can help
 with this.
 
 \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
-used to specify the outcome variable(s) within \code{newdata} (use
+used to specify the outcome variable(s) within \code{new_data} (use
 \code{binary_outcome} if \code{x$model_type} = "logistic", or use
 \code{survival_time} and \code{event_indicator} if \code{x$model_type} =
 "survival").
@@ -91,12 +91,12 @@ used to specify the outcome variable(s) within \code{newdata} (use
 LogisticModels <- pred_input_info(model_type = "logistic",
                                   model_info = SYNPM$Existing_logistic_models)
 SR <- pred_stacked_regression(x = LogisticModels,
-                              newdata = SYNPM$ValidationData,
+                              new_data = SYNPM$ValidationData,
                               binary_outcome = "Y")
 summary(SR)
 #one could then validate this as follows (but this should be adjusted for
 #in-sample optimism):
-pred_validate(SR, newdata = SYNPM$ValidationData, binary_outcome = "Y")
+pred_validate(SR, new_data = SYNPM$ValidationData, binary_outcome = "Y")
 
 #Survival model example:
 TTModels <- pred_input_info(model_type = "survival",
@@ -105,7 +105,7 @@ TTModels <- pred_input_info(model_type = "survival",
                                                   SYNPM$TTE_mod2_baseline,
                                                   SYNPM$TTE_mod3_baseline))
 SR <- pred_stacked_regression(x = TTModels,
-                              newdata = SYNPM$ValidationData,
+                              new_data = SYNPM$ValidationData,
                               survival_time = "ETime",
                               event_indicator = "Status")
 summary(SR)

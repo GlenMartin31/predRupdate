@@ -7,7 +7,7 @@
 pred_update(
   x,
   update_type = c("intercept_update", "recalibration", "refit"),
-  newdata,
+  new_data,
   binary_outcome = NULL,
   survival_time = NULL,
   event_indicator = NULL
@@ -21,19 +21,19 @@ existing prediction model.}
 \item{update_type}{character variable specifying the level of updating that
 is required}
 
-\item{newdata}{data.frame upon which the prediction models should be
+\item{new_data}{data.frame upon which the prediction models should be
 aggregated}
 
 \item{binary_outcome}{Character variable giving the name of the column in
-\code{newdata} that represents the observed outcomes. Only relevant for
+\code{new_data} that represents the observed outcomes. Only relevant for
 \code{model_type}="logistic"; leave as \code{NULL} otherwise.}
 
 \item{survival_time}{Character variable giving the name of the column in
-\code{newdata} that represents the observed survival times. Only relevant
+\code{new_data} that represents the observed survival times. Only relevant
 for \code{model_type}="survival"; leave as \code{NULL} otherwise.}
 
 \item{event_indicator}{Character variable giving the name of the column in
-\code{newdata} that represents the observed survival indicator (1 for
+\code{new_data} that represents the observed survival indicator (1 for
 event, 0 for censoring). Only relevant for \code{model_type}="survival";
 leave as \code{NULL} otherwise.}
 }
@@ -69,20 +69,20 @@ linear predictor as the only covariate. Finally, "refit" takes the original
 model structure and re-estimates all coefficients; this has the effect as
 re-developing the original model in the new dat.
 
-\code{newdata} should be a data.frame, where each row should be an
+\code{new_data} should be a data.frame, where each row should be an
 observation (e.g. patient) and each variable/column should be a predictor
 variable. The predictor variables need to include (as a minimum) all of the
 predictor variables that are included in the existing prediction model
 (i.e., each of the variable names supplied to
 \code{\link{pred_input_info}}, through the \code{model_info} parameter,
-must match the name of a variables in \code{newdata}).
+must match the name of a variables in \code{new_data}).
 
-Any factor variables within \code{newdata} must be converted to dummy (0/1)
+Any factor variables within \code{new_data} must be converted to dummy (0/1)
 variables before calling this function. \code{\link{dummy_vars}} can help
 with this.
 
 \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
-used to specify the outcome variable(s) within \code{newdata} (use
+used to specify the outcome variable(s) within \code{new_data} (use
 \code{binary_outcome} if \code{x$model_type} = "logistic", or use
 \code{survival_time} and \code{event_indicator} if \code{x$model_type} =
 "survival").
@@ -93,13 +93,13 @@ model1 <- pred_input_info(model_type = "logistic",
                           model_info = SYNPM$Existing_logistic_models[1,])
 recalibrated_model1 <- pred_update(x = model1,
                                    update_type = "recalibration",
-                                   newdata = SYNPM$ValidationData,
+                                   new_data = SYNPM$ValidationData,
                                    binary_outcome = "Y")
 summary(recalibrated_model1)
 recalibrated_model1$model_update_results #explore the model updating parameter estimates
 #one could then validate this as follows (but this should be adjusted for
 #in-sample optimism):
-pred_validate(recalibrated_model1, newdata = SYNPM$ValidationData, binary_outcome = "Y")
+pred_validate(recalibrated_model1, new_data = SYNPM$ValidationData, binary_outcome = "Y")
 
 #Example 2 - update time-to-event model by updating the baseline hazard in new dataset
 model2 <- pred_input_info(model_type = "survival",
@@ -107,14 +107,14 @@ model2 <- pred_input_info(model_type = "survival",
                           cum_hazard = SYNPM$TTE_mod1_baseline)
 recalibrated_model2 <- pred_update(x = model2,
                                    update_type = "intercept_update",
-                                   newdata = SYNPM$ValidationData,
+                                   new_data = SYNPM$ValidationData,
                                    survival_time = "ETime",
                                    event_indicator = "Status")
 summary(recalibrated_model2)
 #one could then validate this as follows (but this should be adjusted for
 #in-sample optimism):
 pred_validate(recalibrated_model2,
-              newdata = SYNPM$ValidationData,
+              new_data = SYNPM$ValidationData,
               event_indicator = "Status",
               survival_time = "ETime",
               time_horizon = 5)

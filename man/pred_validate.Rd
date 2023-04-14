@@ -6,7 +6,7 @@
 \usage{
 pred_validate(
   x,
-  newdata,
+  new_data,
   binary_outcome = NULL,
   survival_time = NULL,
   event_indicator = NULL,
@@ -18,18 +18,18 @@ pred_validate(
 \arguments{
 \item{x}{an object of class "predinfo"}
 
-\item{newdata}{data.frame upon which the prediction model should be validated}
+\item{new_data}{data.frame upon which the prediction model should be validated}
 
 \item{binary_outcome}{Character variable giving the name of the column in
-\code{newdata} that represents the observed outcomes. Only relevant for
+\code{new_data} that represents the observed outcomes. Only relevant for
 \code{model_type}="logistic"; leave as \code{NULL} otherwise.}
 
 \item{survival_time}{Character variable giving the name of the column in
-\code{newdata} that represents the observed survival times. Only relevant
+\code{new_data} that represents the observed survival times. Only relevant
 for \code{model_type}="survival"; leave as \code{NULL} otherwise.}
 
 \item{event_indicator}{Character variable giving the name of the column in
-\code{newdata} that represents the observed survival indicator (1 for
+\code{new_data} that represents the observed survival indicator (1 for
 event, 0 for censoring). Only relevant for \code{model_type}="survival";
 leave as \code{NULL} otherwise.}
 
@@ -45,7 +45,7 @@ below.}
 }
 \value{
 A list of performance metrics, estimated by applying the existing
-prediction model to the newdata.
+prediction model to the new_data.
 }
 \description{
 Validate an existing prediction model, to calculate the predictive
@@ -59,20 +59,20 @@ information about the existing prediction model should first be inputted by
 calling \code{\link{pred_input_info}}, before passing the resulting object
 to \code{pred_validate}.
 
-\code{newdata} should be a data.frame, where each row should be an
+\code{new_data} should be a data.frame, where each row should be an
 observation (e.g. patient) and each variable/column should be a predictor
 variable. The predictor variables need to include (as a minimum) all of the
 predictor variables that are included in the existing prediction model
 (i.e., each of the variable names supplied to
 \code{\link{pred_input_info}}, through the \code{model_info} parameter,
-must match the name of a variables in \code{newdata}).
+must match the name of a variables in \code{new_data}).
 
-Any factor variables within \code{newdata} must be converted to dummy (0/1)
+Any factor variables within \code{new_data} must be converted to dummy (0/1)
 variables before calling this function. \code{\link{dummy_vars}} can help
 with this - see examples below.
 
 \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
-used to specify the outcome variable(s) within \code{newdata} (use
+used to specify the outcome variable(s) within \code{new_data} (use
 \code{binary_outcome} if \code{x$model_type} = "logistic", or use
 \code{survival_time} and \code{event_indicator} if \code{x$model_type} =
 "survival").
@@ -115,7 +115,7 @@ for the calibration plot.
 model1 <- pred_input_info(model_type = "logistic",
                           model_info = SYNPM$Existing_logistic_models[1,])
 pred_validate(x = model1,
-             newdata = SYNPM$ValidationData,
+             new_data = SYNPM$ValidationData,
              binary_outcome = "Y")
 
 #Example 2 - multiple existing model, with outcome specified; uses
@@ -123,7 +123,7 @@ pred_validate(x = model1,
 model2 <- pred_input_info(model_type = "logistic",
                           model_info = SYNPM$Existing_logistic_models)
 pred_validate(x = model2,
-             newdata = SYNPM$ValidationData,
+             new_data = SYNPM$ValidationData,
              binary_outcome = "Y")
 
 #Example 3 - survival model example; uses an example dataset within the
@@ -132,7 +132,7 @@ model3 <- pred_input_info(model_type = "survival",
                           model_info = SYNPM$Existing_TTE_models[2,],
                           cum_hazard = SYNPM$TTE_mod2_baseline)
 pred_validate(x = model3,
-             newdata = SYNPM$ValidationData,
+             new_data = SYNPM$ValidationData,
             survival_time = "ETime",
             event_indicator = "Status",
             time_horizon = 5)
