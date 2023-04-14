@@ -69,7 +69,7 @@ Debray et al. 2014.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pred_stacked_regression</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  positivity_constraint <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  <span class="va">newdata</span>,</span>
+<span>  <span class="va">new_data</span>,</span>
 <span>  binary_outcome <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  survival_time <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  event_indicator <span class="op">=</span> <span class="cn">NULL</span></span>
@@ -90,26 +90,26 @@ stacked regression model should be constrained to be non-negative (TRUE) or
 should be allowed to take any value (FALSE). See details</p></dd>
 
 
-<dt>newdata</dt>
+<dt>new_data</dt>
 <dd><p>data.frame upon which the prediction models should be
 aggregated</p></dd>
 
 
 <dt>binary_outcome</dt>
 <dd><p>Character variable giving the name of the column in
-<code>newdata</code> that represents the observed outcomes. Only relevant for
+<code>new_data</code> that represents the observed outcomes. Only relevant for
 <code>model_type</code>="logistic"; leave as <code>NULL</code> otherwise.</p></dd>
 
 
 <dt>survival_time</dt>
 <dd><p>Character variable giving the name of the column in
-<code>newdata</code> that represents the observed survival times. Only relevant
+<code>new_data</code> that represents the observed survival times. Only relevant
 for <code>model_type</code>="survival"; leave as <code>NULL</code> otherwise.</p></dd>
 
 
 <dt>event_indicator</dt>
 <dd><p>Character variable giving the name of the column in
-<code>newdata</code> that represents the observed survival indicator (1 for
+<code>new_data</code> that represents the observed survival indicator (1 for
 event, 0 for censoring). Only relevant for <code>model_type</code>="survival";
 leave as <code>NULL</code> otherwise.</p></dd>
 
@@ -141,18 +141,18 @@ optimising the (log-)likelihood using bound constrained optimization
 <p>This is currently only implemented for logistic regression models (i.e., if
 x$model_type = "logistic"). For survival models, positivity_constraint =
 FALSE</p>
-<p><code>newdata</code> should be a data.frame, where each row should be an
+<p><code>new_data</code> should be a data.frame, where each row should be an
 observation (e.g. patient) and each variable/column should be a predictor
 variable. The predictor variables need to include (as a minimum) all of the
 predictor variables that are included in the existing prediction model
 (i.e., each of the variable names supplied to
 <code><a href="pred_input_info.html">pred_input_info</a></code>, through the <code>model_info</code> parameter,
-must match the name of a variables in <code>newdata</code>).</p>
-<p>Any factor variables within <code>newdata</code> must be converted to dummy (0/1)
+must match the name of a variables in <code>new_data</code>).</p>
+<p>Any factor variables within <code>new_data</code> must be converted to dummy (0/1)
 variables before calling this function. <code><a href="dummy_vars.html">dummy_vars</a></code> can help
 with this.</p>
 <p><code>binary_outcome</code>, <code>survival_time</code> and <code>event_indicator</code> are
-used to specify the outcome variable(s) within <code>newdata</code> (use
+used to specify the outcome variable(s) within <code>new_data</code> (use
 <code>binary_outcome</code> if <code>x$model_type</code> = "logistic", or use
 <code>survival_time</code> and <code>event_indicator</code> if <code>x$model_type</code> =
 "survival").</p>
@@ -170,7 +170,7 @@ multiple published prediction models. <em>Statistics in Medicine</em>, 33:
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">LogisticModels</span> <span class="op">&lt;-</span> <span class="fu"><a href="pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span></span>
 <span class="r-in"><span>                                  model_info <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">Existing_logistic_models</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">SR</span> <span class="op">&lt;-</span> <span class="fu">pred_stacked_regression</span><span class="op">(</span>x <span class="op">=</span> <span class="va">LogisticModels</span>,</span></span>
-<span class="r-in"><span>                              newdata <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span></span>
+<span class="r-in"><span>                              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span></span>
 <span class="r-in"><span>                              binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">SR</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Information about 1 existing model(s) of type 'logistic' </span>
@@ -185,7 +185,7 @@ multiple published prediction models. <em>Statistics in Medicine</em>, 33:
 <span class="r-out co"><span class="r-pr">#&gt;</span> SexM + Smoking_Status + Diabetes + CKD + Age</span>
 <span class="r-in"><span><span class="co">#one could then validate this as follows (but this should be adjusted for</span></span></span>
 <span class="r-in"><span><span class="co">#in-sample optimism):</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">SR</span>, newdata <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">SR</span>, new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="pred_stacked_regression-1.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
@@ -217,11 +217,11 @@ multiple published prediction models. <em>Statistics in Medicine</em>, 33:
 <span class="r-in"><span><span class="co">#Survival model example:</span></span></span>
 <span class="r-in"><span><span class="va">TTModels</span> <span class="op">&lt;-</span> <span class="fu"><a href="pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span></span>
 <span class="r-in"><span>                            model_info <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">Existing_TTE_models</span>,</span></span>
-<span class="r-in"><span>                            baselinehazard <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">SYNPM</span><span class="op">$</span><span class="va">TTE_mod1_baseline</span>,</span></span>
+<span class="r-in"><span>                            cum_hazard <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">SYNPM</span><span class="op">$</span><span class="va">TTE_mod1_baseline</span>,</span></span>
 <span class="r-in"><span>                                                  <span class="va">SYNPM</span><span class="op">$</span><span class="va">TTE_mod2_baseline</span>,</span></span>
 <span class="r-in"><span>                                                  <span class="va">SYNPM</span><span class="op">$</span><span class="va">TTE_mod3_baseline</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">SR</span> <span class="op">&lt;-</span> <span class="fu">pred_stacked_regression</span><span class="op">(</span>x <span class="op">=</span> <span class="va">TTModels</span>,</span></span>
-<span class="r-in"><span>                              newdata <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span></span>
+<span class="r-in"><span>                              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span></span>
 <span class="r-in"><span>                              survival_time <span class="op">=</span> <span class="st">"ETime"</span>,</span></span>
 <span class="r-in"><span>                              event_indicator <span class="op">=</span> <span class="st">"Status"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">SR</span><span class="op">)</span></span></span>

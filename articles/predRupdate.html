@@ -111,20 +111,19 @@ examples below for each of these use cases.</p>
 <h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
 </h2>
 <p>The data used throughout this vignette are available within the
-package, and can be loaded by</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">SYNPM</span><span class="op">)</span></span></code></pre></div>
-<p>See “?SYNPM” for details. The data and models included in this object
-are synthetic, but for the purposes of this vignette, we imagine that
-one is interested in predicting someone’s risk of mortality after
-surgery. Data are available on 20000 people, which records each
-individuals age, gender, smoking status, diabetes status, and chronic
-kidney disease (CKD) status at the time of surgery. The data includes
-the outcomes of “ETime” representing the time (months) between surgery
-and either death or end-of-follow-up (5 months), whichever occurred
-first. The variable “Status” indicates if the patient died (1) or was
-right-censored (0), and Y denotes a binary variable indicating if the
-patient died within 1 month.</p>
+package, called <em>SYNPM</em>. These data are available to users of
+<strong>predRupdate</strong> after installing and loading the package.
+See “?SYNPM” for details of these data. In short, the data and models
+included in <em>SYNPM</em> are synthetic, but for the purposes of this
+vignette, we imagine that one is interested in predicting someone’s risk
+of mortality after surgery. Data are available on 20000 people, which
+records each individuals age, gender, smoking status, diabetes status,
+and chronic kidney disease (CKD) status at the time of surgery. The data
+includes the outcomes of “ETime” representing the time (months) between
+surgery and either death or end-of-follow-up (5 months), whichever
+occurred first. The variable “Status” indicates if the patient died (1)
+or was right-censored (0), and Y denotes a binary variable indicating if
+the patient died within 1 month.</p>
 </div>
 <div class="section level2">
 <h2 id="example-1-validating-an-existing-prediction-model-on-new-data">Example 1: validating an existing prediction model on new data<a class="anchor" aria-label="anchor" href="#example-1-validating-an-existing-prediction-model-on-new-data"></a>
@@ -172,7 +171,7 @@ data.frame of the model coefficients, with the columns being the
 predictor variable names. This information is then passed into the
 “pred_input_info()” function to input the information about the existing
 model. See the help file of “pred_input_info()” for details.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
 <span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.4</span>, <span class="co">#the intercept needs to be named exactly as given here</span></span>
 <span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.306</span>, </span>
@@ -198,9 +197,9 @@ model. See the help file of “pred_input_info()” for details.</p>
 predicted risks for each individual, and then compare these predictions
 with the observed outcomes to calculate predictive performance. This can
 all be achieved with the “pred_validate()” function, as follows:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_Logistic_Model</span>,</span>
-<span>              newdata <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
+<span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
 <span>              binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="predRupdate_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 <pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
@@ -246,6 +245,12 @@ contains functionality to validate CPMs that are based on time-to-event
 (survival) models (e.g. a Cox proportional hazards model). In such a
 case, the baseline cumulative hazard of the model should also be
 specified, along with the regression coefficients.</p>
+<p>In many cases, the baseline cumulative hazard of an existing CPM will
+not be reported in “full”, but rather estimates of the baseline
+cumulative hazard will be given at set follow-up times. To use
+<strong>predRupdate</strong>, users should specify the baseline
+cumulative hazard at the times at which one wishes to make predictions
+(or validate/update the model).</p>
 <p>For example, suppose an existing CPM was developed using Cox
 proportional hazards to predict time-to-death after surgery, with the
 following predictor parameters (log hazard ratios):</p>
@@ -279,7 +284,8 @@ prediction model</caption>
 </tr>
 </tbody>
 </table>
-<p>and with the following baseline cumulative hazard:</p>
+<p>and with the following baseline cumulative hazard reported at
+discrete times of months 1-5 post surgery:</p>
 <table class="table">
 <caption>Table of baseline cumulative hazard</caption>
 <thead><tr class="header">
@@ -310,12 +316,12 @@ prediction model</caption>
 </tbody>
 </table>
 <p>We can then use the “pred_validate()” function to validate this model
-in the new dataset. This follows a similar syntax to above for the
-logistic model. We need to specify a time during follow-up that we’d
-like to validate the model against - this time must also be available in
-the baseline cumulative hazards. Lets imagine we wish to validate the
-models at 5 months follow-up.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+at 1, 2, 3, 4 or 5 months follow-up in the new dataset. To achieve this,
+one follows a similar syntax to above for the logistic model. The main
+difference is that one needs to specify a time during follow-up that
+we’d like to validate the model against - this time must also be
+available in the baseline cumulative hazard provided.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
 <span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.008</span>,</span>
 <span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.257</span>,</span>
@@ -326,11 +332,11 @@ models at 5 months follow-up.</p>
 <span><span class="co">#pass this into pred_input_info()</span></span>
 <span><span class="va">Existing_TTE_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span>
 <span>                                      model_info <span class="op">=</span> <span class="va">coefs_table</span>,</span>
-<span>                                      baselinehazard <span class="op">=</span> <span class="va">BH_table</span><span class="op">)</span> <span class="co">#where BH_table is the baseline hazard above</span></span>
+<span>                                      cum_hazard <span class="op">=</span> <span class="va">BH_table</span><span class="op">)</span> <span class="co">#where BH_table is the baseline hazard above</span></span>
 <span></span>
 <span><span class="co">#now validate against the time-to-event outcomes in the new dataset:</span></span>
 <span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_TTE_Model</span>,</span>
-<span>              newdata <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
+<span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
 <span>              survival_time <span class="op">=</span> <span class="st">"ETime"</span>,</span>
 <span>              event_indicator <span class="op">=</span> <span class="st">"Status"</span>,</span>
 <span>              time_horizon <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
@@ -354,6 +360,72 @@ models at 5 months follow-up.</p>
 <span><span class="co">#&gt; Harrell C                        0.5607</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre>
+<div class="section level4">
+<h4 id="specifying-the-baseline-cumulative-hazard">Specifying the baseline cumulative hazard<a class="anchor" aria-label="anchor" href="#specifying-the-baseline-cumulative-hazard"></a>
+</h4>
+<p>In the above example, we assumed that the baseline cumulative hazard
+of the existing CPM was available at discrete follow-up times. In some
+situations, the entire baseline cumulative hazard curve may be
+presented, or indeed a parametric form of the baseline cumulative hazard
+may be provided. In such a situation, one should extract (from the plot)
+or calculate (from the parametric form) the baseline cumulative hazard
+at multiple follow-up times of interest (the times at which one wishes
+to validate the model at).</p>
+<p>Additionally, in some cases, the baseline cumulative hazard of an
+existing survival (time-to-event) CPM may not be reported/available. In
+such a situation, one can still use <strong>predRupdate</strong> to
+validate such a model. However, only a limited number of metrics will be
+produced (i.e., only those that require the linear predictor, not
+absolute risk predictions at a given follow-up time). Specifically, the
+observed:expected ration and the calibration plot will not be
+produced.</p>
+<p>For example, suppose the baseline cumulative hazard for the above
+model was not avaliable. We could validate this model using
+<strong>predRupdate</strong> as follows:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
+<span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.008</span>,</span>
+<span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.257</span>,</span>
+<span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.697</span>,</span>
+<span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.310</span>,</span>
+<span>                          <span class="st">"CKD"</span> <span class="op">=</span> <span class="fl">0.636</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#pass this into pred_input_info()</span></span>
+<span><span class="va">Existing_TTE_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span>
+<span>                                      model_info <span class="op">=</span> <span class="va">coefs_table</span>,</span>
+<span>                                      cum_hazard <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="co">#leave as NULL if the baseline not avaliable</span></span>
+<span></span>
+<span><span class="co">#now validate against the time-to-event outcomes in the new dataset:</span></span>
+<span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_TTE_Model</span>,</span>
+<span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
+<span>              survival_time <span class="op">=</span> <span class="st">"ETime"</span>,</span>
+<span>              event_indicator <span class="op">=</span> <span class="st">"Status"</span>,</span>
+<span>              time_horizon <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Predicted risks are not available for some models: limited calibration</span></span>
+<span><span class="co">#&gt; metrics returned and no calibration plot produced</span></span>
+<span><span class="co">#&gt; Calibration Measures </span></span>
+<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt;                         Estimate Std. Err Lower 95% Confidence Interval</span></span>
+<span><span class="co">#&gt; Observed:Expected Ratio       NA       NA                            NA</span></span>
+<span><span class="co">#&gt; Calibration Slope         0.5289    0.027                         0.476</span></span>
+<span><span class="co">#&gt;                         Upper 95% Confidence Interval</span></span>
+<span><span class="co">#&gt; Observed:Expected Ratio                            NA</span></span>
+<span><span class="co">#&gt; Calibration Slope                              0.5818</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Discrimination Measures </span></span>
+<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt;           Estimate Std. Err Lower 95% Confidence Interval</span></span>
+<span><span class="co">#&gt; Harrell C   0.5554   0.0027                        0.5501</span></span>
+<span><span class="co">#&gt;           Upper 95% Confidence Interval</span></span>
+<span><span class="co">#&gt; Harrell C                        0.5607</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre></div>
+<p>Here, we see that no calibration plot is produced, and the
+observed:expected ratio is NA. A warning message is given to highlight
+this.</p>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -380,7 +452,7 @@ re-calibration; to do so, we can use the “pred_update()” function:</p>
 <span><span class="co">#apply the pred_update function to update the model to the new dataset:</span></span>
 <span><span class="va">Updated_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_update.html">pred_update</a></span><span class="op">(</span><span class="va">Existing_Logistic_Model</span>,</span>
 <span>                             update_type <span class="op">=</span> <span class="st">"recalibration"</span>,</span>
-<span>                             newdata <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
+<span>                             new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
 <span>                             binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
 <p>One could then validate this updated model using “pred_validate()”,
 but given we have updated the model in the new data, then any such
@@ -388,9 +460,9 @@ performance estimates would need to be adjusted for in-sample optimism
 (e.g., using cross-validation or bootstrap internal validation):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">Updated_model</span>, </span>
-<span>              newdata <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
+<span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
 <span>              binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="predRupdate_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
+<p><img src="predRupdate_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
 <pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;                          Estimate Std. Err Lower 95% Confidence Interval</span></span>
@@ -481,7 +553,7 @@ regression to pool these models into a single model for the new
 dataset:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">SR</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_stacked_regression.html">pred_stacked_regression</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">multiple_mods</span>,</span>
-<span>                              newdata <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
+<span>                              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
 <span>                              binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">SR</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Information about 1 existing model(s) of type 'logistic' </span></span>
@@ -500,9 +572,9 @@ performance estimates would need to be adjusted for in-sample optimism
 (e.g., using cross-validation or bootstrap internal validation):</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">SR</span>, </span>
-<span>              newdata <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
+<span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
 <span>              binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="predRupdate_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
+<p><img src="predRupdate_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
 <pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;                          Estimate Std. Err Lower 95% Confidence Interval</span></span>

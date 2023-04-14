@@ -116,8 +116,8 @@ These are summarised in the table below:</p>
 <table class="table">
 <caption>Phases of clinical prediction model production</caption>
 <colgroup>
-<col width="10%">
-<col width="89%">
+<col width="11%">
+<col width="88%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">Phase</th>
@@ -125,7 +125,7 @@ These are summarised in the table below:</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">Model Development and internal validation</td>
+<td align="left">(i) Model Development and internal validation</td>
 <td align="left">The development of the model uses a cohort of patients,
 where the predictor variables and outcomes are known, to perform
 variable selection and estimate the prognostic effect (coefficient) of
@@ -134,7 +134,7 @@ assessment of predictive performance within that data, adjusting for
 in-sample optimism</td>
 </tr>
 <tr class="even">
-<td align="left">External validation</td>
+<td align="left">(ii) External validation</td>
 <td align="left">Aims to assess the predictive performance of the
 developed model in data that are different to those used to develop the
 model (e.g., temporally or geographically different). If performance is
@@ -142,7 +142,7 @@ deemed unsuitable, the model may undergo updating to tailor it more
 closely to the new data</td>
 </tr>
 <tr class="odd">
-<td align="left">Impact Assessment</td>
+<td align="left">(iii) Impact Assessment</td>
 <td align="left">Impact assessment investigates the extent to which the
 model changes clinical practice and improves patient outcomes</td>
 </tr>
@@ -172,7 +172,7 @@ but refer readers to the literature for a detailed overview (Riley et
 al. 2019; Steyerberg et al. 2013; Moons et al. 2012; Altman and Royston
 2000; Van Calster et al. 2016; McLernon et al. 2023).</p>
 <div class="section level3">
-<h3 id="calibration">calibration<a class="anchor" aria-label="anchor" href="#calibration"></a>
+<h3 id="calibration">Calibration<a class="anchor" aria-label="anchor" href="#calibration"></a>
 </h3>
 <p>Calibration is the agreement of the predicted risks from the CPM with
 the observed risks in the validation dataset, across the full risk
@@ -201,7 +201,7 @@ of the model.</p>
 validation data, <strong>predRupdate</strong> fits the following model
 in the validation data:</p>
 <p><span class="math display">\[
-\log\left(\frac{\pi_i}{1-\pi_i}\right) = \alpha_0 + S(LP_i)
+\log\left(\frac{\pi_i}{1-\pi_i}\right) = \alpha_0 + s(LP_i)
 \]</span></p>
 <p>where <span class="math inline">\(s(.)\)</span> is some smooth
 function; in <strong>predRupdate</strong> this is a natural cubic
@@ -220,7 +220,9 @@ models. Here, the observed probabilities are obtained by fitting a Cox
 proportional hazards model to regress the linear predictor of the model
 (under natural cubic spline) against the time-to-event outcome in the
 validation dataset. A time horizon must also be specified (i.e., the
-time during follow-up in which to assess calibration).</p>
+time during follow-up in which to assess calibration). Such a plot can
+only be produced for an existing time-to-event CPM if the cumulative
+baseline hazard of the model is supplied.</p>
 <p>Alongside flexible calibration plots, <strong>predRupdate</strong>
 also calculates the calibration slope. The calibration slope (ideal
 value 1) indicates the level of over-fitting of the model, with values
@@ -240,7 +242,10 @@ risk is higher than the observed outcome proportion. If validating a
 time-to-event (survival) CPM, then calibration-in-the-large is
 quantified with the observed:expected ratio (ideal value 1) at a fixed
 time horizon. Here, the observed proportion is obtained using
-Kaplan-Meier estimate.</p>
+Kaplan-Meier estimate. Such a metric can only be produced for an
+existing time-to-event CPM if the cumulative baseline hazard of the
+model is supplied such that the predicted risks at the time horizon can
+be calculated.</p>
 </div>
 <div class="section level3">
 <h3 id="discrimination">Discrimination<a class="anchor" aria-label="anchor" href="#discrimination"></a>
@@ -345,7 +350,19 @@ models, <strong>predRupdate</strong> also implements these approaches
 for time-to-event (survival) CPMs. The principles above are similar,
 expect the underlying model is changed to a Cox proportional hazards
 model (further parametric/ flexible parametric methods to be added in
-the future).</p>
+the future). Specifically, “intercept update” for a survival
+(time-to-event) CPM, has the following form: <span class="math display">\[
+h(t|X) = h_0(t)\exp(LP_i) = h_0(t)\exp(\hat{\beta}_1X_{i,1} + ... +
+\hat{\beta}_PX_{i,P})
+\]</span></p>
+<p>which has the effect of only re-estimating the baseline hazard in the
+new data. For re-calibration, the updated survival (time-to-event) CPM
+would be: <span class="math display">\[
+h(t|X) = h_0(t)\exp(\alpha_1LP_i) =
+h_0(t)\exp(\alpha_1(\hat{\beta}_1X_{i,1} + ... + \hat{\beta}_PX_{i,P}))
+\]</span> This has the effect of multiplying each original model
+coefficient (log-hazard ratios) by <span class="math inline">\(\alpha_1\)</span>, and estimating a new baseline
+hazard in the new data.</p>
 </div>
 <div class="section level2">
 <h2 id="model-aggregation-methods">Model Aggregation Methods<a class="anchor" aria-label="anchor" href="#model-aggregation-methods"></a>

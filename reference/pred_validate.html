@@ -65,12 +65,12 @@ performance against a new (validation) dataset.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pred_validate</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
-<span>  <span class="va">newdata</span>,</span>
+<span>  <span class="va">new_data</span>,</span>
 <span>  binary_outcome <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  survival_time <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  event_indicator <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  time_horizon <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  CalPlot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  cal_plot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -81,25 +81,25 @@ performance against a new (validation) dataset.</p>
 <dd><p>an object of class "predinfo"</p></dd>
 
 
-<dt>newdata</dt>
+<dt>new_data</dt>
 <dd><p>data.frame upon which the prediction model should be validated</p></dd>
 
 
 <dt>binary_outcome</dt>
 <dd><p>Character variable giving the name of the column in
-<code>newdata</code> that represents the observed outcomes. Only relevant for
+<code>new_data</code> that represents the observed outcomes. Only relevant for
 <code>model_type</code>="logistic"; leave as <code>NULL</code> otherwise.</p></dd>
 
 
 <dt>survival_time</dt>
 <dd><p>Character variable giving the name of the column in
-<code>newdata</code> that represents the observed survival times. Only relevant
+<code>new_data</code> that represents the observed survival times. Only relevant
 for <code>model_type</code>="survival"; leave as <code>NULL</code> otherwise.</p></dd>
 
 
 <dt>event_indicator</dt>
 <dd><p>Character variable giving the name of the column in
-<code>newdata</code> that represents the observed survival indicator (1 for
+<code>new_data</code> that represents the observed survival indicator (1 for
 event, 0 for censoring). Only relevant for <code>model_type</code>="survival";
 leave as <code>NULL</code> otherwise.</p></dd>
 
@@ -107,10 +107,10 @@ leave as <code>NULL</code> otherwise.</p></dd>
 <dt>time_horizon</dt>
 <dd><p>for survival models, an integer giving the time horizon
 (post baseline/time of prediction) at which a prediction is required.
-Currently, this must match a time in x$baselinehazard.</p></dd>
+Currently, this must match a time in x$cum_hazard.</p></dd>
 
 
-<dt>CalPlot</dt>
+<dt>cal_plot</dt>
 <dd><p>indicate if a flexible calibration plot should be produced
 (TRUE) or not (FALSE)</p></dd>
 
@@ -125,7 +125,7 @@ below.</p></dd>
     
 
 <p>A list of performance metrics, estimated by applying the existing
-prediction model to the newdata.</p>
+prediction model to the new_data.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -135,18 +135,18 @@ performance on new data (e.g., within an external validation study). The
 information about the existing prediction model should first be inputted by
 calling <code><a href="pred_input_info.html">pred_input_info</a></code>, before passing the resulting object
 to <code>pred_validate</code>.</p>
-<p><code>newdata</code> should be a data.frame, where each row should be an
+<p><code>new_data</code> should be a data.frame, where each row should be an
 observation (e.g. patient) and each variable/column should be a predictor
 variable. The predictor variables need to include (as a minimum) all of the
 predictor variables that are included in the existing prediction model
 (i.e., each of the variable names supplied to
 <code><a href="pred_input_info.html">pred_input_info</a></code>, through the <code>model_info</code> parameter,
-must match the name of a variables in <code>newdata</code>).</p>
-<p>Any factor variables within <code>newdata</code> must be converted to dummy (0/1)
+must match the name of a variables in <code>new_data</code>).</p>
+<p>Any factor variables within <code>new_data</code> must be converted to dummy (0/1)
 variables before calling this function. <code><a href="dummy_vars.html">dummy_vars</a></code> can help
-with this.</p>
+with this - see examples below.</p>
 <p><code>binary_outcome</code>, <code>survival_time</code> and <code>event_indicator</code> are
-used to specify the outcome variable(s) within <code>newdata</code> (use
+used to specify the outcome variable(s) within <code>new_data</code> (use
 <code>binary_outcome</code> if <code>x$model_type</code> = "logistic", or use
 <code>survival_time</code> and <code>event_indicator</code> if <code>x$model_type</code> =
 "survival").</p>
@@ -164,7 +164,7 @@ regression model is fit to the observed binary outcome with the linear
 predictor from the model as the only covariate. For discrimination, the
 function estimates the area under the receiver operating characteristic
 curve (AUC). Various other metrics are also calculated to assess overall
-accuracy (Brier score, Cox-Snell R2). Specify parameter <code>CalPlot</code> to
+accuracy (Brier score, Cox-Snell R2). Specify parameter <code>cal_plot</code> to
 indicate whether a calibration plot should be produced (TRUE), or not
 (FALSE). Can also specify parameters <code>xlab</code>, <code>ylab</code>,
 <code>xlim</code>,and <code>ylim</code> to change plotting characteristics for the
@@ -176,7 +176,7 @@ Various metrics of calibration and discrimination are calculated. For
 calibration, a flexible calibration plot, observed-to-expected ratio and
 calibration slope are produced (all at the specified <code>time_horizon</code>).
 For discrimination, Harrell's C-statistic is calculated. Specify parameter
-<code>CalPlot</code> to indicate whether a calibration plot should be produced
+<code>cal_plot</code> to indicate whether a calibration plot should be produced
 (TRUE), or not (FALSE). Can also specify parameters <code>xlab</code>,
 <code>ylab</code>, <code>xlim</code>,and <code>ylim</code> to change plotting characteristics
 for the calibration plot.</p>
@@ -193,7 +193,7 @@ for the calibration plot.</p>
 <span class="r-in"><span><span class="va">model1</span> <span class="op">&lt;-</span> <span class="fu"><a href="pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span></span>
 <span class="r-in"><span>                          model_info <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">Existing_logistic_models</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">pred_validate</span><span class="op">(</span>x <span class="op">=</span> <span class="va">model1</span>,</span></span>
-<span class="r-in"><span>             newdata <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span></span>
+<span class="r-in"><span>             new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span></span>
 <span class="r-in"><span>             binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="pred_validate-1.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Measures </span>
@@ -228,7 +228,7 @@ for the calibration plot.</p>
 <span class="r-in"><span><span class="va">model2</span> <span class="op">&lt;-</span> <span class="fu"><a href="pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span></span>
 <span class="r-in"><span>                          model_info <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">Existing_logistic_models</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">pred_validate</span><span class="op">(</span>x <span class="op">=</span> <span class="va">model2</span>,</span></span>
-<span class="r-in"><span>             newdata <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span></span>
+<span class="r-in"><span>             new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span></span>
 <span class="r-in"><span>             binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="pred_validate-2.png" alt="" width="700" height="433"></span>
 <span class="r-plt img"><img src="pred_validate-3.png" alt="" width="700" height="433"></span>
@@ -321,9 +321,9 @@ for the calibration plot.</p>
 <span class="r-in"><span><span class="co">#             package.</span></span></span>
 <span class="r-in"><span><span class="va">model3</span> <span class="op">&lt;-</span> <span class="fu"><a href="pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span></span>
 <span class="r-in"><span>                          model_info <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">Existing_TTE_models</span><span class="op">[</span><span class="fl">2</span>,<span class="op">]</span>,</span></span>
-<span class="r-in"><span>                          baselinehazard <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">TTE_mod2_baseline</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                          cum_hazard <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">TTE_mod2_baseline</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">pred_validate</span><span class="op">(</span>x <span class="op">=</span> <span class="va">model3</span>,</span></span>
-<span class="r-in"><span>             newdata <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span></span>
+<span class="r-in"><span>             new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span></span>
 <span class="r-in"><span>            survival_time <span class="op">=</span> <span class="st">"ETime"</span>,</span></span>
 <span class="r-in"><span>            event_indicator <span class="op">=</span> <span class="st">"Status"</span>,</span></span>
 <span class="r-in"><span>            time_horizon <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>

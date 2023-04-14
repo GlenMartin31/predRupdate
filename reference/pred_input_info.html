@@ -66,7 +66,7 @@ model(s), for use in other functions in the package.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pred_input_info</span><span class="op">(</span></span>
 <span>  model_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logistic"</span>, <span class="st">"survival"</span><span class="op">)</span>,</span>
 <span>  <span class="va">model_info</span>,</span>
-<span>  baselinehazard <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  cum_hazard <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -81,7 +81,7 @@ indicates that the existing model was based on a logistic regression model
 based on a survival regression model</p></li>
 </ul><p>If multiple models are being
 entered, then all models need to be of the same type - otherwise call
-<code>pm_input_info()</code> multiple times for each type of model.</p></dd>
+function multiple times for each type of model.</p></dd>
 
 
 <dt>model_info</dt>
@@ -95,14 +95,14 @@ in a given model then enter that cell of the data.frame as NA. See
 examples.</p></dd>
 
 
-<dt>baselinehazard</dt>
-<dd><p>A data.frame with two columns: (1) time, and (2)
-estimated cumulative baseline hazard at that time. The first column (time)
-should be named 'time' and the second (cumulative baseline hazard) should
-be named 'hazard'. Only relevant if <code>model_type</code> is "survival"; leave
-as NULL otherwise. If multiple existing models entered, and model_type =
-survival, then <code>baselinehazard</code> should be supplied as list of length
-equal to number of models.</p></dd>
+<dt>cum_hazard</dt>
+<dd><p>A data.frame with two columns: (1) time, and (2) estimated
+cumulative baseline hazard at that time. The first column (time) should be
+named 'time' and the second (cumulative baseline hazard) should be named
+'hazard'. Only relevant if <code>model_type</code> is "survival"; leave as NULL
+otherwise. If multiple existing models entered, and model_type = survival,
+then <code>cum_hazard</code> should be supplied as list of length equal to number
+of models.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -122,7 +122,7 @@ variable</p></li>
 <li><p>coef_names = gives the names of each predictor variable</p></li>
 <li><p>formula = this is the functional form of the model's linear
 predictor</p></li>
-<li><p>baselinehazard = if supplied, this is the cumulative
+<li><p>cum_hazard = if supplied, this is the cumulative
 baseline hazard of the existing model(s)</p></li>
 </ul></div>
     <div class="section level2">
@@ -131,9 +131,8 @@ baseline hazard of the existing model(s)</p></li>
 more existing prediction model(s) into a standardised format, such that it
 can be used within other functions in the package.</p>
 <p>First, the existing prediction model(s) will have a functional form (i.e.
-the linear predictor of the model); unless otherwise stated by
-<code>formula</code>, this will be taken as being a linear combination of the
-variables specified by the columns of <code>model_info</code>.</p>
+the linear predictor of the model); this will be taken as being a linear
+combination of the variables specified by the columns of <code>model_info</code>.</p>
 <p>Second, each of the predictor variables of the existing prediction model(s)
 will have a published coefficient (e.g. log-odds-ratio or
 log-hazard-ratio), which should each be given as the values of
@@ -146,11 +145,14 @@ this below.</p>
 contain a column named as "Intercept", which gives the intercept
 coefficient of each of the existing logistic regression models (taken
 exactly as previously published); this should be the first column of
-<code>model_info</code>. If <code>model_type</code> = "survival", then
-<code>baselinehazard</code> should be provided and no "Intercept" column is
-needed in <code>model_info</code>.</p>
+<code>model_info</code>.</p>
+<p>If <code>model_type</code> = "survival", then the baseline cumulative hazard of
+the model(s) can be specified in <code>cum_hazard</code>. If the baseline
+cumulative hazard of the existing survival model is not available, then
+leave as NULL; this will limit any validation metrics that can be
+calculated.</p>
 <p>Note, the column names of <code>model_info</code> should match columns in any new
-data that the existing model(s) will be applied to (i.e. any newdata that
+data that the existing model(s) will be applied to (i.e. any new_data that
 will be provided to other functions within the package should have
 corresponding predictor variables entered through <code>model_info</code>). See
 <code><a href="pred_predict.html">pred_predict</a></code> for more information.</p>
@@ -158,17 +160,23 @@ corresponding predictor variables entered through <code>model_info</code>). See
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#Example 1 - logistic regression existing model; uses</span></span></span>
-<span class="r-in"><span><span class="co">#            an example dataset within the package</span></span></span>
-<span class="r-in"><span><span class="va">model1</span> <span class="op">&lt;-</span> <span class="fu">pred_input_info</span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span></span>
-<span class="r-in"><span>                          model_info <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">Existing_logistic_models</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model1</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#Example 1 - logistic regression existing model</span></span></span>
+<span class="r-in"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span></span>
+<span class="r-in"><span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.4</span>,</span></span>
+<span class="r-in"><span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.306</span>,</span></span>
+<span class="r-in"><span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.628</span>,</span></span>
+<span class="r-in"><span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.499</span>,</span></span>
+<span class="r-in"><span>                          <span class="st">"CKD"</span> <span class="op">=</span> <span class="fl">0.538</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">#pass this into pred_input_info()</span></span></span>
+<span class="r-in"><span><span class="va">Existing_Logistic_Model</span> <span class="op">&lt;-</span> <span class="fu">pred_input_info</span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span></span>
+<span class="r-in"><span>                                           model_info <span class="op">=</span> <span class="va">coefs_table</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">Existing_Logistic_Model</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Information about 1 existing model(s) of type 'logistic' </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model Coefficients </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Intercept      SexM Smoking_Status  Diabetes       CKD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -3.399836 0.3061311      0.6276221 0.4989293 0.5383779</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Intercept  SexM Smoking_Status Diabetes   CKD</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      -3.4 0.306          0.628    0.499 0.538</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model Functional Form </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
@@ -178,7 +186,7 @@ corresponding predictor variables entered through <code>model_info</code>). See
 <span class="r-in"><span><span class="co">#             package.</span></span></span>
 <span class="r-in"><span><span class="fu">pred_input_info</span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span></span>
 <span class="r-in"><span>                model_info <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">Existing_TTE_models</span><span class="op">[</span><span class="fl">2</span>,<span class="op">]</span>,</span></span>
-<span class="r-in"><span>                baselinehazard <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">TTE_mod2_baseline</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                cum_hazard <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">TTE_mod2_baseline</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $M</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -195,9 +203,9 @@ corresponding predictor variables entered through <code>model_info</code>). See
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $formula</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~Age + SexM + Smoking_Status + Diabetes + CKD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x55cbb9e02838&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x5625de88a0c0&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $baselinehazard</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $cum_hazard</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   time     hazard</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1    1 0.02340914</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2    2 0.05175561</span>
