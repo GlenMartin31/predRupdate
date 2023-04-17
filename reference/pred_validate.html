@@ -82,7 +82,8 @@ performance against a new (validation) dataset.</p>
 
 
 <dt>new_data</dt>
-<dd><p>data.frame upon which the prediction model should be validated</p></dd>
+<dd><p>data.frame upon which the prediction model should be
+validated</p></dd>
 
 
 <dt>binary_outcome</dt>
@@ -141,10 +142,9 @@ variable. The predictor variables need to include (as a minimum) all of the
 predictor variables that are included in the existing prediction model
 (i.e., each of the variable names supplied to
 <code><a href="pred_input_info.html">pred_input_info</a></code>, through the <code>model_info</code> parameter,
-must match the name of a variables in <code>new_data</code>).</p>
-<p>Any factor variables within <code>new_data</code> must be converted to dummy (0/1)
-variables before calling this function. <code><a href="dummy_vars.html">dummy_vars</a></code> can help
-with this - see examples below.</p>
+must match the name of a variables in <code>new_data</code>). Any factor
+variables within <code>new_data</code> must be converted to dummy (0/1) variables
+before calling this function. <code><a href="dummy_vars.html">dummy_vars</a></code> can help with this.</p>
 <p><code>binary_outcome</code>, <code>survival_time</code> and <code>event_indicator</code> are
 used to specify the outcome variable(s) within <code>new_data</code> (use
 <code>binary_outcome</code> if <code>x$model_type</code> = "logistic", or use
@@ -156,30 +156,35 @@ observed binary outcome. Various metrics of calibration (agreement between
 the observed risk and the predicted risks, across the full risk range) and
 discrimination (ability of the model to distinguish between those who
 develop the outcome and those who do not) are calculated. For calibration,
-a flexible calibration plot is produced. Calibration-in-the-large (CITL)
-and calibration slopes are also estimated. CITL is estimated by fitting a
-logistic regression model to the observed binary outcomes, with the linear
-predictor of the model as an offset. For calibration slope, a logistic
-regression model is fit to the observed binary outcome with the linear
-predictor from the model as the only covariate. For discrimination, the
-function estimates the area under the receiver operating characteristic
-curve (AUC). Various other metrics are also calculated to assess overall
-accuracy (Brier score, Cox-Snell R2). Specify parameter <code>cal_plot</code> to
-indicate whether a calibration plot should be produced (TRUE), or not
-(FALSE). Can also specify parameters <code>xlab</code>, <code>ylab</code>,
-<code>xlim</code>,and <code>ylim</code> to change plotting characteristics for the
-calibration plot.</p>
+calibration-in-the-large (CITL) and calibration slopes are estimated. CITL
+is estimated by fitting a logistic regression model to the observed binary
+outcomes, with the linear predictor of the model as an offset. For
+calibration slope, a logistic regression model is fit to the observed
+binary outcome with the linear predictor from the model as the only
+covariate. For discrimination, the function estimates the area under the
+receiver operating characteristic curve (AUC). Various other metrics are
+also calculated to assess overall accuracy (Brier score, Cox-Snell R2).</p>
 <p>In the case of validating a survival prediction model, this function
-assesses the predictive performance of the predicted event probabilities
-(at a fixed time horizon) against an observed time-to-event outcome.
-Various metrics of calibration and discrimination are calculated. For
-calibration, a flexible calibration plot, observed-to-expected ratio and
-calibration slope are produced (all at the specified <code>time_horizon</code>).
-For discrimination, Harrell's C-statistic is calculated. Specify parameter
-<code>cal_plot</code> to indicate whether a calibration plot should be produced
-(TRUE), or not (FALSE). Can also specify parameters <code>xlab</code>,
-<code>ylab</code>, <code>xlim</code>,and <code>ylim</code> to change plotting characteristics
-for the calibration plot.</p>
+assesses the predictive performance of the linear predictor and
+(optionally) the predicted event probabilities at a fixed time horizon
+(required specification of x$cum_hazard) against an observed time-to-event
+outcome. Various metrics of calibration and discrimination are calculated.
+For calibration, the observed-to-expected ratio at the specified
+<code>time_horizon</code> (if predicted risks are available) and calibration
+slope are produced. For discrimination, Harrell's C-statistic is
+calculated. S</p>
+<p>For both model types, a flexible calibration plot is produced (for survival
+models, the cumulative baseline hazard must be available in the predinfo
+object, <code>x</code>). Specify parameter <code>cal_plot</code> to indicate whether a
+calibration plot should be produced (TRUE), or not (FALSE). The calibration
+plot is produced by regressing the observed outcomes against the logit of
+predicted risks (for a logistic model) or the complementary log-log of the
+predicted risks (for a survival model) under a cubic spline. Users can
+specify parameters to modify the calibration plot. Specifically, one can
+specify: <code>xlab</code>, <code>ylab</code>, <code>xlim</code>, and <code>ylim</code> to change
+plotting characteristics for the calibration plot. The position of the
+legend can also be changed using <code>x_legend</code> and <code>y_legend</code> (or
+removed from the plot by specifying <code>cal_legend</code> as FALSE)</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -199,27 +204,27 @@ for the calibration plot.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                          Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large   0.6303   0.0251                        0.5811</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope          0.4665   0.0694                        0.3305</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large   0.7323   0.0206                        0.6921</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope          0.6484   0.0463                        0.5576</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                          Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large                        0.6796</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope                               0.6026</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large                        0.7726</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope                               0.7392</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the calibration plot, if produced. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Discrimination Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5468   0.0068                        0.5334</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5814   0.0057                        0.5702</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC                        0.5602</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AUC                        0.5927</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Overall Performance Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cox-Snell R-squared: -0.0278</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Nagelkerke R-squared: -0.0621</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score: 0.0814</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cox-Snell R-squared: -0.0481</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Nagelkerke R-squared: -0.0863</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score: 0.1249</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the histogram of predicted risks. </span>
 <span class="r-in"><span></span></span>
@@ -236,27 +241,27 @@ for the calibration plot.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                          Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large   0.6303   0.0251                        0.5811</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope          0.4665   0.0694                        0.3305</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large   0.7323   0.0206                        0.6921</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope          0.6484   0.0463                        0.5576</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                          Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large                        0.6796</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope                               0.6026</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large                        0.7726</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope                               0.7392</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the calibration plot, if produced. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Discrimination Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5468   0.0068                        0.5334</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5814   0.0057                        0.5702</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC                        0.5602</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AUC                        0.5927</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Overall Performance Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cox-Snell R-squared: -0.0278</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Nagelkerke R-squared: -0.0621</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score: 0.0814</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cox-Snell R-squared: -0.0481</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Nagelkerke R-squared: -0.0863</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score: 0.1249</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the histogram of predicted risks. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -264,27 +269,27 @@ for the calibration plot.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                          Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large  -0.3584   0.0251                       -0.4076</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope          0.6212   0.0767                        0.4709</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large  -0.1325   0.0204                       -0.1725</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope          0.9868   0.0704                        0.8489</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                          Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large                       -0.3092</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope                               0.7715</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large                       -0.0926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope                               1.1247</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the calibration plot, if produced. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Discrimination Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5606   0.0071                        0.5467</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5828   0.0058                        0.5716</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC                        0.5744</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AUC                        0.5941</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Overall Performance Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cox-Snell R-squared: -0.0093</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Nagelkerke R-squared: -0.0208</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score: 0.0813</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cox-Snell R-squared: 0.0074</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Nagelkerke R-squared: 0.0132</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score: 0.1206</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the histogram of predicted risks. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -292,27 +297,27 @@ for the calibration plot.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                          Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large   0.8246   0.0250                        0.7755</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope          0.5084   0.1239                        0.2655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large   0.5324   0.0204                        0.4923</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope          0.7212   0.0628                        0.5981</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                          Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large                        0.8736</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope                               0.7512</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large                        0.5724</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope                               0.8443</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the calibration plot, if produced. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Discrimination Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5182   0.0051                        0.5082</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5613   0.0059                        0.5497</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC                        0.5281</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AUC                        0.5728</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Overall Performance Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cox-Snell R-squared: -0.0445</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Nagelkerke R-squared: -0.0993</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score: 0.0822</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cox-Snell R-squared: -0.0249</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Nagelkerke R-squared: -0.0446</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score: 0.1234</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the histogram of predicted risks. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -331,20 +336,20 @@ for the calibration plot.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                         Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio   1.1081   0.0092                        1.0882</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope         0.7462   0.0353                        0.6769</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio   0.6319   0.0113                        0.6181</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope         1.0757   0.0389                        0.9994</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                         Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio                        1.1283</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope                              0.8155</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio                        0.6461</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope                              1.1519</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the calibration plot, if produced. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Discrimination Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Harrell C   0.5571   0.0027                        0.5518</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Harrell C   0.5869   0.0032                        0.5806</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Harrell C                        0.5624</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Harrell C                        0.5932</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the histogram of predicted risks. </span>
 <span class="r-in"><span></span></span>

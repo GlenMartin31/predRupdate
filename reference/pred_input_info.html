@@ -194,28 +194,28 @@ corresponding predictor variables entered through <code>model_info</code>). See
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "survival"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $coefs</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Age     SexM Smoking_Status Diabetes       CKD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.02711374 0.148979      0.5244533 0.220834 0.4224929</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Age      SexM Smoking_Status  Diabetes  Creatine</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.02089659 0.2038455      0.5118238 0.1457449 0.3938243</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $coef_names</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Age"            "SexM"           "Smoking_Status" "Diabetes"      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "CKD"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "Creatine"      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $formula</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ~Age + SexM + Smoking_Status + Diabetes + CKD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x5625de88a0c0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ~Age + SexM + Smoking_Status + Diabetes + Creatine</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x557117ba9d10&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cum_hazard</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   time     hazard</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1 0.02340914</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    2 0.05175561</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    3 0.08506096</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    4 0.12020732</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    5 0.15658397</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1 0.03852082</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    2 0.07920059</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    3 0.11893439</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    4 0.16022177</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    5 0.20209623</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $model_info</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Age     SexM Smoking_Status Diabetes       CKD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.02711374 0.148979      0.5244533 0.220834 0.4224929</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Age      SexM Smoking_Status  Diabetes  Creatine</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.02089659 0.2038455      0.5118238 0.1457449 0.3938243</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "predinfo_survival" "predinfo"         </span>
@@ -228,23 +228,23 @@ corresponding predictor variables entered through <code>model_info</code>). See
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model Coefficients </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Intercept      SexM Smoking_Status  Diabetes       CKD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -3.399836 0.3061311      0.6276221 0.4989293 0.5383779</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Intercept        Age      SexM Smoking_Status  Diabetes  Creatine</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -3.995452 0.01150886 0.2673809      0.7511888 0.5230999 0.5781238</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Intercept      SexM Smoking_Status Diabetes      CKD        Age</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -4.747526 0.1955679      0.4924603 0.350279 0.555133 0.04907649</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Intercept      SexM Smoking_Status  Diabetes  Creatine</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -2.281796 0.2227019      0.5281743 0.2002136 0.4337511</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Intercept Smoking_Status      CKD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  -3.26658      0.4765128 0.444085</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Intercept Smoking_Status   Diabetes  Creatine</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -3.012865      0.5645417 -0.1223695 0.7314432</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model Functional Form </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Model 1: SexM + Smoking_Status + Diabetes + CKD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Model 2: SexM + Smoking_Status + Diabetes + CKD + Age</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Model 3: Smoking_Status + CKD</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Model 1: Age + SexM + Smoking_Status + Diabetes + Creatine</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Model 2: SexM + Smoking_Status + Diabetes + Creatine</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Model 3: Smoking_Status + Diabetes + Creatine</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

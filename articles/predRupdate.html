@@ -118,12 +118,12 @@ included in <em>SYNPM</em> are synthetic, but for the purposes of this
 vignette, we imagine that one is interested in predicting someone’s risk
 of mortality after surgery. Data are available on 20000 people, which
 records each individuals age, gender, smoking status, diabetes status,
-and chronic kidney disease (CKD) status at the time of surgery. The data
-includes the outcomes of “ETime” representing the time (months) between
-surgery and either death or end-of-follow-up (5 months), whichever
-occurred first. The variable “Status” indicates if the patient died (1)
-or was right-censored (0), and Y denotes a binary variable indicating if
-the patient died within 1 month.</p>
+and Creatine value at the time of surgery. The data includes the
+outcomes of “ETime” representing the time (months) between surgery and
+either death or end-of-follow-up (5 months), whichever occurred first.
+The variable “Status” indicates if the patient died (1) or was
+right-censored (0), and Y denotes a binary variable indicating if the
+patient died within 1 month.</p>
 </div>
 <div class="section level2">
 <h2 id="example-1-validating-an-existing-prediction-model-on-new-data">Example 1: validating an existing prediction model on new data<a class="anchor" aria-label="anchor" href="#example-1-validating-an-existing-prediction-model-on-new-data"></a>
@@ -145,23 +145,27 @@ prediction model</caption>
 <tbody>
 <tr class="odd">
 <td align="left">Intercept</td>
-<td align="right">-3.400</td>
+<td align="right">-3.995</td>
 </tr>
 <tr class="even">
+<td align="left">Age</td>
+<td align="right">0.012</td>
+</tr>
+<tr class="odd">
 <td align="left">SexM</td>
-<td align="right">0.306</td>
-</tr>
-<tr class="odd">
-<td align="left">Smoking_Status</td>
-<td align="right">0.628</td>
+<td align="right">0.267</td>
 </tr>
 <tr class="even">
-<td align="left">Diabetes</td>
-<td align="right">0.499</td>
+<td align="left">Smoking_Status</td>
+<td align="right">0.751</td>
 </tr>
 <tr class="odd">
-<td align="left">CKD</td>
-<td align="right">0.538</td>
+<td align="left">Diabetes</td>
+<td align="right">0.523</td>
+</tr>
+<tr class="even">
+<td align="left">Creatine</td>
+<td align="right">0.578</td>
 </tr>
 </tbody>
 </table>
@@ -177,7 +181,7 @@ model. See the help file of “pred_input_info()” for details.</p>
 <span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.306</span>, </span>
 <span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.628</span>,</span>
 <span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.499</span>,</span>
-<span>                          <span class="st">"CKD"</span> <span class="op">=</span> <span class="fl">0.538</span><span class="op">)</span></span>
+<span>                          <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.538</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#pass this into pred_input_info()</span></span>
 <span><span class="va">Existing_Logistic_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span>
@@ -187,12 +191,12 @@ model. See the help file of “pred_input_info()” for details.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Coefficients </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt;   Intercept  SexM Smoking_Status Diabetes   CKD</span></span>
-<span><span class="co">#&gt; 1      -3.4 0.306          0.628    0.499 0.538</span></span>
+<span><span class="co">#&gt;   Intercept  SexM Smoking_Status Diabetes Creatine</span></span>
+<span><span class="co">#&gt; 1      -3.4 0.306          0.628    0.499    0.538</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Functional Form </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt; SexM + Smoking_Status + Diabetes + CKD</span></span></code></pre></div>
+<span><span class="co">#&gt; SexM + Smoking_Status + Diabetes + Creatine</span></span></code></pre></div>
 <p>Next we wish to apply this model to our dataset to calculate the
 predicted risks for each individual, and then compare these predictions
 with the observed outcomes to calculate predictive performance. This can
@@ -205,27 +209,27 @@ all be achieved with the “pred_validate()” function, as follows:</p>
 <pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;                          Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large   0.6305   0.0251                        0.5812</span></span>
-<span><span class="co">#&gt; Calibration Slope          0.4663   0.0694                        0.3303</span></span>
+<span><span class="co">#&gt; Calibration-in-the-large   0.7548   0.0205                        0.7146</span></span>
+<span><span class="co">#&gt; Calibration Slope          0.7018   0.0506                        0.6026</span></span>
 <span><span class="co">#&gt;                          Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large                        0.6798</span></span>
-<span><span class="co">#&gt; Calibration Slope                               0.6024</span></span>
+<span><span class="co">#&gt; Calibration-in-the-large                        0.7950</span></span>
+<span><span class="co">#&gt; Calibration Slope                               0.8009</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;     Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; AUC   0.5468   0.0068                        0.5334</span></span>
+<span><span class="co">#&gt; AUC   0.5794   0.0058                        0.5681</span></span>
 <span><span class="co">#&gt;     Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; AUC                        0.5602</span></span>
+<span><span class="co">#&gt; AUC                        0.5908</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Overall Performance Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt; Cox-Snell R-squared: -0.0279</span></span>
-<span><span class="co">#&gt; Nagelkerke R-squared: -0.0622</span></span>
-<span><span class="co">#&gt; Brier Score: 0.0814</span></span>
+<span><span class="co">#&gt; Cox-Snell R-squared: -0.0504</span></span>
+<span><span class="co">#&gt; Nagelkerke R-squared: -0.0905</span></span>
+<span><span class="co">#&gt; Brier Score: 0.1251</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre>
 <p>This produces a flexible calibration plot, along with outputting
@@ -264,23 +268,23 @@ prediction model</caption>
 <tbody>
 <tr class="odd">
 <td align="left">Age</td>
-<td align="right">0.008</td>
+<td align="right">0.007</td>
 </tr>
 <tr class="even">
 <td align="left">SexM</td>
-<td align="right">0.257</td>
+<td align="right">0.225</td>
 </tr>
 <tr class="odd">
 <td align="left">Smoking_Status</td>
-<td align="right">0.697</td>
+<td align="right">0.685</td>
 </tr>
 <tr class="even">
 <td align="left">Diabetes</td>
-<td align="right">0.310</td>
+<td align="right">0.425</td>
 </tr>
 <tr class="odd">
-<td align="left">CKD</td>
-<td align="right">0.636</td>
+<td align="left">Creatine</td>
+<td align="right">0.587</td>
 </tr>
 </tbody>
 </table>
@@ -295,23 +299,23 @@ discrete times of months 1-5 post surgery:</p>
 <tbody>
 <tr class="odd">
 <td align="right">1</td>
-<td align="right">0.0222923</td>
+<td align="right">0.0230191</td>
 </tr>
 <tr class="even">
 <td align="right">2</td>
-<td align="right">0.0473767</td>
+<td align="right">0.0475351</td>
 </tr>
 <tr class="odd">
 <td align="right">3</td>
-<td align="right">0.0727716</td>
+<td align="right">0.0720775</td>
 </tr>
 <tr class="even">
 <td align="right">4</td>
-<td align="right">0.1019639</td>
+<td align="right">0.0969976</td>
 </tr>
 <tr class="odd">
 <td align="right">5</td>
-<td align="right">0.1300490</td>
+<td align="right">0.1209202</td>
 </tr>
 </tbody>
 </table>
@@ -327,7 +331,7 @@ available in the baseline cumulative hazard provided.</p>
 <span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.257</span>,</span>
 <span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.697</span>,</span>
 <span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.310</span>,</span>
-<span>                          <span class="st">"CKD"</span> <span class="op">=</span> <span class="fl">0.636</span><span class="op">)</span></span>
+<span>                          <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.636</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#pass this into pred_input_info()</span></span>
 <span><span class="va">Existing_TTE_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span>
@@ -344,20 +348,20 @@ available in the baseline cumulative hazard provided.</p>
 <pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;                         Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Observed:Expected Ratio   2.4153   0.0092                        2.3721</span></span>
-<span><span class="co">#&gt; Calibration Slope         0.5289   0.0270                        0.4760</span></span>
+<span><span class="co">#&gt; Observed:Expected Ratio   1.1420   0.0113                        1.1171</span></span>
+<span><span class="co">#&gt; Calibration Slope         0.7358   0.0280                        0.6810</span></span>
 <span><span class="co">#&gt;                         Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Observed:Expected Ratio                        2.4594</span></span>
-<span><span class="co">#&gt; Calibration Slope                              0.5818</span></span>
+<span><span class="co">#&gt; Observed:Expected Ratio                        1.1675</span></span>
+<span><span class="co">#&gt; Calibration Slope                              0.7907</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;           Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Harrell C   0.5554   0.0027                        0.5501</span></span>
+<span><span class="co">#&gt; Harrell C   0.5819   0.0032                        0.5756</span></span>
 <span><span class="co">#&gt;           Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Harrell C                        0.5607</span></span>
+<span><span class="co">#&gt; Harrell C                        0.5882</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre>
 <div class="section level4">
@@ -380,7 +384,7 @@ absolute risk predictions at a given follow-up time). Specifically, the
 observed:expected ration and the calibration plot will not be
 produced.</p>
 <p>For example, suppose the baseline cumulative hazard for the above
-model was not avaliable. We could validate this model using
+model was not available. We could validate this model using
 <strong>predRupdate</strong> as follows:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
@@ -388,7 +392,7 @@ model was not avaliable. We could validate this model using
 <span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.257</span>,</span>
 <span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.697</span>,</span>
 <span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.310</span>,</span>
-<span>                          <span class="st">"CKD"</span> <span class="op">=</span> <span class="fl">0.636</span><span class="op">)</span></span>
+<span>                          <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.636</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#pass this into pred_input_info()</span></span>
 <span><span class="va">Existing_TTE_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span>
@@ -407,19 +411,19 @@ model was not avaliable. We could validate this model using
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;                         Estimate Std. Err Lower 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; Observed:Expected Ratio       NA       NA                            NA</span></span>
-<span><span class="co">#&gt; Calibration Slope         0.5289    0.027                         0.476</span></span>
+<span><span class="co">#&gt; Calibration Slope         0.7358    0.028                         0.681</span></span>
 <span><span class="co">#&gt;                         Upper 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; Observed:Expected Ratio                            NA</span></span>
-<span><span class="co">#&gt; Calibration Slope                              0.5818</span></span>
+<span><span class="co">#&gt; Calibration Slope                              0.7907</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;           Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Harrell C   0.5554   0.0027                        0.5501</span></span>
+<span><span class="co">#&gt; Harrell C   0.5819   0.0032                        0.5756</span></span>
 <span><span class="co">#&gt;           Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Harrell C                        0.5607</span></span>
+<span><span class="co">#&gt; Harrell C                        0.5882</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre></div>
 <p>Here, we see that no calibration plot is produced, and the
@@ -443,7 +447,7 @@ re-calibration; to do so, we can use the “pred_update()” function:</p>
 <span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.306</span>,</span>
 <span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.628</span>,</span>
 <span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.499</span>,</span>
-<span>                          <span class="st">"CKD"</span> <span class="op">=</span> <span class="fl">0.538</span><span class="op">)</span></span>
+<span>                          <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.538</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#pass this into pred_input_info()</span></span>
 <span><span class="va">Existing_Logistic_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span>
@@ -466,27 +470,27 @@ performance estimates would need to be adjusted for in-sample optimism
 <pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;                          Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large        0   0.0250                       -0.0490</span></span>
-<span><span class="co">#&gt; Calibration Slope               1   0.1488                        0.7083</span></span>
+<span><span class="co">#&gt; Calibration-in-the-large        0   0.0204                       -0.0400</span></span>
+<span><span class="co">#&gt; Calibration Slope               1   0.0721                        0.8587</span></span>
 <span><span class="co">#&gt;                          Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large                        0.0490</span></span>
-<span><span class="co">#&gt; Calibration Slope                               1.2917</span></span>
+<span><span class="co">#&gt; Calibration-in-the-large                        0.0400</span></span>
+<span><span class="co">#&gt; Calibration Slope                               1.1413</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;     Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; AUC   0.5468   0.0068                        0.5334</span></span>
+<span><span class="co">#&gt; AUC   0.5794   0.0058                        0.5681</span></span>
 <span><span class="co">#&gt;     Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; AUC                        0.5602</span></span>
+<span><span class="co">#&gt; AUC                        0.5908</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Overall Performance Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt; Cox-Snell R-squared: 0.0022</span></span>
-<span><span class="co">#&gt; Nagelkerke R-squared: 0.0049</span></span>
-<span><span class="co">#&gt; Brier Score: 0.0799</span></span>
+<span><span class="co">#&gt; Cox-Snell R-squared: 0.0094</span></span>
+<span><span class="co">#&gt; Nagelkerke R-squared: 0.0168</span></span>
+<span><span class="co">#&gt; Brier Score: 0.1203</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre>
 <p>Similar functionality is available for time-to-event models.</p>
@@ -509,19 +513,19 @@ included in a given CPM should have value NA, as shown below:</p>
 <span>                                  <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.306</span>,</span>
 <span>                                  <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.628</span>,</span>
 <span>                                  <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.499</span>,</span>
-<span>                                  <span class="st">"CKD"</span> <span class="op">=</span> <span class="fl">0.538</span>,</span>
+<span>                                  <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.538</span>,</span>
 <span>                                  <span class="st">"Age"</span> <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span>,</span>
 <span>                                <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">4.748</span>,</span>
 <span>                                  <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.196</span>,</span>
 <span>                                  <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.492</span>,</span>
 <span>                                  <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.350</span>,</span>
-<span>                                  <span class="st">"CKD"</span> <span class="op">=</span> <span class="fl">0.555</span>,</span>
+<span>                                  <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.555</span>,</span>
 <span>                                  <span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.049</span><span class="op">)</span>,</span>
 <span>                                <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.267</span>,</span>
 <span>                                  <span class="st">"SexM"</span> <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>                                  <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.477</span>,</span>
 <span>                                  <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>                                  <span class="st">"CKD"</span> <span class="op">=</span> <span class="fl">0.444</span>,</span>
+<span>                                  <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.444</span>,</span>
 <span>                                  <span class="st">"Age"</span> <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">multiple_mods</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span>
 <span>                                 model_info <span class="op">=</span> <span class="va">coefs_table</span><span class="op">)</span></span>
@@ -531,23 +535,23 @@ included in a given CPM should have value NA, as shown below:</p>
 <span><span class="co">#&gt; Model Coefficients </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt; [[1]]</span></span>
-<span><span class="co">#&gt;   Intercept  SexM Smoking_Status Diabetes   CKD</span></span>
-<span><span class="co">#&gt; 1      -3.4 0.306          0.628    0.499 0.538</span></span>
+<span><span class="co">#&gt;   Intercept  SexM Smoking_Status Diabetes Creatine</span></span>
+<span><span class="co">#&gt; 1      -3.4 0.306          0.628    0.499    0.538</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[2]]</span></span>
-<span><span class="co">#&gt;   Intercept  SexM Smoking_Status Diabetes   CKD   Age</span></span>
-<span><span class="co">#&gt; 2    -4.748 0.196          0.492     0.35 0.555 0.049</span></span>
+<span><span class="co">#&gt;   Intercept  SexM Smoking_Status Diabetes Creatine   Age</span></span>
+<span><span class="co">#&gt; 2    -4.748 0.196          0.492     0.35    0.555 0.049</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[3]]</span></span>
-<span><span class="co">#&gt;   Intercept Smoking_Status   CKD</span></span>
-<span><span class="co">#&gt; 3    -3.267          0.477 0.444</span></span>
+<span><span class="co">#&gt;   Intercept Smoking_Status Creatine</span></span>
+<span><span class="co">#&gt; 3    -3.267          0.477    0.444</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Functional Form </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt; Model 1: SexM + Smoking_Status + Diabetes + CKD</span></span>
-<span><span class="co">#&gt; Model 2: SexM + Smoking_Status + Diabetes + CKD + Age</span></span>
-<span><span class="co">#&gt; Model 3: Smoking_Status + CKD</span></span></code></pre></div>
+<span><span class="co">#&gt; Model 1: SexM + Smoking_Status + Diabetes + Creatine</span></span>
+<span><span class="co">#&gt; Model 2: SexM + Smoking_Status + Diabetes + Creatine + Age</span></span>
+<span><span class="co">#&gt; Model 3: Smoking_Status + Creatine</span></span></code></pre></div>
 <p>We can then use “pred_stacked_regression()” function to apply stacked
 regression to pool these models into a single model for the new
 dataset:</p>
@@ -560,12 +564,12 @@ dataset:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Coefficients </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt;   Intercept     SexM Smoking_Status  Diabetes       CKD        Age</span></span>
-<span><span class="co">#&gt; 1 -4.218335 0.153362      0.2369426 0.2708833 0.2840453 0.03353801</span></span>
+<span><span class="co">#&gt;   Intercept    SexM Smoking_Status  Diabetes  Creatine        Age</span></span>
+<span><span class="co">#&gt; 1 -5.283702 0.19404      0.3387584 0.3518871 0.4338846 0.05719899</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Functional Form </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt; SexM + Smoking_Status + Diabetes + CKD + Age</span></span></code></pre></div>
+<span><span class="co">#&gt; SexM + Smoking_Status + Diabetes + Creatine + Age</span></span></code></pre></div>
 <p>One could then validate this updated model using “pred_validate()”,
 but given we have updated the model in the new data, then any such
 performance estimates would need to be adjusted for in-sample optimism
@@ -578,27 +582,27 @@ performance estimates would need to be adjusted for in-sample optimism
 <pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;                          Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large        0   0.0250                       -0.0491</span></span>
-<span><span class="co">#&gt; Calibration Slope               1   0.1214                        0.7621</span></span>
+<span><span class="co">#&gt; Calibration-in-the-large        0   0.0204                       -0.0401</span></span>
+<span><span class="co">#&gt; Calibration Slope               1   0.0581                        0.8861</span></span>
 <span><span class="co">#&gt;                          Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large                        0.0491</span></span>
-<span><span class="co">#&gt; Calibration Slope                               1.2379</span></span>
+<span><span class="co">#&gt; Calibration-in-the-large                        0.0401</span></span>
+<span><span class="co">#&gt; Calibration Slope                               1.1139</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;     Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; AUC   0.5614   0.0071                        0.5476</span></span>
+<span><span class="co">#&gt; AUC   0.5956   0.0058                        0.5842</span></span>
 <span><span class="co">#&gt;     Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; AUC                        0.5753</span></span>
+<span><span class="co">#&gt; AUC                        0.6069</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Overall Performance Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt; Cox-Snell R-squared: 0.0033</span></span>
-<span><span class="co">#&gt; Nagelkerke R-squared: 0.0074</span></span>
-<span><span class="co">#&gt; Brier Score: 0.0798</span></span>
+<span><span class="co">#&gt; Cox-Snell R-squared: 0.0146</span></span>
+<span><span class="co">#&gt; Nagelkerke R-squared: 0.0262</span></span>
+<span><span class="co">#&gt; Brier Score: 0.1196</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre>
 <p>Similar functionality is available for time-to-event models.</p>
