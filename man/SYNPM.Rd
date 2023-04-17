@@ -19,9 +19,8 @@ sex of the individual (1 = male; 0 = female)}
 \item{Smoking_Status}{Indicates whether the individual was or is a smoker
 (1=previous/ current smoker, 0=non-smoker)} \item{Diabetes}{Indicates
 whether the individual has diabetes (1=diabetic, 0=not diabetic)}
-\item{CKD}{Indicates whether the individual has chronic kidney disease
-(1=chronic kidney disease)} \item{ETime}{The time (years) from baseline until either the event or censoring}
-
+\item{Creatine}{The Creatine value for the individual (mg/dL)}
+\item{ETime}{The time (years) from baseline until either the event or censoring}
 \item{Status}{Indicator of whether the patient experienced the event or was censored at ETime}
 \item{Y}{Binary indicator of whether the indivudal expereinced the event by 1 year} } }
 }

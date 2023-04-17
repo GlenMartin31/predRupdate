@@ -14,37 +14,37 @@ N2 <- 10000
 N3 <- 12000
 
 #Simulate dataset for each population:
-IPD1 <- tibble("Age" = rnorm(N1, mean=50, sd=3),
+IPD1 <- tibble("Age" = rnorm(N1, mean=50, sd=4),
                "SexM" = ifelse(rbinom(N1, 1, 0.55)==1, 1, 0),
                "Smoking_Status" = rbinom(N1, 1, 0.15),
                "Diabetes" = rbinom(N1, 1, 0.1),
-               "CKD" = ifelse(SexM==1,
-                              ifelse(Age<55,
-                                     rbinom(N1, 1, 0.03), rbinom(N1, 1, 0.06)),
-                              ifelse(Age<55,
-                                     rbinom(N1, 1, 0.08), rbinom(N1, 1, 0.13))),
+               "Creatine" = ifelse(SexM==1,
+                                   ifelse(Age<55,
+                                          rgamma(N1, shape = 9, scale = 0.11), rgamma(N1, shape = 6, scale = 0.17)),
+                                   ifelse(Age<55,
+                                          rgamma(N1, shape = 8, scale = 0.11), rgamma(N1, shape = 6, scale = 0.13))),
                "X1" = rnorm(N1, 0, 1))
 
 IPD2 <- tibble("Age" = rnorm(N2, mean=45, sd=2),
                "SexM" = ifelse(rbinom(N2, 1, 0.5)==1, 1, 0),
                "Smoking_Status" = rbinom(N2, 1, 0.10),
                "Diabetes" = rbinom(N2, 1, 0.15),
-               "CKD" = ifelse(SexM==1,
+               "Creatine" = ifelse(SexM==1,
                               ifelse(Age<55,
-                                     rbinom(N2, 1, 0.03), rbinom(N2, 1, 0.05)),
+                                     rgamma(N1, shape = 9, scale = 0.113), rgamma(N1, shape = 6, scale = 0.165)),
                               ifelse(Age<55,
-                                     rbinom(N2, 1, 0.08), rbinom(N2, 1, 0.10))),
+                                     rgamma(N1, shape = 8, scale = 0.11), rgamma(N1, shape = 6, scale = 0.125))),
                "X1" = rnorm(N2, 0, 1))
 
 IPD3 <- tibble("Age" = rnorm(N3, mean=55, sd=3),
                "SexM" = ifelse(rbinom(N3, 1, 0.6)==1, 1, 0),
                "Smoking_Status" = rbinom(N3, 1, 0.12),
                "Diabetes" = rbinom(N3, 1, 0.18),
-               "CKD" = ifelse(SexM==1,
+               "Creatine" = ifelse(SexM==1,
                               ifelse(Age<55,
-                                     rbinom(N3, 1, 0.03), rbinom(N3, 1, 0.06)),
+                                     rgamma(N1, shape = 9, scale = 0.105), rgamma(N1, shape = 6, scale = 0.175)),
                               ifelse(Age<55,
-                                     rbinom(N3, 1, 0.08), rbinom(N3, 1, 0.13))),
+                                     rgamma(N1, shape = 8, scale = 0.105), rgamma(N1, shape = 6, scale = 0.135))),
                "X1" = rnorm(N3, 0, 1))
 
 #Generate event times
@@ -52,19 +52,19 @@ True_coefs_pop1 <- c("Age" = log(1.01),
                      "SexM" = log(1.3),
                      "Smoking_Status" = log(2),
                      "Diabetes" = log(1.5),
-                     "CKD" = log(1.8),
+                     "Creatine" = log(1.8),
                      "X1" = log(1.02))
 True_coefs_pop2 <- c("Age" = log(1.02),
                      "SexM" = log(1.2),
                      "Smoking_Status" = log(1.7),
                      "Diabetes" = log(1.2),
-                     "CKD" = log(1.5),
+                     "Creatine" = log(1.5),
                      "X1" = log(1.01))
 True_coefs_pop3 <- c("Age" = log(1.01),
                      "SexM" = log(1.1),
                      "Smoking_Status" = log(1.7),
                      "Diabetes" = log(1.0),
-                     "CKD" = log(1.6),
+                     "Creatine" = log(1.75),
                      "X1" = log(1.03))
 
 True_LP_pop1 <- as.numeric(data.matrix(IPD1) %*% True_coefs_pop1)
@@ -92,19 +92,19 @@ IPD1 <- gen_TTE_data(df = IPD1,
                      CensoringTime = 5,
                      binary_time = 1,
                      scale = 0.02,
-                     shape = 1.1)
+                     shape = 1.01)
 IPD2 <- gen_TTE_data(df = IPD2,
                      betas = True_coefs_pop2,
                      CensoringTime = 5,
                      binary_time = 1,
-                     scale = 0.03,
-                     shape = 1.2)
+                     scale = 0.04,
+                     shape = 1.02)
 IPD3 <- gen_TTE_data(df = IPD3,
                      betas = True_coefs_pop3,
                      CensoringTime = 5,
                      binary_time = 1,
-                     scale = 0.02,
-                     shape = 1.4)
+                     scale = 0.03,
+                     shape = 1.04)
 
 # survminer::ggsurvplot(fit = survfit(Surv(ETime, Status) ~ pop, data = bind_rows(IPD1 %>% mutate(pop = "1"),
 #                                                                                 IPD2 %>% mutate(pop = "2"),
@@ -113,19 +113,19 @@ IPD3 <- gen_TTE_data(df = IPD3,
 
 ## Develop three existing prediction models for the binary outcome on each dataset in turn:
 #Existing Model 1
-Existing_logistic_Mod1 <- step(glm(Y ~ Age + SexM + Smoking_Status + Diabetes + CKD,
+Existing_logistic_Mod1 <- step(glm(Y ~ Age + SexM + Smoking_Status + Diabetes + Creatine,
                                    data = IPD1,
                                    family = binomial(link = "logit")),
                                direction = "both")
 
 #Existing Model 2
-Existing_logistic_Mod2 <- step(glm(Y ~ Age + SexM + Smoking_Status + Diabetes + CKD,
+Existing_logistic_Mod2 <- step(glm(Y ~ Age + SexM + Smoking_Status + Diabetes + Creatine,
                                    data = IPD2,
                                    family = binomial(link = "logit")),
                                direction = "both")
 
 #Existing Model 3
-Existing_logistic_Mod3 <- step(glm(Y ~ Age + SexM + Smoking_Status + Diabetes + CKD,
+Existing_logistic_Mod3 <- step(glm(Y ~ Age + SexM + Smoking_Status + Diabetes + Creatine,
                                    data = IPD3,
                                    family = binomial(link = "logit")),
                                direction = "both")
@@ -151,21 +151,21 @@ logistic_model_info <- logistic_model_info %>%
 
 ## Develop three existing prediction models for the time-to-event outcome on each dataset in turn:
 #Existing Model 1
-Existing_TTE_Mod1 <- step(coxph(Surv(ETime, Status) ~ Age + SexM + Smoking_Status + Diabetes + CKD,
+Existing_TTE_Mod1 <- step(coxph(Surv(ETime, Status) ~ Age + SexM + Smoking_Status + Diabetes + Creatine,
                                 data = IPD1,
                                 x = T,
                                 y = T),
                           direction = "both")
 
 #Existing Model 2
-Existing_TTE_Mod2 <- step(coxph(Surv(ETime, Status) ~ Age + SexM + Smoking_Status + Diabetes + CKD,
+Existing_TTE_Mod2 <- step(coxph(Surv(ETime, Status) ~ Age + SexM + Smoking_Status + Diabetes + Creatine,
                                 data = IPD2,
                                 x = T,
                                 y = T),
                           direction = "both")
 
 #Existing Model 3
-Existing_TTE_Mod3 <- step(coxph(Surv(ETime, Status) ~ Age + SexM + Smoking_Status + Diabetes + CKD,
+Existing_TTE_Mod3 <- step(coxph(Surv(ETime, Status) ~ Age + SexM + Smoking_Status + Diabetes + Creatine,
                                 data = IPD3,
                                 x = T,
                                 y = T),
@@ -230,35 +230,35 @@ ValidationData <- tibble("Age" = rnorm(N_val, mean=50, sd=3.5),
                          "SexM" = ifelse(rbinom(N_val, 1, 0.55)==1, 1, 0),
                          "Smoking_Status" = rbinom(N_val, 1, 0.13),
                          "Diabetes" = rbinom(N_val, 1, 0.20),
-                         "CKD" = ifelse(SexM==1,
-                                        ifelse(Age<60,
-                                               rbinom(N_val, 1, 0.03), rbinom(N_val, 1, 0.06)),
-                                        ifelse(Age<60,
-                                               rbinom(N_val, 1, 0.08), rbinom(N_val, 1, 0.13))),
-                         "X1" = rnorm(N_val, 0, 1),
-                         "CKD:SexM" = CKD * SexM)
+                         "Creatine" = ifelse(SexM==1,
+                                             ifelse(Age<55,
+                                                    rgamma(N1, shape = 8, scale = 0.105), rgamma(N1, shape = 7, scale = 0.175)),
+                                             ifelse(Age<55,
+                                                    rgamma(N1, shape = 7, scale = 0.105), rgamma(N1, shape = 7, scale = 0.135))),
+                         "X1" = rnorm(N_val, 0, 1))
+
 
 True_coefs_valpop <- c("Age" = log(1.04),
                        "SexM" = log(1.4),
                        "Smoking_Status" = log(1.2),
                        "Diabetes" = log(1.2),
-                       "CKD" = log(1.4),
-                       "X1" = log(1.02),
-                       "CKD:SexM" = log(1.10))
+                       "Creatine" = log(1.8),
+                       "X1" = log(1.01))
 
 ValidationData <- gen_TTE_data(df = ValidationData,
                                betas = True_coefs_valpop,
                                CensoringTime = 5,
                                binary_time = 1,
                                scale = 0.01,
-                               shape = 1.4)
+                               shape = 0.75)
+
 # survminer::ggsurvplot(fit = survfit(Surv(ETime, Status) ~ pop, data = bind_rows(IPD1 %>% mutate(pop = "1"),
 #                                                                                 IPD2 %>% mutate(pop = "2"),
 #                                                                                 IPD3 %>% mutate(pop = "3"),
 #                                                                                 ValidationData %>% mutate(pop = "4"))))
 
 ValidationData <- ValidationData %>%
-  select(-X1, -`CKD:SexM`) %>%
+  select(-X1) %>%
   as.data.frame()
 
 ####-------------------------------------------------------------------------------------------------------
