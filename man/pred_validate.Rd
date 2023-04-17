@@ -18,7 +18,8 @@ pred_validate(
 \arguments{
 \item{x}{an object of class "predinfo"}
 
-\item{new_data}{data.frame upon which the prediction model should be validated}
+\item{new_data}{data.frame upon which the prediction model should be
+validated}
 
 \item{binary_outcome}{Character variable giving the name of the column in
 \code{new_data} that represents the observed outcomes. Only relevant for
@@ -65,11 +66,9 @@ variable. The predictor variables need to include (as a minimum) all of the
 predictor variables that are included in the existing prediction model
 (i.e., each of the variable names supplied to
 \code{\link{pred_input_info}}, through the \code{model_info} parameter,
-must match the name of a variables in \code{new_data}).
-
-Any factor variables within \code{new_data} must be converted to dummy (0/1)
-variables before calling this function. \code{\link{dummy_vars}} can help
-with this - see examples below.
+must match the name of a variables in \code{new_data}). Any factor
+variables within \code{new_data} must be converted to dummy (0/1) variables
+before calling this function. \code{\link{dummy_vars}} can help with this.
 
 \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
 used to specify the outcome variable(s) within \code{new_data} (use
@@ -83,31 +82,37 @@ observed binary outcome. Various metrics of calibration (agreement between
 the observed risk and the predicted risks, across the full risk range) and
 discrimination (ability of the model to distinguish between those who
 develop the outcome and those who do not) are calculated. For calibration,
-a flexible calibration plot is produced. Calibration-in-the-large (CITL)
-and calibration slopes are also estimated. CITL is estimated by fitting a
-logistic regression model to the observed binary outcomes, with the linear
-predictor of the model as an offset. For calibration slope, a logistic
-regression model is fit to the observed binary outcome with the linear
-predictor from the model as the only covariate. For discrimination, the
-function estimates the area under the receiver operating characteristic
-curve (AUC). Various other metrics are also calculated to assess overall
-accuracy (Brier score, Cox-Snell R2). Specify parameter \code{cal_plot} to
-indicate whether a calibration plot should be produced (TRUE), or not
-(FALSE). Can also specify parameters \code{xlab}, \code{ylab},
-\code{xlim},and \code{ylim} to change plotting characteristics for the
-calibration plot.
+calibration-in-the-large (CITL) and calibration slopes are estimated. CITL
+is estimated by fitting a logistic regression model to the observed binary
+outcomes, with the linear predictor of the model as an offset. For
+calibration slope, a logistic regression model is fit to the observed
+binary outcome with the linear predictor from the model as the only
+covariate. For discrimination, the function estimates the area under the
+receiver operating characteristic curve (AUC). Various other metrics are
+also calculated to assess overall accuracy (Brier score, Cox-Snell R2).
 
 In the case of validating a survival prediction model, this function
-assesses the predictive performance of the predicted event probabilities
-(at a fixed time horizon) against an observed time-to-event outcome.
-Various metrics of calibration and discrimination are calculated. For
-calibration, a flexible calibration plot, observed-to-expected ratio and
-calibration slope are produced (all at the specified \code{time_horizon}).
-For discrimination, Harrell's C-statistic is calculated. Specify parameter
-\code{cal_plot} to indicate whether a calibration plot should be produced
-(TRUE), or not (FALSE). Can also specify parameters \code{xlab},
-\code{ylab}, \code{xlim},and \code{ylim} to change plotting characteristics
-for the calibration plot.
+assesses the predictive performance of the linear predictor and
+(optionally) the predicted event probabilities at a fixed time horizon
+(required specification of x$cum_hazard) against an observed time-to-event
+outcome. Various metrics of calibration and discrimination are calculated.
+For calibration, the observed-to-expected ratio at the specified
+\code{time_horizon} (if predicted risks are available) and calibration
+slope are produced. For discrimination, Harrell's C-statistic is
+calculated. S
+
+For both model types, a flexible calibration plot is produced (for survival
+models, the cumulative baseline hazard must be available in the predinfo
+object, \code{x}). Specify parameter \code{cal_plot} to indicate whether a
+calibration plot should be produced (TRUE), or not (FALSE). The calibration
+plot is produced by regressing the observed outcomes against the logit of
+predicted risks (for a logistic model) or the complementary log-log of the
+predicted risks (for a survival model) under a cubic spline. Users can
+specify parameters to modify the calibration plot. Specifically, one can
+specify: \code{xlab}, \code{ylab}, \code{xlim}, and \code{ylim} to change
+plotting characteristics for the calibration plot. The position of the
+legend can also be changed using \code{x_legend} and \code{y_legend} (or
+removed from the plot by specifying \code{cal_legend} as FALSE)
 }
 \examples{
 #Example 1 - logistic regression existing model, with outcome specified; uses
