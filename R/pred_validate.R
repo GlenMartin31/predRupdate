@@ -78,12 +78,15 @@
 #'   calibration plot should be produced (TRUE), or not (FALSE). The calibration
 #'   plot is produced by regressing the observed outcomes against the logit of
 #'   predicted risks (for a logistic model) or the complementary log-log of the
-#'   predicted risks (for a survival model) under a cubic spline. Users can
+#'   predicted risks (for a survival model) under a cubic spline. A histogram of
+#'   the predicted risk distribution is displayed on the top x-axis. Users can
 #'   specify parameters to modify the calibration plot. Specifically, one can
 #'   specify: \code{xlab}, \code{ylab}, \code{xlim}, and \code{ylim} to change
 #'   plotting characteristics for the calibration plot. The position of the
-#'   legend can also be changed using \code{x_legend} and \code{y_legend} (or
-#'   removed from the plot by specifying \code{cal_legend} as FALSE)
+#'   legend can also be changed using \code{x_legend} and \code{y_legend}, while
+#'   the size of text within the legend can be changed with
+#'   \code{txt_size_legend}; the legend can be removed from the plot by
+#'   specifying \code{cal_legend} as FALSE)
 #'
 #' @return A list of performance metrics, estimated by applying the existing
 #'   prediction model to the new_data.
@@ -344,7 +347,8 @@ validate_logistic <- function(ObservedOutcome,
                               ylim = c(0,1),
                               cal_legend = TRUE,
                               x_legend = 0.65,
-                              y_legend = 0.2) {
+                              y_legend = 0.2,
+                              txt_size_legend = 0.75) {
 
   # Test for 0 and 1 probabilities
   n_inf <- sum(is.infinite(LP))
@@ -419,7 +423,8 @@ validate_logistic <- function(ObservedOutcome,
                  ylab = ylab,
                  cal_legend = cal_legend,
                  x_legend = x_legend,
-                 y_legend = y_legend)
+                 y_legend = y_legend,
+                 txt_size_legend = txt_size_legend)
   }
 
   #Return results
@@ -452,7 +457,8 @@ validate_survival <- function(ObservedOutcome,
                               ylim = c(0,1),
                               cal_legend = TRUE,
                               x_legend = 0.65,
-                              y_legend = 0.2) {
+                              y_legend = 0.2,
+                              txt_size_legend = 0.75) {
 
   # Test if max observed survival time in validation data is less than
   # time_horizon that performance metrics as requested for:
@@ -518,6 +524,7 @@ validate_survival <- function(ObservedOutcome,
                    cal_legend = cal_legend,
                    x_legend = x_legend,
                    y_legend = y_legend,
+                   txt_size_legend = txt_size_legend,
                    time_horizon = time_horizon)
     }
   }
@@ -547,6 +554,7 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
                          cal_legend,
                          x_legend,
                          y_legend,
+                         txt_size_legend,
                          time_horizon = NULL) {
 
   model_type <- as.character(match.arg(model_type))
@@ -626,9 +634,10 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
   }
   if(cal_legend == TRUE) {
     graphics::legend(x = x_legend, y = y_legend,
-                     legend = c("Reference", "Smooth Calibration Curve"),
+                     legend = c("Reference", "Calibration Curve"),
                      col = c("black", "blue"),
-                     lty = c("dashed", "solid"))
+                     lty = c("dashed", "solid"),
+                     cex = txt_size_legend)
   }
 
 }
