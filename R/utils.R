@@ -15,8 +15,6 @@
 #' @examples
 #' logit(0.5)
 #' logit(c(0.1, 0.2, 0.3))
-#' plot(logit(seq(from=0.01, to=0.99, by=0.01)), type='l', ylab = "LP")
-#' \dontrun{ logit(2) }
 logit <- function(p) {
   if( any(p < 0 | p > 1) ) stop('p not between 0 and 1')
   log(p / (1 - p))
@@ -40,7 +38,6 @@ logit <- function(p) {
 #' @examples
 #' inv_logit(-2)
 #' inv_logit(c(-2,-1,0,1,2))
-#' plot(inv_logit(seq(from=-10, to=10, by=1)), type='l', ylab = "Prob")
 inv_logit <- function(x) {
   1 / (1 + exp(-x))
 }
@@ -56,7 +53,7 @@ inv_logit <- function(x) {
 #' @param df a data.frame on which to make dummy variables for each
 #'   categorical/factor variable, based on contrasts.
 #'
-#' @return a data.frame matching \code{df} but where where each categorical
+#' @return a data.frame matching \code{df} but where each categorical
 #'   variable in \code{df} is replaced with indicator variables. All
 #'   combinations of the indicator/dummy variable are returned. Naming
 #'   convention of the new dummy variables is variable_level. For example, a
