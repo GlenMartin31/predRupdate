@@ -7,21 +7,20 @@
 inv_logit(x)
 }
 \arguments{
-\item{x}{Numeric vector with values between -Inf and Inf}
+\item{x}{Numeric vector with values between -Inf and Inf.}
 }
 \value{
 Numeric vector of probabilities (i.e. values between 0 and 1)
 }
 \description{
 \code{inv_logit} applies the inverse-logit transformation (expit/ logistic
-function) to convert a vector of values between Inf and Inf, to values
+function) to convert a vector of values between -Inf and Inf, to values
 between 0 and 1. Used to convert the linear predictor of a logistic
 regression model into a probability.
 }
 \examples{
 inv_logit(-2)
 inv_logit(c(-2,-1,0,1,2))
-plot(inv_logit(seq(from=-10, to=10, by=1)), type='l', ylab = "Prob")
 }
 \seealso{
 \code{\link{logit}}

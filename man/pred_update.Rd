@@ -19,22 +19,22 @@ pred_update(
 existing prediction model.}
 
 \item{update_type}{character variable specifying the level of updating that
-is required}
+is required.}
 
 \item{new_data}{data.frame upon which the prediction models should be
-aggregated}
+updated.}
 
 \item{binary_outcome}{Character variable giving the name of the column in
 \code{new_data} that represents the observed outcomes. Only relevant for
-\code{model_type}="logistic"; leave as \code{NULL} otherwise.}
+\code{x$model_type}="logistic"; leave as \code{NULL} otherwise.}
 
 \item{survival_time}{Character variable giving the name of the column in
 \code{new_data} that represents the observed survival times. Only relevant
-for \code{model_type}="survival"; leave as \code{NULL} otherwise.}
+for \code{x$model_type}="survival"; leave as \code{NULL} otherwise.}
 
 \item{event_indicator}{Character variable giving the name of the column in
 \code{new_data} that represents the observed survival indicator (1 for
-event, 0 for censoring). Only relevant for \code{model_type}="survival";
+event, 0 for censoring). Only relevant for \code{x$model_type}="survival";
 leave as \code{NULL} otherwise.}
 }
 \value{
@@ -47,12 +47,12 @@ update_type.
 This function takes an existing (previously developed) prediction model and
 applies various model updating methods to tailor/adapt it to a new dataset.
 Various levels of updating are possible, ranging from model re-calibration to
-model revision.
+model refit.
 }
 \details{
-The aim of this function is to take an existing (previously
-estimated) prediction model, and apply various model discrete model
-updating methods (see Su et al. 2018) to tailor the model to a new dataset.
+This function takes a single existing (previously estimated)
+prediction model, and apply various model discrete model updating methods
+(see Su et al. 2018) to tailor the model to a new dataset.
 
 The type of updating method is selected with the \code{update_type}
 parameter, with options: "intercept_update", "recalibration" and "refit".
@@ -68,7 +68,7 @@ of type logistic) or time-to-event model (if the existing model if of type
 survival) to the new dataset, with the linear predictor as the only
 covariate. Finally, "refit" takes the original model structure and
 re-estimates all coefficients; this has the effect as re-developing the
-original model in the new dat.
+original model in the new data.
 
 \code{new_data} should be a data.frame, where each row should be an
 observation (e.g. patient) and each variable/column should be a predictor
@@ -76,11 +76,9 @@ variable. The predictor variables need to include (as a minimum) all of the
 predictor variables that are included in the existing prediction model
 (i.e., each of the variable names supplied to
 \code{\link{pred_input_info}}, through the \code{model_info} parameter,
-must match the name of a variables in \code{new_data}).
-
-Any factor variables within \code{new_data} must be converted to dummy
-(0/1) variables before calling this function. \code{\link{dummy_vars}} can
-help with this.
+must match the name of a variables in \code{new_data}). Any factor
+variables within \code{new_data} must be converted to dummy (0/1) variables
+before calling this function. \code{\link{dummy_vars}} can help with this.
 
 \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
 used to specify the outcome variable(s) within \code{new_data} (use

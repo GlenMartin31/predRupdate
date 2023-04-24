@@ -8,7 +8,7 @@ logit(p)
 }
 \arguments{
 \item{p}{Numeric vector of probabilities (i.e. values between 0 and 1) that
-will be transformed}
+will be transformed.}
 }
 \value{
 A numeric vector, with values between -Inf and Inf
@@ -21,8 +21,6 @@ probability from a logistic regression model onto the linear predictor scale.
 \examples{
 logit(0.5)
 logit(c(0.1, 0.2, 0.3))
-plot(logit(seq(from=0.01, to=0.99, by=0.01)), type='l', ylab = "LP")
-\dontrun{ logit(2) }
 }
 \seealso{
 \code{\link{inv_logit}}

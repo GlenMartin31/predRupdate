@@ -20,22 +20,22 @@ existing prediction models.}
 
 \item{positivity_constraint}{TRUE/FALSE denoting if the weights within the
 stacked regression model should be constrained to be non-negative (TRUE) or
-should be allowed to take any value (FALSE). See details}
+should be allowed to take any value (FALSE). See details.}
 
 \item{new_data}{data.frame upon which the prediction models should be
-aggregated}
+aggregated.}
 
 \item{binary_outcome}{Character variable giving the name of the column in
 \code{new_data} that represents the observed outcomes. Only relevant for
-\code{model_type}="logistic"; leave as \code{NULL} otherwise.}
+\code{x$model_type}="logistic"; leave as \code{NULL} otherwise.}
 
 \item{survival_time}{Character variable giving the name of the column in
 \code{new_data} that represents the observed survival times. Only relevant
-for \code{model_type}="survival"; leave as \code{NULL} otherwise.}
+for \code{x$model_type}="survival"; leave as \code{NULL} otherwise.}
 
 \item{event_indicator}{Character variable giving the name of the column in
 \code{new_data} that represents the observed survival indicator (1 for
-event, 0 for censoring). Only relevant for \code{model_type}="survival";
+event, 0 for censoring). Only relevant for \code{x$model_type}="survival";
 leave as \code{NULL} otherwise.}
 }
 \value{
@@ -50,12 +50,12 @@ dataset to combine/aggregate them into a single 'meta-model', as described in
 Debray et al. 2014.
 }
 \details{
-The aim of this function is to take a set of (previously estimated)
-prediction models that were each originally developed for the same
-prediction task, and pool/aggregate these into a single prediction model
-(meta-model) using stacked regression based on new data (data not used to
-develop any of the existing models). The methodological details can be
-found in Debray et al. 2014.
+This function takes a set of (previously estimated) prediction
+models that were each originally developed for the same prediction task,
+and pool/aggregate these into a single prediction model (meta-model) using
+stacked regression based on new data (data not used to develop any of the
+existing models). The methodological details can be found in Debray et al.
+2014.
 
 Given that the existing models are likely to be highly co-linear (since
 they were each developed for the same prediction task), it has been
@@ -63,23 +63,19 @@ suggested to impose a positivity constraint on the weights of the stacked
 regression model (Debray et al. 2014.). If \code{positivity_constraint} is
 set to TRUE, then the stacked regression model will be estimated by
 optimising the (log-)likelihood using bound constrained optimization
-("L-BFGS-B" in \code{stats::optim()}).
-
-This is currently only implemented for logistic regression models (i.e., if
-x$model_type = "logistic"). For survival models, positivity_constraint =
-FALSE
+("L-BFGS-B"). This is currently only implemented for logistic regression
+models (i.e., if \code{x$model_type}="logistic"). For survival models,
+positivity_constraint = FALSE.
 
 \code{new_data} should be a data.frame, where each row should be an
 observation (e.g. patient) and each variable/column should be a predictor
 variable. The predictor variables need to include (as a minimum) all of the
-predictor variables that are included in the existing prediction model
+predictor variables that are included in the existing prediction models
 (i.e., each of the variable names supplied to
 \code{\link{pred_input_info}}, through the \code{model_info} parameter,
-must match the name of a variables in \code{new_data}).
-
-Any factor variables within \code{new_data} must be converted to dummy (0/1)
-variables before calling this function. \code{\link{dummy_vars}} can help
-with this.
+must match the name of a variables in \code{new_data}). Any factor
+variables within \code{new_data} must be converted to dummy (0/1) variables
+before calling this function. \code{\link{dummy_vars}} can help with this.
 
 \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
 used to specify the outcome variable(s) within \code{new_data} (use

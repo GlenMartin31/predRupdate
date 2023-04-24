@@ -11,7 +11,7 @@ dummy_vars(df)
 categorical/factor variable, based on contrasts.}
 }
 \value{
-a data.frame matching \code{df} but where where each categorical
+a data.frame matching \code{df} but where each categorical
 variable in \code{df} is replaced with indicator variables. All
 combinations of the indicator/dummy variable are returned. Naming
 convention of the new dummy variables is variable_level. For example, a
