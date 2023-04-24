@@ -24,9 +24,10 @@ Suggests:
 Config/testthat/edition: 3
 Imports: 
     stats,
-    graphics,
     survival,
-    pROC
+    pROC,
+    ggplot2,
+    ggExtra
 Depends: 
     R (>= 2.10)
 VignetteBuilder: knitr

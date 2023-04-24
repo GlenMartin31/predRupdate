@@ -84,11 +84,7 @@
 #'   risk distribution is displayed on the top x-axis. Users can specify
 #'   parameters to modify the calibration plot. Specifically, one can specify:
 #'   \code{xlab}, \code{ylab}, \code{xlim}, and \code{ylim} to change plotting
-#'   characteristics for the calibration plot. The position of the legend can
-#'   also be changed using \code{x_legend} and \code{y_legend}, while the size
-#'   of text within the legend can be changed with \code{txt_size_legend}; the
-#'   legend can be removed from the plot by specifying \code{cal_legend} as
-#'   FALSE).
+#'   characteristics for the calibration plot.
 #'
 #' @return A list of performance metrics, estimated by applying the existing
 #'   prediction model to the new_data.
@@ -176,18 +172,20 @@ pred_validate.predinfo_logistic <- function(x,
   if (x$M == 1) {
     ### VALIDATION OF THE EXISTING MODEL
     performance <- validate_logistic(ObservedOutcome = predictions$Outcomes,
-                                          Prob = predictions$PredictedRisk,
-                                          LP = predictions$LinearPredictor,
-                                          ...)
+                                     Prob = predictions$PredictedRisk,
+                                     LP = predictions$LinearPredictor,
+                                     cal_plot = cal_plot,
+                                     ...)
   } else{
     performance <- vector(mode = "list", length = x$M)
     names(performance) <- paste("Model_",1:x$M, sep = "")
     for (m in 1:x$M) {
       performance[[paste("Model_",m, sep = "")]] <-
         validate_logistic(ObservedOutcome = predictions[[m]]$Outcomes,
-                               Prob = predictions[[m]]$PredictedRisk,
-                               LP = predictions[[m]]$LinearPredictor,
-                               ...)
+                          Prob = predictions[[m]]$PredictedRisk,
+                          LP = predictions[[m]]$LinearPredictor,
+                          cal_plot = cal_plot,
+                          ...)
     }
   }
   performance
@@ -201,7 +199,8 @@ pred_validate.predinfo_survival <- function(x,
                                             binary_outcome = NULL,
                                             survival_time = NULL,
                                             event_indicator = NULL,
-                                            time_horizon = NULL, ...){
+                                            time_horizon = NULL,
+                                            cal_plot = TRUE, ...){
 
   #Check outcomes were inputted (needed to validate the model)
   if (is.null(survival_time) |
@@ -229,6 +228,7 @@ pred_validate.predinfo_survival <- function(x,
                                      Prob = predictions$PredictedRisk,
                                      LP = predictions$LinearPredictor,
                                      time_horizon = predictions$TimeHorizon,
+                                     cal_plot = cal_plot,
                                      ...)
   } else{
     performance <- vector(mode = "list", length = x$M)
@@ -239,6 +239,7 @@ pred_validate.predinfo_survival <- function(x,
                           Prob = predictions[[m]]$PredictedRisk,
                           LP = predictions[[m]]$LinearPredictor,
                           time_horizon = predictions[[m]]$TimeHorizon,
+                          cal_plot = cal_plot,
                           ...)
     }
   }
@@ -342,15 +343,11 @@ print.predvalidate_survival <- function(x, ...) {
 validate_logistic <- function(ObservedOutcome,
                               Prob,
                               LP,
-                              cal_plot = TRUE,
+                              cal_plot,
                               xlab = "Predicted Probability",
                               ylab = "Observed Probability",
                               xlim = c(0,1),
-                              ylim = c(0,1),
-                              cal_legend = TRUE,
-                              x_legend = 0.65,
-                              y_legend = 0.2,
-                              txt_size_legend = 0.75) {
+                              ylim = c(0,1)) {
 
   # Test for 0 and 1 probabilities
   n_inf <- sum(is.infinite(LP))
@@ -405,14 +402,18 @@ validate_logistic <- function(ObservedOutcome,
   #Brier Score
   BrierScore <- 1/N * (sum((Prob - ObservedOutcome)^2))
 
-
   # If not creating a calibration plot, then at least produce histogram of
   # predicted risks; otherwise this is embedded into the calibration plot
   if (cal_plot == FALSE){
-    graphics::hist(Prob, breaks = seq(xlim[1], xlim[2],
-                                      length.out = 20),
-                   xlab = xlab,
-                   main = "Histogram of the Probability Distribution")
+    plot_df <- data.frame("Prob" = Prob)
+    print(ggplot2::ggplot(plot_df,
+                          ggplot2::aes_string(x = "Prob")) +
+            ggplot2::geom_histogram(bins = 30,
+                                    colour = "black") +
+            ggplot2::ggtitle("Histogram of the Probability Distribution") +
+            ggplot2::xlab(xlab) +
+            ggplot2::theme_bw(base_size = 12))
+
   } else{
     # otherwise produce calibration plot
     flex_calplot(model_type = "logistic",
@@ -422,11 +423,7 @@ validate_logistic <- function(ObservedOutcome,
                  xlim = xlim,
                  ylim = ylim,
                  xlab = xlab,
-                 ylab = ylab,
-                 cal_legend = cal_legend,
-                 x_legend = x_legend,
-                 y_legend = y_legend,
-                 txt_size_legend = txt_size_legend)
+                 ylab = ylab)
   }
 
   #Return results
@@ -451,16 +448,12 @@ validate_logistic <- function(ObservedOutcome,
 validate_survival <- function(ObservedOutcome,
                               Prob,
                               LP,
-                              cal_plot = TRUE,
+                              cal_plot,
                               time_horizon,
                               xlab = "Predicted Probability",
                               ylab = "Observed Probability",
                               xlim = c(0,1),
-                              ylim = c(0,1),
-                              cal_legend = TRUE,
-                              x_legend = 0.65,
-                              y_legend = 0.2,
-                              txt_size_legend = 0.75) {
+                              ylim = c(0,1)) {
 
   # Test if max observed survival time in validation data is less than
   # time_horizon that performance metrics as requested for:
@@ -509,10 +502,15 @@ validate_survival <- function(ObservedOutcome,
     # If not creating a calibration plot, then at least produce histogram of
     # predicted risks; otherwise this is embedded into the calibration plot
     if (cal_plot == FALSE){
-      graphics::hist(Prob, breaks = seq(xlim[1], xlim[2],
-                                        length.out = 20),
-                     xlab = xlab,
-                     main = "Histogram of the Probability Distribution")
+      plot_df <- data.frame("Prob" = Prob)
+      print(ggplot2::ggplot(plot_df,
+                            ggplot2::aes_string(x = "Prob")) +
+              ggplot2::geom_histogram(bins = 30,
+                                      colour = "black") +
+              ggplot2::ggtitle("Histogram of the Probability Distribution") +
+              ggplot2::xlab(xlab) +
+              ggplot2::theme_bw(base_size = 12))
+
     } else{
       # otherwise produce calibration plot
       flex_calplot(model_type = "survival",
@@ -523,10 +521,6 @@ validate_survival <- function(ObservedOutcome,
                    ylim = ylim,
                    xlab = xlab,
                    ylab = ylab,
-                   cal_legend = cal_legend,
-                   x_legend = x_legend,
-                   y_legend = y_legend,
-                   txt_size_legend = txt_size_legend,
                    time_horizon = time_horizon)
     }
   }
@@ -553,29 +547,9 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
                          ylim,
                          xlab,
                          ylab,
-                         cal_legend,
-                         x_legend,
-                         y_legend,
-                         txt_size_legend,
                          time_horizon = NULL) {
 
   model_type <- as.character(match.arg(model_type))
-
-  ## set graphical parameters
-  graphics::layout(matrix(c(1,2), ncol=1),
-                   widths=c(1),
-                   heights=c(1/7, 6/7))
-  pardefault_mar <- graphics::par("mar") #save default plotting margin values
-  pardefault_oma <- graphics::par("oma") #save default outer margin values
-  graphics::par(mar=c(4, 4, 1, 1),
-                oma=rep(0.5, 4)) # plot parameters
-
-  #return to default plotting parameters post function call:
-  on.exit(graphics::layout(1), add = TRUE)
-  on.exit(graphics::par(mar = pardefault_mar,
-                        oma = pardefault_oma),
-          add = TRUE,
-          after = TRUE)
 
   #test supplied xlims to ensure not cutting-off Prob range
   if(xlim[1] > min(Prob)){
@@ -587,26 +561,6 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
     warning("Altering xlim range: specified range inconsistent with predicted risk range")
   }
 
-  ## Produce histogram of predicted risks to show the distribution
-  xhist <- graphics::hist(Prob, breaks = seq(xlim[1], xlim[2],
-                                             length.out = 20),
-                          plot=FALSE)
-  graphics::par(mar=c(0, 4, 0, 0))
-  graphics::barplot(xhist$density, axes=FALSE,
-                    ylim=c(0, max(xhist$density)),
-                    space=0)
-
-  ## Produce calibration plot
-  graphics::par(mar=c(4, 4, 0, 0))
-  plot(0.5, 0.5,
-       xlim = xlim,
-       ylim = ylim,
-       type = "n",
-       xlab = xlab,
-       ylab = ylab)
-  graphics::clip(xlim[1],xlim[2],ylim[1],ylim[2])
-  graphics::abline(0,1, lty = "dashed")
-  graphics::grid()
   if(model_type == "logistic") {
     spline_model <- stats::glm(ObservedOutcome ~ splines::ns(LP, df = 3),
                                family = stats::binomial(link = "logit"))
@@ -614,9 +568,36 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
     plot_df <- data.frame("p" = Prob,
                           "o" = spline_preds$fit)
 
-    graphics::lines(x = plot_df$p[order(plot_df$p)],
-                    y = plot_df$o[order(plot_df$p)],
-                    col = "blue")
+    print(ggExtra::ggMarginal(ggplot2::ggplot(plot_df,
+                                              ggplot2::aes_string(x = "p",
+                                                                  y = "o")) +
+                                ggplot2::geom_line(ggplot2::aes(linetype = "Calibration Curve",
+                                                                colour = "Calibration Curve")) +
+                                ggplot2::xlim(xlim) +
+                                ggplot2::ylim(ylim) +
+                                ggplot2::xlab(xlab) +
+                                ggplot2::ylab(ylab) +
+                                ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1,
+                                                                  linetype = "Reference",
+                                                                  colour = "Reference"),
+                                                     show.legend = FALSE) +
+                                ggplot2::geom_point(alpha = 0) +
+                                ggplot2::coord_fixed() +
+                                ggplot2::theme_bw(base_size = 12) +
+                                ggplot2::labs(color  = "Guide name", linetype = "Guide name") +
+                                ggplot2::scale_linetype_manual(values = c("dashed",
+                                                                          "solid"),
+                                                               breaks = c("Reference",
+                                                                          "Calibration Curve"),
+                                                               labels = c("Reference",
+                                                                          "Calibration Curve")) +
+                                ggplot2::scale_colour_manual(values = c("black",
+                                                                        "blue"),
+                                                             breaks = c("Reference",
+                                                                        "Calibration Curve")) +
+                                ggplot2::theme(legend.title=ggplot2::element_blank()),
+                              type = "histogram",
+                              margins = "x"))
 
   } else {
     cloglog <- log(-log(1 - Prob))
@@ -629,17 +610,36 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
     bh <- survival::basehaz(vcal)
     plot_df$observed_risk <- 1 - (exp(-bh[(max(which(bh[,2] <= time_horizon))),1])^(exp(stats::predict(vcal, type = "lp"))))
 
-
-    graphics::lines(x = plot_df$Prob[order(plot_df$Prob)],
-                    y = plot_df$observed_risk[order(plot_df$Prob)],
-                    col = "blue")
-  }
-  if(cal_legend == TRUE) {
-    graphics::legend(x = x_legend, y = y_legend,
-                     legend = c("Reference", "Calibration Curve"),
-                     col = c("black", "blue"),
-                     lty = c("dashed", "solid"),
-                     cex = txt_size_legend)
+    print(ggExtra::ggMarginal(ggplot2::ggplot(plot_df,
+                                              ggplot2::aes_string(x = "Prob",
+                                                                  y = "observed_risk")) +
+                                ggplot2::geom_line(ggplot2::aes(linetype = "Calibration Curve",
+                                                                colour = "Calibration Curve")) +
+                                ggplot2::xlim(xlim) +
+                                ggplot2::ylim(ylim) +
+                                ggplot2::xlab(xlab) +
+                                ggplot2::ylab(ylab) +
+                                ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1,
+                                                                  linetype = "Reference",
+                                                                  colour = "Reference"),
+                                                     show.legend = FALSE) +
+                                ggplot2::geom_point(alpha = 0) +
+                                ggplot2::coord_fixed() +
+                                ggplot2::theme_bw(base_size = 12) +
+                                ggplot2::labs(color  = "Guide name", linetype = "Guide name") +
+                                ggplot2::scale_linetype_manual(values = c("dashed",
+                                                                          "solid"),
+                                                               breaks = c("Reference",
+                                                                          "Calibration Curve"),
+                                                               labels = c("Reference",
+                                                                          "Calibration Curve")) +
+                                ggplot2::scale_colour_manual(values = c("black",
+                                                                        "blue"),
+                                                             breaks = c("Reference",
+                                                                        "Calibration Curve")) +
+                                ggplot2::theme(legend.title=ggplot2::element_blank()),
+                              type = "histogram",
+                              margins = "x"))
   }
 
 }
