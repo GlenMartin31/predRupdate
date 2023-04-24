@@ -87,30 +87,30 @@ existing prediction models.</p></dd>
 <dt>positivity_constraint</dt>
 <dd><p>TRUE/FALSE denoting if the weights within the
 stacked regression model should be constrained to be non-negative (TRUE) or
-should be allowed to take any value (FALSE). See details</p></dd>
+should be allowed to take any value (FALSE). See details.</p></dd>
 
 
 <dt>new_data</dt>
 <dd><p>data.frame upon which the prediction models should be
-aggregated</p></dd>
+aggregated.</p></dd>
 
 
 <dt>binary_outcome</dt>
 <dd><p>Character variable giving the name of the column in
 <code>new_data</code> that represents the observed outcomes. Only relevant for
-<code>model_type</code>="logistic"; leave as <code>NULL</code> otherwise.</p></dd>
+<code>x$model_type</code>="logistic"; leave as <code>NULL</code> otherwise.</p></dd>
 
 
 <dt>survival_time</dt>
 <dd><p>Character variable giving the name of the column in
 <code>new_data</code> that represents the observed survival times. Only relevant
-for <code>model_type</code>="survival"; leave as <code>NULL</code> otherwise.</p></dd>
+for <code>x$model_type</code>="survival"; leave as <code>NULL</code> otherwise.</p></dd>
 
 
 <dt>event_indicator</dt>
 <dd><p>Character variable giving the name of the column in
 <code>new_data</code> that represents the observed survival indicator (1 for
-event, 0 for censoring). Only relevant for <code>model_type</code>="survival";
+event, 0 for censoring). Only relevant for <code>x$model_type</code>="survival";
 leave as <code>NULL</code> otherwise.</p></dd>
 
 </dl></div>
@@ -125,32 +125,30 @@ regression.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The aim of this function is to take a set of (previously estimated)
-prediction models that were each originally developed for the same
-prediction task, and pool/aggregate these into a single prediction model
-(meta-model) using stacked regression based on new data (data not used to
-develop any of the existing models). The methodological details can be
-found in Debray et al. 2014.</p>
+    <p>This function takes a set of (previously estimated) prediction
+models that were each originally developed for the same prediction task,
+and pool/aggregate these into a single prediction model (meta-model) using
+stacked regression based on new data (data not used to develop any of the
+existing models). The methodological details can be found in Debray et al.
+2014.</p>
 <p>Given that the existing models are likely to be highly co-linear (since
 they were each developed for the same prediction task), it has been
 suggested to impose a positivity constraint on the weights of the stacked
 regression model (Debray et al. 2014.). If <code>positivity_constraint</code> is
 set to TRUE, then the stacked regression model will be estimated by
 optimising the (log-)likelihood using bound constrained optimization
-("L-BFGS-B" in <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code>).</p>
-<p>This is currently only implemented for logistic regression models (i.e., if
-x$model_type = "logistic"). For survival models, positivity_constraint =
-FALSE</p>
+("L-BFGS-B"). This is currently only implemented for logistic regression
+models (i.e., if <code>x$model_type</code>="logistic"). For survival models,
+positivity_constraint = FALSE.</p>
 <p><code>new_data</code> should be a data.frame, where each row should be an
 observation (e.g. patient) and each variable/column should be a predictor
 variable. The predictor variables need to include (as a minimum) all of the
-predictor variables that are included in the existing prediction model
+predictor variables that are included in the existing prediction models
 (i.e., each of the variable names supplied to
 <code><a href="pred_input_info.html">pred_input_info</a></code>, through the <code>model_info</code> parameter,
-must match the name of a variables in <code>new_data</code>).</p>
-<p>Any factor variables within <code>new_data</code> must be converted to dummy (0/1)
-variables before calling this function. <code><a href="dummy_vars.html">dummy_vars</a></code> can help
-with this.</p>
+must match the name of a variables in <code>new_data</code>). Any factor
+variables within <code>new_data</code> must be converted to dummy (0/1) variables
+before calling this function. <code><a href="dummy_vars.html">dummy_vars</a></code> can help with this.</p>
 <p><code>binary_outcome</code>, <code>survival_time</code> and <code>event_indicator</code> are
 used to specify the outcome variable(s) within <code>new_data</code> (use
 <code>binary_outcome</code> if <code>x$model_type</code> = "logistic", or use

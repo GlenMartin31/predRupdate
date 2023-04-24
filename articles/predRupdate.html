@@ -381,7 +381,7 @@ such a situation, one can still use <strong>predRupdate</strong> to
 validate such a model. However, only a limited number of metrics will be
 produced (i.e., only those that require the linear predictor, not
 absolute risk predictions at a given follow-up time). Specifically, the
-observed:expected ration and the calibration plot will not be
+observed:expected ratio and the calibration plot will not be
 produced.</p>
 <p>For example, suppose the baseline cumulative hazard for the above
 model was not available. We could validate this model using
@@ -397,7 +397,7 @@ model was not available. We could validate this model using
 <span><span class="co">#pass this into pred_input_info()</span></span>
 <span><span class="va">Existing_TTE_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span>
 <span>                                      model_info <span class="op">=</span> <span class="va">coefs_table</span>,</span>
-<span>                                      cum_hazard <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="co">#leave as NULL if the baseline not avaliable</span></span>
+<span>                                      cum_hazard <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="co">#leave as NULL if the baseline not available</span></span>
 <span></span>
 <span><span class="co">#now validate against the time-to-event outcomes in the new dataset:</span></span>
 <span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_TTE_Model</span>,</span>

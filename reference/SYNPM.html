@@ -74,7 +74,10 @@ validate/update the models on.</p>
 
     <div class="section level2">
     <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
-    <p>A list with six elements.</p><ol><li><p>The second element is a data frame with the information about three
+    <p>A list with six elements.</p><ol><li><p>The first element is a
+data frame with the information about three existing binary (logistic
+regression) models for a binary outcome at one year</p></li>
+<li><p>The second element is a data frame with the information about three
 existing time-to-event (Cox) models for the time-to-event outcome</p></li>
 <li><p>The third, fourth and fifth elements are the cumulative baseline
 hazard information for the three time-to-event model</p></li>
@@ -91,9 +94,9 @@ sex of the individual (1 = male; 0 = female)</p></dd><dt>Smoking_Status</dt>
 <dd><p>Indicates
 whether the individual has diabetes (1=diabetic, 0=not diabetic)</p></dd><dt>Creatine</dt>
 <dd><p>The Creatine value for the individual (mg/dL)</p></dd><dt>ETime</dt>
-<dd><p>The time (years) from baseline until either the event or censoring</p></dd><dt>Status</dt>
+<dd><p>The time from baseline until either the event or censoring</p></dd><dt>Status</dt>
 <dd><p>Indicator of whether the patient experienced the event or was censored at ETime</p></dd><dt>Y</dt>
-<dd><p>Binary indicator of whether the indivudal expereinced the event by 1 year</p></dd></dl></li>
+<dd><p>Binary indicator of whether the individual experienced the event by 1 time-unit</p></dd></dl></li>
 </ol></div>
     <div class="section level2">
     <h2 id="source">Source<a class="anchor" aria-label="anchor" href="#source"></a></h2>

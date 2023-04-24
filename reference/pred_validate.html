@@ -78,42 +78,43 @@ performance against a new (validation) dataset.</p>
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>x</dt>
-<dd><p>an object of class "predinfo"</p></dd>
+<dd><p>an object of class "<code>predinfo</code>" produced by calling
+<code><a href="pred_input_info.html">pred_input_info</a></code>.</p></dd>
 
 
 <dt>new_data</dt>
 <dd><p>data.frame upon which the prediction model should be
-validated</p></dd>
+evaluated.</p></dd>
 
 
 <dt>binary_outcome</dt>
 <dd><p>Character variable giving the name of the column in
 <code>new_data</code> that represents the observed outcomes. Only relevant for
-<code>model_type</code>="logistic"; leave as <code>NULL</code> otherwise.</p></dd>
+<code>x$model_type</code>="logistic"; leave as <code>NULL</code> otherwise.</p></dd>
 
 
 <dt>survival_time</dt>
 <dd><p>Character variable giving the name of the column in
 <code>new_data</code> that represents the observed survival times. Only relevant
-for <code>model_type</code>="survival"; leave as <code>NULL</code> otherwise.</p></dd>
+for <code>x$model_type</code>="survival"; leave as <code>NULL</code> otherwise.</p></dd>
 
 
 <dt>event_indicator</dt>
 <dd><p>Character variable giving the name of the column in
 <code>new_data</code> that represents the observed survival indicator (1 for
-event, 0 for censoring). Only relevant for <code>model_type</code>="survival";
+event, 0 for censoring). Only relevant for <code>x$model_type</code>="survival";
 leave as <code>NULL</code> otherwise.</p></dd>
 
 
 <dt>time_horizon</dt>
 <dd><p>for survival models, an integer giving the time horizon
-(post baseline/time of prediction) at which a prediction is required.
-Currently, this must match a time in x$cum_hazard.</p></dd>
+(post baseline) at which a prediction is required. Currently, this must
+match a time in x$cum_hazard.</p></dd>
 
 
 <dt>cal_plot</dt>
 <dd><p>indicate if a flexible calibration plot should be produced
-(TRUE) or not (FALSE)</p></dd>
+(TRUE) or not (FALSE).</p></dd>
 
 
 <dt>...</dt>
@@ -167,24 +168,24 @@ also calculated to assess overall accuracy (Brier score, Cox-Snell R2).</p>
 <p>In the case of validating a survival prediction model, this function
 assesses the predictive performance of the linear predictor and
 (optionally) the predicted event probabilities at a fixed time horizon
-(required specification of x$cum_hazard) against an observed time-to-event
-outcome. Various metrics of calibration and discrimination are calculated.
-For calibration, the observed-to-expected ratio at the specified
-<code>time_horizon</code> (if predicted risks are available) and calibration
-slope are produced. For discrimination, Harrell's C-statistic is
-calculated. S</p>
+against an observed time-to-event outcome. Various metrics of calibration
+and discrimination are calculated. For calibration, the
+observed-to-expected ratio at the specified <code>time_horizon</code> (if
+predicted risks are available through specification of <code>x$cum_hazard</code>)
+and calibration slope are produced. For discrimination, Harrell's
+C-statistic is calculated.</p>
 <p>For both model types, a flexible calibration plot is produced (for survival
-models, the cumulative baseline hazard must be available in the predinfo
-object, <code>x</code>). Specify parameter <code>cal_plot</code> to indicate whether a
-calibration plot should be produced (TRUE), or not (FALSE). The calibration
-plot is produced by regressing the observed outcomes against the logit of
-predicted risks (for a logistic model) or the complementary log-log of the
-predicted risks (for a survival model) under a cubic spline. Users can
-specify parameters to modify the calibration plot. Specifically, one can
-specify: <code>xlab</code>, <code>ylab</code>, <code>xlim</code>, and <code>ylim</code> to change
-plotting characteristics for the calibration plot. The position of the
-legend can also be changed using <code>x_legend</code> and <code>y_legend</code> (or
-removed from the plot by specifying <code>cal_legend</code> as FALSE)</p>
+models, the cumulative baseline hazard must be available in the
+<code>predinfo</code> object, <code>x$cum_hazard</code>). Specify parameter
+<code>cal_plot</code> to indicate whether a calibration plot should be produced
+(TRUE), or not (FALSE). The calibration plot is produced by regressing the
+observed outcomes against a cubic spline of the logit of predicted risks
+(for a logistic model) or the complementary log-log of the predicted risks
+(for a survival model). A histogram of the predicted
+risk distribution is displayed on the top x-axis. Users can specify
+parameters to modify the calibration plot. Specifically, one can specify:
+<code>xlab</code>, <code>ylab</code>, <code>xlim</code>, and <code>ylim</code> to change plotting
+characteristics for the calibration plot.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -200,7 +201,6 @@ removed from the plot by specifying <code>cal_legend</code> as FALSE)</p>
 <span class="r-in"><span><span class="fu">pred_validate</span><span class="op">(</span>x <span class="op">=</span> <span class="va">model1</span>,</span></span>
 <span class="r-in"><span>             new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span></span>
 <span class="r-in"><span>             binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="pred_validate-1.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                          Estimate Std. Err Lower 95% Confidence Interval</span>
@@ -235,8 +235,6 @@ removed from the plot by specifying <code>cal_legend</code> as FALSE)</p>
 <span class="r-in"><span><span class="fu">pred_validate</span><span class="op">(</span>x <span class="op">=</span> <span class="va">model2</span>,</span></span>
 <span class="r-in"><span>             new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span></span>
 <span class="r-in"><span>             binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="pred_validate-2.png" alt="" width="700" height="433"></span>
-<span class="r-plt img"><img src="pred_validate-3.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $Model_1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
@@ -332,7 +330,7 @@ removed from the plot by specifying <code>cal_legend</code> as FALSE)</p>
 <span class="r-in"><span>            survival_time <span class="op">=</span> <span class="st">"ETime"</span>,</span></span>
 <span class="r-in"><span>            event_indicator <span class="op">=</span> <span class="st">"Status"</span>,</span></span>
 <span class="r-in"><span>            time_horizon <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="pred_validate-4.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="pred_validate-1.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                         Estimate Std. Err Lower 95% Confidence Interval</span>

@@ -109,21 +109,22 @@ of models.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p><code>pred_input_info</code> returns an object of class "predinfo",
-with child classes per model_type. This is a standardised format, such that
-it can be used with other functions in the package. An object of class
-"predinfo" is a list containing the following components:</p><ul><li><p>M
-= the number of existing models that information has been entered about</p></li>
-<li><p>model_type = this is the type of analytical model that the existing
-prediction model is based upon ("logistic" or "survival")</p></li>
-<li><p>coefs =
-this is the list of (previously estimated) coefficients for each predictor
-variable</p></li>
-<li><p>coef_names = gives the names of each predictor variable</p></li>
-<li><p>formula = this is the functional form of the model's linear
-predictor</p></li>
-<li><p>cum_hazard = if supplied, this is the cumulative
-baseline hazard of the existing model(s)</p></li>
+<p><code>pred_input_info</code> returns an object of class
+"<code>predinfo</code>", with child classes per <code>model_type</code>. This is a
+standardised format, such that it can be used with other functions in the
+package. An object of class "predinfo" is a list containing the following
+components:</p><ul><li><p>M = the number of existing models that information has been
+entered about</p></li>
+<li><p>model_type = this is the type of model that
+the existing prediction model is based upon ("logistic" or "survival")</p></li>
+<li><p>coefs = this is the set of (previously estimated) coefficients for
+each predictor variable</p></li>
+<li><p>coef_names = gives the names of each
+predictor variable</p></li>
+<li><p>formula = this is the functional form of the
+model's linear predictor</p></li>
+<li><p>cum_hazard = if supplied, this is the
+cumulative baseline hazard of the existing model(s)</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -152,10 +153,12 @@ cumulative hazard of the existing survival model is not available, then
 leave as NULL; this will limit any validation metrics that can be
 calculated.</p>
 <p>Note, the column names of <code>model_info</code> should match columns in any new
-data that the existing model(s) will be applied to (i.e. any new_data that
+data that the existing model(s) will be applied to (i.e. any new data that
 will be provided to other functions within the package should have
 corresponding predictor variables entered through <code>model_info</code>). See
-<code><a href="pred_predict.html">pred_predict</a></code> for more information.</p>
+<code><a href="pred_predict.html">pred_predict</a></code>, <code><a href="pred_validate.html">pred_validate</a></code>,
+<code><a href="pred_update.html">pred_update</a></code> and <code><a href="pred_stacked_regression.html">pred_stacked_regression</a></code> for
+more information.</p>
     </div>
 
     <div class="section level2">
@@ -203,7 +206,7 @@ corresponding predictor variables entered through <code>model_info</code>). See
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $formula</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~Age + SexM + Smoking_Status + Diabetes + Creatine</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x55e5cae99080&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x5558fb440300&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cum_hazard</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   time     hazard</span>
