@@ -2,8 +2,8 @@ Package: predRupdate
 Title: Prediction Model Validation and Updating
 Version: 0.0.0.9000
 Authors@R: c(person(given = "Glen P.", family = "Martin", role = c("aut", "cre", "cph"), email = "glen.martin31@gmail.com", comment = c(ORCID = "0000-0002-3410-9472")),
-             person(given = "David", family = "Jenkins", role = c("aut"), email = "david.jenkins-5@manchester.ac.uk"),
-             person(given = "Matthew", family = "Sperrin", role = c("aut"), email = "matthew.sperrin@manchester.ac.uk"))
+             person(given = "David", family = "Jenkins", role = c("aut", "cph"), email = "david.jenkins-5@manchester.ac.uk"),
+             person(given = "Matthew", family = "Sperrin", role = c("aut", "cph"), email = "matthew.sperrin@manchester.ac.uk"))
 Description: Evaluate the predictive performance of an existing (i.e. previously 
     developed) prediction/ prognostic model given relevant information about the 
     existing prediction model (e.g. coefficients) and a new dataset. Provides a 
