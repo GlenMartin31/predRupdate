@@ -1,8 +1,8 @@
 #' Map new data to a predinfo object
 #'
-#' This function takes a predinfo object and applies (maps) a new data to this
-#' object to check there is consistency between the two. This function is not
-#' usually called directly, but rather within  other functions within the
+#' This function takes a \code{predinfo} object and applies (maps) a new data to
+#' this object to check there is consistency between the two. This function is
+#' not usually called directly, but rather within  other functions within the
 #' package, such as \code{pred_predict}.
 #'
 #' @param x an object of class "predinfo".
@@ -19,24 +19,24 @@
 #' @param event_indicator Character variable giving the name of the column in
 #'   \code{new_data} that represents the observed survival indicator (1 for
 #'   event, 0 for censoring). Only relevant for \code{model_type}="survival";
-#'   leave as \code{NULL} otherwise. Leave as \code{NULL} if \code{new_data} does
-#'   not contain any survival outcomes.
+#'   leave as \code{NULL} otherwise. Leave as \code{NULL} if \code{new_data}
+#'   does not contain any survival outcomes.
 #'
-#' @details This function maps a new dataset onto a pred_info object. The new
-#'   dataset might be a validation dataset (to test the performance of the
+#' @details This function maps a new dataset onto a \code{pred_info} object. The
+#'   new dataset might be a validation dataset (to test the performance of the
 #'   existing prediction model) and/or it might be the dataset on which one
 #'   wishes to apply model updating methods to revise the model. In any case,
-#'   this should be specified in \code{new_data} as a data.frame. Each row should
-#'   be an observation (e.g. patient) and each variable/column should be a
-#'   predictor variable. The predictor variables need to include (as a minimum)
-#'   all of the predictor variables that are included in the existing prediction
-#'   model (i.e., each of the variable names supplied to
+#'   this should be specified in \code{new_data} as a data.frame. Each row
+#'   should be an observation (e.g. patient) and each variable/column should be
+#'   a predictor variable. The predictor variables need to include (as a
+#'   minimum) all of the predictor variables that are included in the existing
+#'   prediction model (i.e., each of the variable names supplied to
 #'   \code{\link{pred_input_info}}, through the \code{model_info} parameter,
 #'   must match the name of a variables in \code{new_data}).
 #'
-#'   Any factor variables within \code{new_data} must be converted to dummy (0/1)
-#'   variables before calling this function. \code{\link{dummy_vars}} can help
-#'   with this.
+#'   Any factor variables within \code{new_data} must be converted to dummy
+#'   (0/1) variables before calling this function. \code{\link{dummy_vars}} can
+#'   help with this.
 #'
 #'   \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
 #'   used to specify the outcome variable(s) within \code{new_data}, if relevant
@@ -50,7 +50,16 @@
 #'
 #' @return Returns a list of the predinfo object, the new_data, and outcomes.
 #'
-#' @noRd
+#' @examples
+#' #as above, this function is not usually called directly, but an example of
+#' #such use is:
+#' model1 <- pred_input_info(model_type = "logistic",
+#'                           model_info = SYNPM$Existing_logistic_models[1,])
+#' map_newdata(x = model1,
+#'             new_data = SYNPM$ValidationData[1:10,],
+#'             binary_outcome = "Y")
+#'
+#' @export
 map_newdata <- function(x,
                         new_data,
                         binary_outcome = NULL,
