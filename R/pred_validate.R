@@ -3,24 +3,25 @@
 #' Validate an existing prediction model, to calculate the predictive
 #' performance against a new (validation) dataset.
 #'
-#' @param x an object of class "predinfo"
+#' @param x an object of class "\code{predinfo}" produced by calling
+#'   \code{\link{pred_input_info}}.
 #' @param new_data data.frame upon which the prediction model should be
-#'   validated
+#'   evaluated.
 #' @param binary_outcome Character variable giving the name of the column in
 #'   \code{new_data} that represents the observed outcomes. Only relevant for
-#'   \code{model_type}="logistic"; leave as \code{NULL} otherwise.
+#'   \code{x$model_type}="logistic"; leave as \code{NULL} otherwise.
 #' @param survival_time Character variable giving the name of the column in
 #'   \code{new_data} that represents the observed survival times. Only relevant
-#'   for \code{model_type}="survival"; leave as \code{NULL} otherwise.
+#'   for \code{x$model_type}="survival"; leave as \code{NULL} otherwise.
 #' @param event_indicator Character variable giving the name of the column in
 #'   \code{new_data} that represents the observed survival indicator (1 for
-#'   event, 0 for censoring). Only relevant for \code{model_type}="survival";
+#'   event, 0 for censoring). Only relevant for \code{x$model_type}="survival";
 #'   leave as \code{NULL} otherwise.
 #' @param time_horizon for survival models, an integer giving the time horizon
-#'   (post baseline/time of prediction) at which a prediction is required.
-#'   Currently, this must match a time in x$cum_hazard.
+#'   (post baseline) at which a prediction is required. Currently, this must
+#'   match a time in x$cum_hazard.
 #' @param cal_plot indicate if a flexible calibration plot should be produced
-#'   (TRUE) or not (FALSE)
+#'   (TRUE) or not (FALSE).
 #' @param ... further plotting arguments for the calibration plot. See Details
 #'   below.
 #'
@@ -65,28 +66,29 @@
 #'   In the case of validating a survival prediction model, this function
 #'   assesses the predictive performance of the linear predictor and
 #'   (optionally) the predicted event probabilities at a fixed time horizon
-#'   (required specification of x$cum_hazard) against an observed time-to-event
-#'   outcome. Various metrics of calibration and discrimination are calculated.
-#'   For calibration, the observed-to-expected ratio at the specified
-#'   \code{time_horizon} (if predicted risks are available) and calibration
-#'   slope are produced. For discrimination, Harrell's C-statistic is
-#'   calculated. S
+#'   against an observed time-to-event outcome. Various metrics of calibration
+#'   and discrimination are calculated. For calibration, the
+#'   observed-to-expected ratio at the specified \code{time_horizon} (if
+#'   predicted risks are available through specification of \code{x$cum_hazard})
+#'   and calibration slope are produced. For discrimination, Harrell's
+#'   C-statistic is calculated.
 #'
 #'   For both model types, a flexible calibration plot is produced (for survival
-#'   models, the cumulative baseline hazard must be available in the predinfo
-#'   object, \code{x}). Specify parameter \code{cal_plot} to indicate whether a
-#'   calibration plot should be produced (TRUE), or not (FALSE). The calibration
-#'   plot is produced by regressing the observed outcomes against the logit of
-#'   predicted risks (for a logistic model) or the complementary log-log of the
-#'   predicted risks (for a survival model) under a cubic spline. A histogram of
-#'   the predicted risk distribution is displayed on the top x-axis. Users can
-#'   specify parameters to modify the calibration plot. Specifically, one can
-#'   specify: \code{xlab}, \code{ylab}, \code{xlim}, and \code{ylim} to change
-#'   plotting characteristics for the calibration plot. The position of the
-#'   legend can also be changed using \code{x_legend} and \code{y_legend}, while
-#'   the size of text within the legend can be changed with
-#'   \code{txt_size_legend}; the legend can be removed from the plot by
-#'   specifying \code{cal_legend} as FALSE)
+#'   models, the cumulative baseline hazard must be available in the
+#'   \code{predinfo} object, \code{x$cum_hazard}). Specify parameter
+#'   \code{cal_plot} to indicate whether a calibration plot should be produced
+#'   (TRUE), or not (FALSE). The calibration plot is produced by regressing the
+#'   observed outcomes against a cubic spline of the logit of predicted risks
+#'   (for a logistic model) or the complementary log-log of the predicted risks
+#'   (for a survival model). A histogram of the predicted
+#'   risk distribution is displayed on the top x-axis. Users can specify
+#'   parameters to modify the calibration plot. Specifically, one can specify:
+#'   \code{xlab}, \code{ylab}, \code{xlim}, and \code{ylim} to change plotting
+#'   characteristics for the calibration plot. The position of the legend can
+#'   also be changed using \code{x_legend} and \code{y_legend}, while the size
+#'   of text within the legend can be changed with \code{txt_size_legend}; the
+#'   legend can be removed from the plot by specifying \code{cal_legend} as
+#'   FALSE).
 #'
 #' @return A list of performance metrics, estimated by applying the existing
 #'   prediction model to the new_data.

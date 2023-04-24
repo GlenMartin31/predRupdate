@@ -107,7 +107,7 @@ pred_validate(x = Existing_TTE_Model,
 ### Specifying the baseline cumulative hazard
 In the above example, we assumed that the baseline cumulative hazard of the existing CPM was available at discrete follow-up times. In some situations, the entire baseline cumulative hazard curve may be presented, or indeed a parametric form of the baseline cumulative hazard may be provided. In such a situation, one should extract (from the plot) or calculate (from the parametric form) the baseline cumulative hazard at multiple follow-up times of interest (the times at which one wishes to validate the model at).  
 
-Additionally, in some cases, the baseline cumulative hazard of an existing survival (time-to-event) CPM may not be reported/available. In such a situation, one can still use __predRupdate__ to validate such a model. However, only a limited number of metrics will be produced (i.e., only those that require the linear predictor, not absolute risk predictions at a given follow-up time). Specifically, the observed:expected ration and the calibration plot will not be produced. 
+Additionally, in some cases, the baseline cumulative hazard of an existing survival (time-to-event) CPM may not be reported/available. In such a situation, one can still use __predRupdate__ to validate such a model. However, only a limited number of metrics will be produced (i.e., only those that require the linear predictor, not absolute risk predictions at a given follow-up time). Specifically, the observed:expected ratio and the calibration plot will not be produced. 
 
 For example, suppose the baseline cumulative hazard for the above model was not available. We could validate this model using __predRupdate__ as follows:
 ```{r}
@@ -121,7 +121,7 @@ coefs_table <- data.frame("Age" = 0.008,
 #pass this into pred_input_info()
 Existing_TTE_Model <- pred_input_info(model_type = "survival",
                                       model_info = coefs_table,
-                                      cum_hazard = NULL) #leave as NULL if the baseline not avaliable
+                                      cum_hazard = NULL) #leave as NULL if the baseline not available
 
 #now validate against the time-to-event outcomes in the new dataset:
 pred_validate(x = Existing_TTE_Model,

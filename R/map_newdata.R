@@ -5,7 +5,7 @@
 #' usually called directly, but rather within  other functions within the
 #' package, such as \code{pred_predict}.
 #'
-#' @param x an object of class "predinfo"
+#' @param x an object of class "predinfo".
 #' @param new_data data.frame upon which the prediction model should be applied
 #'   (for subsequent validation/model updating/model aggregation).
 #' @param binary_outcome Character variable giving the name of the column in

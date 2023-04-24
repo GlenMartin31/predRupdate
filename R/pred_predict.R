@@ -6,7 +6,7 @@
 #' @param x an object of class "\code{predinfo}" produced by calling
 #'   \code{\link{pred_input_info}}.
 #' @param new_data data.frame upon which predictions are obtained using the
-#'   prediction model
+#'   prediction model.
 #' @param binary_outcome Character variable giving the name of the column in
 #'   \code{new_data} that represents the observed outcomes. Only relevant for
 #'   \code{model_type}="logistic"; leave as \code{NULL} otherwise. Leave as
@@ -21,7 +21,7 @@
 #'   leave as \code{NULL} otherwise. Leave as \code{NULL} if \code{new_data}
 #'   does not contain any survival outcomes.
 #' @param time_horizon for survival models, an integer giving the time horizon
-#'   (post baseline/time of prediction) at which a prediction is required (i.e.
+#'   (post baseline) at which a prediction is required (i.e.
 #'   the t at which P(T<t) should be estimated). Currently, this must match a
 #'   time in x$cum_hazard. If left as NULL, no predicted risks will be returned,
 #'   just the linear predictor.
@@ -29,18 +29,17 @@
 #' @details This function takes the relevant information about the existing
 #'   prediction model (as supplied by calling \code{\link{pred_input_info}}),
 #'   and returns the linear predictor and predicted risks for each
-#'   individual/observation in \code{new_data}. See
-#'   \code{\link{pred_input_info}} for more details.
+#'   individual/observation in \code{new_data}.
 #'
 #'   If the existing prediction model is based on logistic regression (i.e., if
 #'   x$model_type == "logistic"), the predicted risks will be the predicted
 #'   probability of the binary outcome conditional on the predictor variables in
-#'   the new data (i.e., \eqn{P(Y=1 | X)}). If the existing prediction model is
+#'   the new data (i.e., P(Y=1 | X)). If the existing prediction model is
 #'   based on a time-to-event/survival model (i.e., if x$model_type ==
-#'   "survival"), the predicted risks can only be calculated in a baseline
+#'   "survival"), the predicted risks can only be calculated if a baseline
 #'   cumulative hazard is provided; in this case, the predicted risks will be one
-#'   minus the survival probability (i.e., \eqn{1 - S(T>time horizon
-#'   | X)}).
+#'   minus the survival probability (i.e., 1 - S(T>time horizon
+#'   | X)).
 #'
 #'   \code{new_data} should be a data.frame, where each row should be an
 #'   observation (e.g. patient) and each variable/column should be a predictor

@@ -5,7 +5,7 @@
 #' probability from a logistic regression model onto the linear predictor scale.
 #'
 #' @param p Numeric vector of probabilities (i.e. values between 0 and 1) that
-#'   will be transformed
+#'   will be transformed.
 #'
 #' @return A numeric vector, with values between -Inf and Inf
 #' @export
@@ -24,11 +24,11 @@ logit <- function(p) {
 #' Apply the inverse logit function to an input
 #'
 #' \code{inv_logit} applies the inverse-logit transformation (expit/ logistic
-#' function) to convert a vector of values between Inf and Inf, to values
+#' function) to convert a vector of values between -Inf and Inf, to values
 #' between 0 and 1. Used to convert the linear predictor of a logistic
 #' regression model into a probability.
 #'
-#' @param x Numeric vector with values between -Inf and Inf
+#' @param x Numeric vector with values between -Inf and Inf.
 #'
 #' @return Numeric vector of probabilities (i.e. values between 0 and 1)
 #' @export

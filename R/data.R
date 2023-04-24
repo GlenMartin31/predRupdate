@@ -5,7 +5,9 @@
 #' another independent dataset); and (2) a synthetic dataset that we wish to
 #' validate/update the models on.
 #'
-#' @format A list with six elements. \enumerate{\item{The first element is a
+#' @format A list with six elements.
+#'   \enumerate{
+#'   \item{The first element is a
 #'   data frame with the information about three existing binary (logistic
 #'   regression) models for a binary outcome at one year}
 #'   \item{The second element is a data frame with the information about three
@@ -20,9 +22,9 @@
 #'   (1=previous/ current smoker, 0=non-smoker)} \item{Diabetes}{Indicates
 #'   whether the individual has diabetes (1=diabetic, 0=not diabetic)}
 #'   \item{Creatine}{The Creatine value for the individual (mg/dL)}
-#'   \item{ETime}{The time (years) from baseline until either the event or censoring}
+#'   \item{ETime}{The time from baseline until either the event or censoring}
 #'   \item{Status}{Indicator of whether the patient experienced the event or was censored at ETime}
-#'   \item{Y}{Binary indicator of whether the indivudal expereinced the event by 1 year} } }
+#'   \item{Y}{Binary indicator of whether the individual experienced the event by 1 time-unit} } }
 #'   }
 #' @source Simulated Data; see \url{https://github.com/GlenMartin31/predRupdate}
 "SYNPM"

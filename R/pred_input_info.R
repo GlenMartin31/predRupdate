@@ -56,23 +56,26 @@
 #'   calculated.
 #'
 #'   Note, the column names of \code{model_info} should match columns in any new
-#'   data that the existing model(s) will be applied to (i.e. any new_data that
+#'   data that the existing model(s) will be applied to (i.e. any new data that
 #'   will be provided to other functions within the package should have
 #'   corresponding predictor variables entered through \code{model_info}). See
-#'   \code{\link{pred_predict}} for more information.
+#'   \code{\link{pred_predict}}, \code{\link{pred_validate}},
+#'   \code{\link{pred_update}} and \code{\link{pred_stacked_regression}} for
+#'   more information.
 #'
-#' @return \code{\link{pred_input_info}} returns an object of class "predinfo",
-#'   with child classes per model_type. This is a standardised format, such that
-#'   it can be used with other functions in the package. An object of class
-#'   "predinfo" is a list containing the following components: \itemize{ \item{M
-#'   = the number of existing models that information has been entered about}
-#'   \item{model_type = this is the type of analytical model that the existing
-#'   prediction model is based upon ("logistic" or "survival")} \item{coefs =
-#'   this is the list of (previously estimated) coefficients for each predictor
-#'   variable} \item{coef_names = gives the names of each predictor variable}
-#'   \item{formula = this is the functional form of the model's linear
-#'   predictor} \item{cum_hazard = if supplied, this is the cumulative
-#'   baseline hazard of the existing model(s)}}
+#' @return \code{\link{pred_input_info}} returns an object of class
+#'   "\code{predinfo}", with child classes per \code{model_type}. This is a
+#'   standardised format, such that it can be used with other functions in the
+#'   package. An object of class "predinfo" is a list containing the following
+#'   components:
+#'   \itemize{ \item{M = the number of existing models that information has been
+#'   entered about} \item{model_type = this is the type of model that
+#'   the existing prediction model is based upon ("logistic" or "survival")}
+#'   \item{coefs = this is the set of (previously estimated) coefficients for
+#'   each predictor variable} \item{coef_names = gives the names of each
+#'   predictor variable} \item{formula = this is the functional form of the
+#'   model's linear predictor} \item{cum_hazard = if supplied, this is the
+#'   cumulative baseline hazard of the existing model(s)}}
 #'
 #' @examples
 #' #Example 1 - logistic regression existing model
