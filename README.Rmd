@@ -24,7 +24,7 @@ The goal of predRupdate is to provide a suite of functions for validating a exis
 ## Installation
 The package can be installed from CRAN as follows:
 ```{r}
-install.packages("predRupdate")
+# install.packages("predRupdate")
 ```
 
 

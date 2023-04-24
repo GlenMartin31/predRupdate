@@ -18,14 +18,7 @@ to an available dataset.
 The package can be installed from CRAN as follows:
 
 ``` r
-install.packages("predRupdate")
-#> Installing package into '/private/var/folders/08/3vqx_32d1dv68wdrqwpr0pch0000gn/T/RtmpVogiED/temp_libpath6b2422b9f1b'
-#> (as 'lib' is unspecified)
-#> Warning: package 'predRupdate' is not available for this version of R
-#> 
-#> A version of this package for your version of R might be available elsewhere,
-#> see the ideas at
-#> https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages
+# install.packages("predRupdate")
 ```
 
 ## Development version
