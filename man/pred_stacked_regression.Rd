@@ -73,9 +73,11 @@ variable. The predictor variables need to include (as a minimum) all of the
 predictor variables that are included in the existing prediction models
 (i.e., each of the variable names supplied to
 \code{\link{pred_input_info}}, through the \code{model_info} parameter,
-must match the name of a variables in \code{new_data}). Any factor
-variables within \code{new_data} must be converted to dummy (0/1) variables
-before calling this function. \code{\link{dummy_vars}} can help with this.
+must match the name of a variables in \code{new_data}).
+
+Any factor variables within \code{new_data} must be converted to dummy
+(0/1) variables before calling this function. \code{\link{dummy_vars}} can
+help with this. See \code{\link{pred_predict}} for examples.
 
 \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
 used to specify the outcome variable(s) within \code{new_data} (use

@@ -79,10 +79,9 @@ predictor variables that are included in the existing prediction model
 (i.e., each of the variable names supplied to
 \code{\link{pred_input_info}}, through the \code{model_info} parameter,
 must match the name of a variables in \code{new_data}).
-
 Any factor variables within \code{new_data} must be converted to dummy
 (0/1) variables before calling this function. \code{\link{dummy_vars}} can
-help with this.
+help with this. See examples.
 
 \code{binary_outcome}, \code{survival_time} and \code{event_indicator} are
 used to specify the outcome variable(s) within \code{new_data} (use
@@ -91,13 +90,18 @@ used to specify the outcome variable(s) within \code{new_data} (use
 "survival").
 }
 \examples{
-#Example 1 - logistic regression existing model, with outcome specified; uses
-#            an example dataset within the package
-model1 <- pred_input_info(model_type = "logistic",
-                          model_info = SYNPM$Existing_logistic_models[1,])
-pred_predict(x = model1,
-             new_data = SYNPM$ValidationData,
-             binary_outcome = "Y")
+#Example 1 - logistic regression existing model - shows handling of factor variables
+coefs_table <- data.frame("Intercept" = -3.4,
+                          "Sex_M" = 0.306,
+                          "Smoking_Status" = 0.628)
+existing_Logistic_Model <- pred_input_info(model_type = "logistic",
+                                           model_info = coefs_table)
+new_df <- data.frame("Sex" = as.factor(c("M", "F", "M", "M", "F", "F", "M")),
+                     "Smoking_Status" = c(1, 0, 0, 1, 1, 0, 1))
+#new_df has a factor variable, so needs indicator variables creating before pred_predict:
+new_df_indicators <- dummy_vars(new_df)
+pred_predict(x = existing_Logistic_Model,
+             new_data = new_df_indicators)
 
 #Example 2 - survival model example; uses an example dataset within the
 #             package. Multiple existing models

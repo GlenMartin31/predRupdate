@@ -87,7 +87,11 @@ map_newdata.predinfo_logistic <- function(x,
   }
 
   if (any(sapply(new_data, function(x) is.factor(x)))) {
-    stop("'new_data' contains factor variables - convert to dummy/indicator variables first \n dummayvar() can help with this")
+    stop("'new_data' contains factor variables - convert to dummy/indicator variables first \n dummy_vars() can help with this")
+  }
+
+  if (any(sapply(new_data, function(x) is.character(x)))) {
+    warning("'new_data' contains character variables - should these be indicator variables (see dummy_vars())?")
   }
 
   if (!is.null(survival_time)) {
