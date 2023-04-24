@@ -115,3 +115,6 @@ Steyerberg, E.W. and Moons, K.G. (2014), Meta-analysis and aggregation of
 multiple published prediction models. \emph{Statistics in Medicine}, 33:
 2341-2362
 }
+\seealso{
+\code{\link{pred_input_info}}
+}

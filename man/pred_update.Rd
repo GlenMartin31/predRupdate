@@ -126,3 +126,6 @@ Su TL, Jaki T, Hickey GL, Buchan I, Sperrin M. A review of
 statistical updating methods for clinical prediction models. \emph{Stat Methods
 Med Res}. 2018 Jan;27(1):185-197. doi: 10.1177/0962280215626466.
 }
+\seealso{
+\code{\link{pred_input_info}}
+}
