@@ -182,6 +182,10 @@ map_newdata.predinfo_survival <- function(x,
     stop("'new_data' contains factor variables - convert to dummy/indicator variables first \n dummayvar() can help with this")
   }
 
+  if (any(sapply(new_data, function(x) is.character(x)))) {
+    warning("'new_data' contains character variables - should these be indicator variables (see dummy_vars())?")
+  }
+
   if (!is.null(binary_outcome)) {
     stop("'binary_outcome' should be set to NULL if model_type=survival")
   }

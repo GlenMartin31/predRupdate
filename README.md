@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/GlenMartin31/predRupdate/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/GlenMartin31/predRupdate/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/GlenMartin31/predRupdate/branch/master/graph/badge.svg)](https://app.codecov.io/gh/GlenMartin31/predRupdate?branch=master)
 <!-- badges: end -->
 
 The goal of predRupdate is to provide a suite of functions for

@@ -330,12 +330,6 @@ print.predvalidate_survival <- function(x, ...) {
                    round((x$harrell_C - (stats::qnorm(0.975)*x$harrell_C_SE)), 4),
                    round((x$harrell_C + (stats::qnorm(0.975)*x$harrell_C_SE)), 4))
   print(results)
-  # cat("\n")
-  # cat("\nOverall Performance Measures \n",
-  #     "================================= \n", sep = "")
-  # cat("Cox-Snell R-squared: ", round(x$R2_CoxSnell, 4), "\n", sep = "")
-  # cat("Nagelkerke R-squared: ", round(x$R2_Nagelkerke, 4), "\n", sep = "")
-  # cat("Brier Score: ", round(x$BrierScore, 4), "\n", sep = "")
 
   cat("\n Also examine the histogram of predicted risks. \n")
 }
@@ -409,7 +403,7 @@ validate_logistic <- function(ObservedOutcome,
   if (cal_plot == FALSE){
     plot_df <- data.frame("Prob" = Prob)
     print(ggplot2::ggplot(plot_df,
-                          ggplot2::aes_string(x = "Prob")) +
+                          ggplot2::aes(x = .data$Prob)) +
             ggplot2::geom_histogram(bins = 30,
                                     colour = "black") +
             ggplot2::ggtitle("Histogram of the Probability Distribution") +
@@ -506,7 +500,7 @@ validate_survival <- function(ObservedOutcome,
     if (cal_plot == FALSE){
       plot_df <- data.frame("Prob" = Prob)
       print(ggplot2::ggplot(plot_df,
-                            ggplot2::aes_string(x = "Prob")) +
+                            ggplot2::aes(x = .data$Prob)) +
               ggplot2::geom_histogram(bins = 30,
                                       colour = "black") +
               ggplot2::ggtitle("Histogram of the Probability Distribution") +
@@ -571,8 +565,8 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
                           "o" = spline_preds$fit)
 
     print(ggExtra::ggMarginal(ggplot2::ggplot(plot_df,
-                                              ggplot2::aes_string(x = "p",
-                                                                  y = "o")) +
+                                              ggplot2::aes(x = .data$p,
+                                                           y = .data$o)) +
                                 ggplot2::geom_line(ggplot2::aes(linetype = "Calibration Curve",
                                                                 colour = "Calibration Curve")) +
                                 ggplot2::xlim(xlim) +
@@ -613,8 +607,8 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
     plot_df$observed_risk <- 1 - (exp(-bh[(max(which(bh[,2] <= time_horizon))),1])^(exp(stats::predict(vcal, type = "lp"))))
 
     print(ggExtra::ggMarginal(ggplot2::ggplot(plot_df,
-                                              ggplot2::aes_string(x = "Prob",
-                                                                  y = "observed_risk")) +
+                                              ggplot2::aes(x = .data$Prob,
+                                                           y = .data$observed_risk)) +
                                 ggplot2::geom_line(ggplot2::aes(linetype = "Calibration Curve",
                                                                 colour = "Calibration Curve")) +
                                 ggplot2::xlim(xlim) +
