@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# predRupdate
+# predRupdate <a href="https://glenmartin31.github.io/predRupdate/"><img src="man/figures/logo.png" align="right" height="139" /></a>
 
 <!-- badges: start -->
 
@@ -15,7 +15,18 @@ to an available dataset.
 
 ## Installation
 
-The package will be submitted to CRAN soon.
+The package can be installed from CRAN as follows:
+
+``` r
+install.packages("predRupdate")
+#> Installing package into '/private/var/folders/08/3vqx_32d1dv68wdrqwpr0pch0000gn/T/RtmpVogiED/temp_libpath6b2422b9f1b'
+#> (as 'lib' is unspecified)
+#> Warning: package 'predRupdate' is not available for this version of R
+#> 
+#> A version of this package for your version of R might be available elsewhere,
+#> see the ideas at
+#> https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages
+```
 
 ## Development version
 
