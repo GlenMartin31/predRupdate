@@ -13,12 +13,15 @@ test_that("pred_stacked_regression has expected output", {
 
   SR <- pred_stacked_regression(x = LogisticModels,
                                 new_data = SYNPM$ValidationData,
-                                binary_outcome = "Y")
+                                binary_outcome = "Y",
+                                positivity_constraint = FALSE)
   expect_type(SR, type = "list")
   expect_equal(names(SR), c("M", "model_type", "coefs", "coef_names", "formula", "model_info", "Stacked_Regression_Weights"))
   expect_s3_class(SR, "predSR")
   expect_s3_class(SR, "predinfo_logistic")
   expect_s3_class(SR, "predinfo")
+
+  expect_snapshot(summary(SR))
 
   SR <- pred_stacked_regression(x = LogisticModels,
                                 new_data = SYNPM$ValidationData,
@@ -30,7 +33,7 @@ test_that("pred_stacked_regression has expected output", {
   expect_s3_class(SR, "predinfo_logistic")
   expect_s3_class(SR, "predinfo")
 
-  expect_snapshot(summary(SR))
+
 
 
   TTModels <- pred_input_info(model_type = "survival",
