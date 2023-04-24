@@ -5,3 +5,5 @@
 .DS_Store
 inst/doc
 docs
+data-raw/logocreation.R
+data-raw/predRupdate.png
