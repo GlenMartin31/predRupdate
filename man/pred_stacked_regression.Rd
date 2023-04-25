@@ -92,9 +92,6 @@ SR <- pred_stacked_regression(x = LogisticModels,
                               new_data = SYNPM$ValidationData,
                               binary_outcome = "Y")
 summary(SR)
-#one could then validate this as follows (but this should be adjusted for
-#in-sample optimism):
-pred_validate(SR, new_data = SYNPM$ValidationData, binary_outcome = "Y")
 
 #Survival model example:
 TTModels <- pred_input_info(model_type = "survival",
