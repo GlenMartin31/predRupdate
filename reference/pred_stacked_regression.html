@@ -186,36 +186,6 @@ multiple published prediction models. <em>Statistics in Medicine</em>, 33:
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model Functional Form </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Age + SexM + Smoking_Status + Diabetes + Creatine</span>
-<span class="r-in"><span><span class="co">#one could then validate this as follows (but this should be adjusted for</span></span></span>
-<span class="r-in"><span><span class="co">#in-sample optimism):</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">SR</span>, new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="pred_stacked_regression-1.png" alt="" width="700" height="433"></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Measures </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                          Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large        0   0.0204                       -0.0400</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope               1   0.0704                        0.8621</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                          Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration-in-the-large                        0.0400</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope                               1.1379</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the calibration plot, if produced. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Discrimination Measures </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5829   0.0058                        0.5717</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC                        0.5942</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Overall Performance Measures </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cox-Snell R-squared: 0.0098</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Nagelkerke R-squared: 0.0175</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score: 0.1203</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the histogram of predicted risks. </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#Survival model example:</span></span></span>
 <span class="r-in"><span><span class="va">TTModels</span> <span class="op">&lt;-</span> <span class="fu"><a href="pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span></span>
