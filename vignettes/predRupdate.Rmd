@@ -40,7 +40,7 @@ names(coefs_table) <- c("Coefficient")
 knitr::kable(coefs_table, caption = "Table of coefficients for the existing logistic regression prediction model")
 ```
 
-The first step in using __predRupdate__ to validate this model is to input the model information. We start by creating a data.frame of the model coefficients, with the columns being the predictor variable names. This information is then passed into the "pred_input_info()" function to input the information about the existing model. See the help file of "pred_input_info()" for details.
+The first step in using __predRupdate__ to validate this model is to input the model information. We start by creating a data.frame of the model coefficients, with the columns being the predictor variable names. This information is then passed into the `pred_input_info()` function to input the information about the existing model. See `pred_input_info()` for details.
 ```{r}
 # create a data.frame of the model coefficients, with columns being variables
 coefs_table <- data.frame("Intercept" = -3.995, #the intercept needs to be named exactly as given here
@@ -56,7 +56,7 @@ Existing_Logistic_Model <- pred_input_info(model_type = "logistic",
 summary(Existing_Logistic_Model)
 ```
 
-Next we wish to apply this model to our dataset to calculate the predicted risks for each individual, and then compare these predictions with the observed outcomes to calculate predictive performance. This can all be achieved with the "pred_validate()" function, as follows:
+Next we wish to apply this model to our dataset to calculate the predicted risks for each individual, and then compare these predictions with the observed outcomes to calculate predictive performance. This can all be achieved with the `pred_validate()` function, as follows:
 ```{r}
 pred_validate(x = Existing_Logistic_Model,
               new_data = SYNPM$ValidationData,
@@ -83,7 +83,7 @@ BH_table <- SYNPM$TTE_mod1_baseline
 knitr::kable(BH_table, caption = "Table of baseline cumulative hazard")
 ```
 
-We can then use the "pred_validate()" function to validate this model at 1, 2, 3, 4 or 5 months follow-up in the new dataset. To achieve this, one follows a similar syntax to above for the logistic model. The main difference is that one needs to specify a time during follow-up that we'd like to validate the model against - this time must also be available in the baseline cumulative hazard provided. 
+We can then use the `pred_validate()` function to validate this model at 1, 2, 3, 4 or 5 months follow-up in the new dataset. To achieve this, one follows a similar syntax to above for the logistic model. The main difference is that one needs to specify a time during follow-up that we'd like to validate the model against - this time must also be available in the baseline cumulative hazard provided. 
 ```{r}
 # create a data.frame of the model coefficients, with columns being variables
 coefs_table <- data.frame("Age" = 0.007,
@@ -139,7 +139,7 @@ Here, we see that no calibration plot is produced, and the observed:expected rat
 # Example 2: model updating on new data
 In the validation of an existing logistic regression model in Example 1 above, we found that the existing model was miscalibrated in the new data. One strategy to handle this is to apply a range of model updating methods; see `vignette("predRupdate_technical")` for a technical discussion of these methods. 
 
-To illustrate how to achieve this with __predRupdate__, we here choose to apply model re-calibration to the existing logistic regression model shown in Example 1 above. Within __predRupdate__, we use the "pred_update()" function:
+To illustrate how to achieve this with __predRupdate__, we here choose to apply model re-calibration to the existing logistic regression model shown in Example 1 above. Within __predRupdate__, we use `pred_update()`:
 ```{r}
 # create a data.frame of the model coefficients, with columns being variables
 coefs_table <- data.frame("Intercept" = -3.995, 
@@ -160,7 +160,7 @@ Updated_model <- pred_update(Existing_Logistic_Model,
                              binary_outcome = "Y")
 ```
 
-One could then validate this updated model using "pred_validate()", but given we have updated the model in the new data, then in-practice any such performance estimates would need to be adjusted for in-sample optimism (e.g., using cross-validation or bootstrap internal validation):
+One could then validate this updated model using `pred_validate()`, but given we have updated the model in the new data, then in-practice any such performance estimates would need to be adjusted for in-sample optimism (e.g., using cross-validation or bootstrap internal validation):
 ```{r}
 pred_validate(Updated_model, 
               new_data = SYNPM$ValidationData, 
@@ -172,7 +172,7 @@ Similar functionality is available for time-to-event models, using a similar syn
 # Example 3: model aggregation on new data
 Sometimes, there might be multiple existing CPMs available for the same prediction task (e.g., existing models developed across different countries, each aiming to predict the same outcome). Here, model aggregation methods can be used to pool these existing CPMs into a single model in the new data; see `vignette("predRupdate_technical")` for a technical discussion of these methods.
 
-To implement these methods within __predRupdate__, we first need to input the information about the multiple existing models into "pred_input_info()". Each row of the model_info parameter should be the coefficients of an existing CPM; any parameter that is not included in a given CPM should have value NA, as shown below:
+To implement these methods within __predRupdate__, we first need to input the information about the multiple existing models into `pred_input_info()`. Each row of the model_info parameter should be the coefficients of an existing CPM; any parameter that is not included in a given CPM should have value NA, as shown below:
 ```{r}
 coefs_table <- data.frame(rbind(c("Intercept" = -3.995,
                                   "Age" = 0.012,
@@ -197,7 +197,7 @@ multiple_mods <- pred_input_info(model_type = "logistic",
 summary(multiple_mods)
 ```
 
-We can then use "pred_stacked_regression()" function to apply stacked regression to aggregate these models into a single model for the new dataset:
+We can then use `pred_stacked_regression()` to apply stacked regression to aggregate these models into a single model for the new dataset:
 ```{r}
 SR <- pred_stacked_regression(x = multiple_mods,
                               new_data = SYNPM$ValidationData,
@@ -205,7 +205,7 @@ SR <- pred_stacked_regression(x = multiple_mods,
 summary(SR)
 ```
 
-One could then validate this updated model using "pred_validate()", but given we have updated the model in the new data, then in-practice any such performance estimates would need to be adjusted for in-sample optimism (e.g., using cross-validation or bootstrap internal validation):
+One could then validate this updated model using `pred_validate()`, but given we have updated the model in the new data, then in-practice any such performance estimates would need to be adjusted for in-sample optimism (e.g., using cross-validation or bootstrap internal validation):
 ```{r}
 pred_validate(SR, 
               new_data = SYNPM$ValidationData, 
@@ -215,9 +215,9 @@ pred_validate(SR,
 Similar functionality is available for time-to-event models.
 
 # A note on structure of new_data
-As shown above, the workflow within __predRupdate__ is broadly in two main stages: (i) input information about the existing CPM(s) using "pred_input_info()", and then (ii) apply validation, updating or model aggregation methods using "pred_validate()", "pred_update()" or "pred_stacked_regression()", respectively. Stage (i) requires specification of the 'model_info' parameter (which contains the information of the model parameters), and stage (ii) requires specification of the 'new_data' on which one wishes to apply the existing CPM(s). It is a requirement that there is consistency between the parameter/coefficient names given in the 'model_info' parameter of "pred_input_info()" and the names of variables in "new_data". Specifically, each coefficient named in 'model_info' should also be a column of 'new_data'. 
+As shown above, the workflow within __predRupdate__ is broadly in two main stages: (i) input information about the existing CPM(s) using `pred_input_info()`, and then (ii) make predictions, perform validation, perform model updating or conduct model aggregation methods using `pred_predict()` `pred_validate()`, `pred_update()` or `pred_stacked_regression()`, respectively. Stage (i) requires specification of the 'model_info' parameter (which contains the information of the model parameters), and stage (ii) requires specification of the 'new_data' on which one wishes to apply the existing CPM(s). It is a requirement that there is consistency between the parameter/coefficient names given in the 'model_info' parameter of `pred_input_info()` and the names of variables in "new_data" of `pred_predict()` `pred_validate()`, `pred_update()` or `pred_stacked_regression()`. Specifically, each coefficient named in 'model_info' should also be a column of 'new_data'. 
 
-For example, the following results in an error, because the smoking variable passed through model_info in "pred_input_info()" no longer matches the name of the smoking variable in 'new_data' passed to "pred_validate()".
+For example, the following results in an error, because the smoking variable passed through model_info in `pred_input_info()` does not match a name of the smoking variable in 'new_data' passed to `pred_predict()`.
 ```{r}
 # create a data.frame of the model coefficients, with columns being variables
 coefs_table <- data.frame("Intercept" = -3.995, 
@@ -226,9 +226,8 @@ coefs_table <- data.frame("Intercept" = -3.995,
 #pass this into pred_input_info()
 Existing_Logistic_Model <- pred_input_info(model_type = "logistic",
                                            model_info = coefs_table)
-try(pred_validate(Existing_Logistic_Model, 
-                  new_data = SYNPM$ValidationData, 
-                  binary_outcome = "Y"))
+try(pred_predict(Existing_Logistic_Model, 
+                 new_data = SYNPM$ValidationData))
 
 names(SYNPM$ValidationData)
 ```
@@ -239,7 +238,7 @@ new_df <- data.frame("Sex" = as.factor(c("M", "F", "M", "M", "F", "F", "M")),
                      "Smoking_Status" = c(1, 0, 0, 1, 1, 0, 1))
 ```
 
-Here, `new_df` has Sex recorded as a factor variable with levels "M" and "F". Before working with functions in __predRupdate__, one must first convert any factor variables to indicator/dummy variables. We provide "dummy_vars()" within __predRupdate__ to assist with this. For example:
+Here, Sex is recorded as a factor variable with levels "M" and "F". Before working with functions in __predRupdate__, one must first convert any factor variables to indicator/dummy variables. We provide `dummy_vars()` within __predRupdate__ to assist with this. For example:
 ```{r}
 coefs_table <- data.frame("Intercept" = -3.4,
                           "Sex_M" = 0.306,
