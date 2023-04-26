@@ -38,10 +38,9 @@ event, 0 for censoring). Only relevant for \code{x$model_type}="survival";
 leave as \code{NULL} otherwise.}
 }
 \value{
-A object of class "predinfo" with subclass"\code{predUpdate}". This
-is the same as that detailed in \code{\link{pred_input_info}}, with the
-added element containing the estimates of the model updating and the
-update_type.
+A object of class "\code{predUpdate}". This is the same as that
+detailed in \code{\link{pred_input_info}}, with the added element
+containing the estimates of the model updating and the update type.
 }
 \description{
 This function takes an existing (previously developed) prediction model and

@@ -61,10 +61,9 @@
 #'   \code{survival_time} and \code{event_indicator} if \code{x$model_type} =
 #'   "survival").
 #'
-#' @return A object of class "predinfo" with subclass"\code{predUpdate}". This
-#'   is the same as that detailed in \code{\link{pred_input_info}}, with the
-#'   added element containing the estimates of the model updating and the
-#'   update_type.
+#' @return A object of class "\code{predUpdate}". This is the same as that
+#'   detailed in \code{\link{pred_input_info}}, with the added element
+#'   containing the estimates of the model updating and the update type.
 #'
 #' @examples
 #' #Example 1 - update time-to-event model by updating the baseline hazard in new dataset

@@ -46,8 +46,17 @@ match a time in x$cum_hazard.}
 below.}
 }
 \value{
-A list of performance metrics, estimated by applying the existing
-prediction model to the new_data.
+\code{\link{pred_validate}} returns an object of class
+"\code{predvalidate}", with child classes per \code{model_type}. This is a
+list of performance metrics, estimated by applying the existing prediction
+model to the new_data. An object of class "\code{predvalidate}" is a list
+containing relevant calibration and discrimination measures. For logistic
+regression models, this will include calibration-intercept, calibration
+slope, area under the ROC curve, R-squared, and Brier Score. For survival
+models, this will include observed:expected ratio (if \code{cum_hazard} is
+provided to \code{x}), calibration slope, and Harrell's C-statistic.
+Optionally, a flexible calibration plot is also produced, along with a
+histogram of the predicted risk distribution.
 }
 \description{
 Validate an existing prediction model, to calculate the predictive

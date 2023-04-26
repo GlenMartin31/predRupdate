@@ -66,8 +66,8 @@
 #' @return \code{\link{pred_input_info}} returns an object of class
 #'   "\code{predinfo}", with child classes per \code{model_type}. This is a
 #'   standardised format, such that it can be used with other functions in the
-#'   package. An object of class "predinfo" is a list containing the following
-#'   components:
+#'   package. An object of class "\code{predinfo}" is a list containing the
+#'   following components:
 #'   \itemize{ \item{M = the number of existing models that information has been
 #'   entered about} \item{model_type = this is the type of model that
 #'   the existing prediction model is based upon ("logistic" or "survival")}

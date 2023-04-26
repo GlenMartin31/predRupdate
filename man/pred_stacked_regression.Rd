@@ -39,10 +39,9 @@ event, 0 for censoring). Only relevant for \code{x$model_type}="survival";
 leave as \code{NULL} otherwise.}
 }
 \value{
-A object of class "predinfo" with subclass"\code{predSR}". This is
-the same as that detailed in \code{\link{pred_input_info}}, with the added
-element containing the estimates of the meta-model obtained by stacked
-regression.
+A object of class "\code{predSR}". This is the same as that detailed
+in \code{\link{pred_input_info}}, with the added element containing the
+estimates of the meta-model obtained by stacked regression.
 }
 \description{
 This function takes a set of existing prediction models, and uses the new
