@@ -284,8 +284,14 @@ summary.predUpdate <- function(object, ...) {
 
   cat(paste("Original model was updated with type",
             object$update_type, sep = " "))
-  if(object$model_type == "survival" &
-     object$update_type == "intercept_update"){
+
+  if(object$model_type == "survival"){
+
+    if(object$update_type != "intercept_update"){
+      cat("\nThe model updating results are as follows: \n")
+      print(object$model_update_results)
+    }
+
     cat("\nThe new model baseline cumulative hazard is: \n")
     if(nrow(object$cum_hazard) > 6){
       print(utils::head(object$cum_hazard, 6))
@@ -293,9 +299,12 @@ summary.predUpdate <- function(object, ...) {
     }else{
       print((object$cum_hazard))
     }
-  } else{
+
+  } else if (object$model_type == "logistic"){
+
     cat("\nThe model updating results are as follows: \n")
     print(object$model_update_results)
+
   }
 
   cat("\nUpdated Model Coefficients \n",

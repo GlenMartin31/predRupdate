@@ -298,6 +298,18 @@ summary.predSR <- function(object, ...) {
   cat("\nThe model stacked regression weights are as follows: \n")
   print(object$Stacked_Regression_Weights)
 
+  if(object$model_type == "survival"){
+
+    cat("\nThe new model baseline cumulative hazard is: \n")
+    if(nrow(object$cum_hazard) > 6){
+      print(utils::head(object$cum_hazard, 6))
+      cat("...\n")
+    }else{
+      print((object$cum_hazard))
+    }
+
+  }
+
   cat("\nUpdated Model Coefficients \n",
       "================================= \n", sep = "")
   print(object$coefs)
@@ -307,3 +319,4 @@ summary.predSR <- function(object, ...) {
   cat(as.character(object$formula)[2])
 
 }
+
