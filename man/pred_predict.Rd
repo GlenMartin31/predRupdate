@@ -111,10 +111,10 @@ model2 <- pred_input_info(model_type = "survival",
                                                 SYNPM$TTE_mod2_baseline,
                                                 SYNPM$TTE_mod3_baseline))
 pred_predict(x = model2,
-             new_data = SYNPM$ValidationData,
-            survival_time = "ETime",
-            event_indicator = "Status",
-            time_horizon = 5)
+             new_data = SYNPM$ValidationData[1:10,],
+             survival_time = "ETime",
+             event_indicator = "Status",
+             time_horizon = 5)
 
 }
 \seealso{

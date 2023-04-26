@@ -67,36 +67,16 @@
 #'   update_type.
 #'
 #' @examples
-#' #Example 1 - logistic regression existing model, updated using recalibration:
-#' model1 <- pred_input_info(model_type = "logistic",
-#'                           model_info = SYNPM$Existing_logistic_models[1,])
-#' recalibrated_model1 <- pred_update(x = model1,
-#'                                    update_type = "recalibration",
-#'                                    new_data = SYNPM$ValidationData,
-#'                                    binary_outcome = "Y")
-#' summary(recalibrated_model1)
-#' recalibrated_model1$model_update_results #explore the model updating parameter estimates
-#' #one could then validate this as follows (but this should be adjusted for
-#' #in-sample optimism):
-#' pred_validate(recalibrated_model1, new_data = SYNPM$ValidationData, binary_outcome = "Y")
-#'
-#' #Example 2 - update time-to-event model by updating the baseline hazard in new dataset
-#' model2 <- pred_input_info(model_type = "survival",
+#' #Example 1 - update time-to-event model by updating the baseline hazard in new dataset
+#' model1 <- pred_input_info(model_type = "survival",
 #'                           model_info = SYNPM$Existing_TTE_models[1,],
 #'                           cum_hazard = SYNPM$TTE_mod1_baseline)
-#' recalibrated_model2 <- pred_update(x = model2,
+#' recalibrated_model1 <- pred_update(x = model1,
 #'                                    update_type = "intercept_update",
 #'                                    new_data = SYNPM$ValidationData,
 #'                                    survival_time = "ETime",
 #'                                    event_indicator = "Status")
-#' summary(recalibrated_model2)
-#' #one could then validate this as follows (but this should be adjusted for
-#' #in-sample optimism):
-#' pred_validate(recalibrated_model2,
-#'               new_data = SYNPM$ValidationData,
-#'               event_indicator = "Status",
-#'               survival_time = "ETime",
-#'               time_horizon = 5)
+#' summary(recalibrated_model1)
 #'
 #' @references Su TL, Jaki T, Hickey GL, Buchan I, Sperrin M. A review of
 #'   statistical updating methods for clinical prediction models. \emph{Stat Methods

@@ -94,32 +94,14 @@
 #' @export
 #'
 #' @examples
-#' #Example 1 - logistic regression existing model, with outcome specified; uses
+#' #Example 1 - multiple existing model, with outcome specified; uses
 #' #            an example dataset within the package
 #' model1 <- pred_input_info(model_type = "logistic",
-#'                           model_info = SYNPM$Existing_logistic_models[1,])
+#'                           model_info = SYNPM$Existing_logistic_models)
 #' pred_validate(x = model1,
 #'              new_data = SYNPM$ValidationData,
-#'              binary_outcome = "Y")
-#'
-#' #Example 2 - multiple existing model, with outcome specified; uses
-#' #            an example dataset within the package
-#' model2 <- pred_input_info(model_type = "logistic",
-#'                           model_info = SYNPM$Existing_logistic_models)
-#' pred_validate(x = model2,
-#'              new_data = SYNPM$ValidationData,
-#'              binary_outcome = "Y")
-#'
-#' #Example 3 - survival model example; uses an example dataset within the
-#' #             package.
-#' model3 <- pred_input_info(model_type = "survival",
-#'                           model_info = SYNPM$Existing_TTE_models[2,],
-#'                           cum_hazard = SYNPM$TTE_mod2_baseline)
-#' pred_validate(x = model3,
-#'              new_data = SYNPM$ValidationData,
-#'             survival_time = "ETime",
-#'             event_indicator = "Status",
-#'             time_horizon = 5)
+#'              binary_outcome = "Y",
+#'              cal_plot = FALSE)
 #'
 #' @seealso \code{\link{pred_input_info}}
 pred_validate <- function(x,
