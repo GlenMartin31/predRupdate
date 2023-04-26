@@ -176,9 +176,12 @@ multiple published prediction models. <em>Statistics in Medicine</em>, 33:
 <span class="r-in"><span>                              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span></span>
 <span class="r-in"><span>                              binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">SR</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Information about 1 existing model(s) of type 'logistic' </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Existing models aggregated using stacked regression</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> The model stacked regression weights are as follows: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)         LP1         LP2         LP3 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.02781941  0.46448799  0.15626108  0.16282116 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Model Coefficients </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Updated Model Coefficients </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Intercept         Age      SexM Smoking_Status  Diabetes  Creatine</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 -2.675134 0.005345728 0.1589948      0.5233706 0.2543348 0.4554044</span>
@@ -198,9 +201,12 @@ multiple published prediction models. <em>Statistics in Medicine</em>, 33:
 <span class="r-in"><span>                              survival_time <span class="op">=</span> <span class="st">"ETime"</span>,</span></span>
 <span class="r-in"><span>                              event_indicator <span class="op">=</span> <span class="st">"Status"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">SR</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Information about 1 existing model(s) of type 'survival' </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Existing models aggregated using stacked regression</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> The model stacked regression weights are as follows: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        LP1        LP2        LP3 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2707658  1.8832932 -0.4488339 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Model Coefficients </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Updated Model Coefficients </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          Age      SexM Smoking_Status  Diabetes  Creatine</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.03363821 0.2725367      0.5354202 0.1595384 0.3142822</span>

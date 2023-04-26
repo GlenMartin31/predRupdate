@@ -210,12 +210,14 @@ with the observed outcomes to calculate predictive performance. This can
 all be achieved with the <code><a href="../reference/pred_validate.html">pred_validate()</a></code> function, as
 follows:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_Logistic_Model</span>,</span>
-<span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
-<span>              binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">validation_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_Logistic_Model</span>,</span>
+<span>                                    new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
+<span>                                    binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="predRupdate_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
-<pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
-<span><span class="co">#&gt; ================================= </span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">validation_results</span><span class="op">)</span> <span class="co">#use summary() to obtain a tidy output summary of the model performance</span></span>
+<span><span class="co">#&gt; Calibration Measures </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
 <span><span class="co">#&gt;                          Estimate Std. Err Lower 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; Calibration-in-the-large   0.7076   0.0206                        0.6673</span></span>
 <span><span class="co">#&gt; Calibration Slope          0.6496   0.0463                        0.5588</span></span>
@@ -226,7 +228,7 @@ follows:</p>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
-<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
 <span><span class="co">#&gt;     Estimate Std. Err Lower 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; AUC   0.5816   0.0057                        0.5703</span></span>
 <span><span class="co">#&gt;     Upper 95% Confidence Interval</span></span>
@@ -234,12 +236,12 @@ follows:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Overall Performance Measures </span></span>
-<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
 <span><span class="co">#&gt; Cox-Snell R-squared: -0.0446</span></span>
 <span><span class="co">#&gt; Nagelkerke R-squared: -0.0801</span></span>
 <span><span class="co">#&gt; Brier Score: 0.1246</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre>
+<span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre></div>
 <p>This produces a flexible calibration plot, along with outputting
 various metrics of model calibration (e.g., calibration intercept and
 slope), discrimination (e.g., area under the ROC curve) and overall
@@ -347,14 +349,16 @@ also be available in the baseline cumulative hazard provided.</p>
 <span>                                      cum_hazard <span class="op">=</span> <span class="va">BH_table</span><span class="op">)</span> <span class="co">#where BH_table is the baseline hazard above</span></span>
 <span></span>
 <span><span class="co">#now validate against the time-to-event outcomes in the new dataset:</span></span>
-<span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_TTE_Model</span>,</span>
-<span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
-<span>              survival_time <span class="op">=</span> <span class="st">"ETime"</span>,</span>
-<span>              event_indicator <span class="op">=</span> <span class="st">"Status"</span>,</span>
-<span>              time_horizon <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">validation_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_TTE_Model</span>,</span>
+<span>                                    new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
+<span>                                    survival_time <span class="op">=</span> <span class="st">"ETime"</span>,</span>
+<span>                                    event_indicator <span class="op">=</span> <span class="st">"Status"</span>,</span>
+<span>                                    time_horizon <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="predRupdate_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
-<pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
-<span><span class="co">#&gt; ================================= </span></span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">validation_results</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Calibration Measures </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
 <span><span class="co">#&gt;                         Estimate Std. Err Lower 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; Observed:Expected Ratio   1.2211   0.0113                        1.1944</span></span>
 <span><span class="co">#&gt; Calibration Slope         0.7129   0.0281                        0.6580</span></span>
@@ -365,13 +369,13 @@ also be available in the baseline cumulative hazard provided.</p>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
-<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
 <span><span class="co">#&gt;           Estimate Std. Err Lower 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; Harrell C   0.5789   0.0032                        0.5726</span></span>
 <span><span class="co">#&gt;           Upper 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; Harrell C                        0.5852</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre>
+<span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre></div>
 <p>Here, we see that the existing model under-predicts the mean risk at
 5-months (observed:Expected Ratio greater than 1), and there is evidence
 of over-fitting (both from the calibration plot and the calibration
@@ -415,15 +419,16 @@ model was not available. We could validate this model using
 <span>                                      cum_hazard <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="co">#leave as NULL if the baseline not available</span></span>
 <span></span>
 <span><span class="co">#now validate against the time-to-event outcomes in the new dataset:</span></span>
-<span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_TTE_Model</span>,</span>
-<span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
-<span>              survival_time <span class="op">=</span> <span class="st">"ETime"</span>,</span>
-<span>              event_indicator <span class="op">=</span> <span class="st">"Status"</span>,</span>
-<span>              time_horizon <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="va">validation_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_TTE_Model</span>,</span>
+<span>                                    new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
+<span>                                    survival_time <span class="op">=</span> <span class="st">"ETime"</span>,</span>
+<span>                                    event_indicator <span class="op">=</span> <span class="st">"Status"</span>,</span>
+<span>                                    time_horizon <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Predicted risks are not available for some models: limited calibration</span></span>
 <span><span class="co">#&gt; metrics returned and no calibration plot produced</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">validation_results</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Calibration Measures </span></span>
-<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
 <span><span class="co">#&gt;                         Estimate Std. Err Lower 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; Observed:Expected Ratio       NA       NA                            NA</span></span>
 <span><span class="co">#&gt; Calibration Slope         0.7129   0.0281                         0.658</span></span>
@@ -434,7 +439,7 @@ model was not available. We could validate this model using
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
-<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
 <span><span class="co">#&gt;           Estimate Std. Err Lower 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; Harrell C   0.5789   0.0032                        0.5726</span></span>
 <span><span class="co">#&gt;           Upper 95% Confidence Interval</span></span>
@@ -476,19 +481,35 @@ regression model shown in Example 1 above. Within
 <span><span class="va">Updated_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_update.html">pred_update</a></span><span class="op">(</span><span class="va">Existing_Logistic_Model</span>,</span>
 <span>                             update_type <span class="op">=</span> <span class="st">"recalibration"</span>,</span>
 <span>                             new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
-<span>                             binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
+<span>                             binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">Updated_model</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Original model was updated with type recalibration</span></span>
+<span><span class="co">#&gt; The model updating results are as follows: </span></span>
+<span><span class="co">#&gt;               Estimate Std. Error</span></span>
+<span><span class="co">#&gt; (Intercept) -0.1579827 0.11713282</span></span>
+<span><span class="co">#&gt; Slope        0.6495556 0.04629572</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Updated Model Coefficients </span></span>
+<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt;   Intercept         Age      SexM Smoking_Status  Diabetes  Creatine</span></span>
+<span><span class="co">#&gt; 1 -2.752957 0.007794668 0.1734314      0.4878163 0.3397176 0.3754432</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Functional Form </span></span>
+<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt; Age + SexM + Smoking_Status + Diabetes + Creatine</span></span></code></pre></div>
 <p>One could then validate this updated model using
 <code><a href="../reference/pred_validate.html">pred_validate()</a></code>, but given we have updated the model in the
 new data, then in-practice any such performance estimates would need to
 be adjusted for in-sample optimism (e.g., using cross-validation or
 bootstrap internal validation):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">Updated_model</span>, </span>
-<span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
-<span>              binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">Updated_model</span>, </span>
+<span>                      new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
+<span>                      binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="predRupdate_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
 <pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
-<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
 <span><span class="co">#&gt;                          Estimate Std. Err Lower 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; Calibration-in-the-large        0   0.0204                       -0.0400</span></span>
 <span><span class="co">#&gt; Calibration Slope               1   0.0713                        0.8603</span></span>
@@ -499,7 +520,7 @@ bootstrap internal validation):</p>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
-<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
 <span><span class="co">#&gt;     Estimate Std. Err Lower 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; AUC   0.5816   0.0057                        0.5703</span></span>
 <span><span class="co">#&gt;     Upper 95% Confidence Interval</span></span>
@@ -507,7 +528,7 @@ bootstrap internal validation):</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Overall Performance Measures </span></span>
-<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
 <span><span class="co">#&gt; Cox-Snell R-squared: 0.0095</span></span>
 <span><span class="co">#&gt; Nagelkerke R-squared: 0.0171</span></span>
 <span><span class="co">#&gt; Brier Score: 0.1203</span></span>
@@ -584,9 +605,12 @@ new dataset:</p>
 <span>                              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
 <span>                              binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">SR</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Information about 1 existing model(s) of type 'logistic' </span></span>
+<span><span class="co">#&gt; Existing models aggregated using stacked regression</span></span>
+<span><span class="co">#&gt; The model stacked regression weights are as follows: </span></span>
+<span><span class="co">#&gt; (Intercept)         LP1         LP2         LP3 </span></span>
+<span><span class="co">#&gt;  0.02072515  0.48150208  0.12920227  0.16559034 </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Model Coefficients </span></span>
+<span><span class="co">#&gt; Updated Model Coefficients </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;   Intercept         Age      SexM Smoking_Status Diabetes  Creatine</span></span>
 <span><span class="co">#&gt; 1 -2.696639 0.005778025 0.1573732      0.5233854 0.257464 0.4554285</span></span>
@@ -600,12 +624,12 @@ new data, then in-practice any such performance estimates would need to
 be adjusted for in-sample optimism (e.g., using cross-validation or
 bootstrap internal validation):</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">SR</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">SR</span>, </span>
 <span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
-<span>              binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
+<span>              binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="predRupdate_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
 <pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
-<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
 <span><span class="co">#&gt;                          Estimate Std. Err Lower 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; Calibration-in-the-large        0   0.0204                       -0.0400</span></span>
 <span><span class="co">#&gt; Calibration Slope               1   0.0702                        0.8623</span></span>
@@ -616,7 +640,7 @@ bootstrap internal validation):</p>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
-<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
 <span><span class="co">#&gt;     Estimate Std. Err Lower 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; AUC    0.583   0.0058                        0.5717</span></span>
 <span><span class="co">#&gt;     Upper 95% Confidence Interval</span></span>
@@ -624,7 +648,7 @@ bootstrap internal validation):</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Overall Performance Measures </span></span>
-<span><span class="co">#&gt; ================================= </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
 <span><span class="co">#&gt; Cox-Snell R-squared: 0.0098</span></span>
 <span><span class="co">#&gt; Nagelkerke R-squared: 0.0175</span></span>
 <span><span class="co">#&gt; Brier Score: 0.1203</span></span>

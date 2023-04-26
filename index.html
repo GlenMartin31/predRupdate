@@ -124,7 +124,7 @@
 <span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.306</span>,</span>
 <span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.628</span>,</span>
 <span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.499</span>,</span>
-<span>                          <span class="st">"CKD"</span> <span class="op">=</span> <span class="fl">0.538</span><span class="op">)</span></span>
+<span>                          <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.538</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#pass this into pred_input_info()</span></span>
 <span><span class="va">Existing_Logistic_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span>
@@ -133,7 +133,7 @@
 <span></span>
 <span><span class="co">#validate this model against an available dataset</span></span>
 <span><span class="fu"><a href="reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_Logistic_Model</span>,</span>
-<span>              newdata <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
+<span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
 <span>              binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">

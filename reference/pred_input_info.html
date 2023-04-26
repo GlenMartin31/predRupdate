@@ -190,38 +190,14 @@ more information.</p>
 <span class="r-in"><span><span class="fu">pred_input_info</span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span></span>
 <span class="r-in"><span>                model_info <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">Existing_TTE_models</span><span class="op">[</span><span class="fl">2</span>,<span class="op">]</span>,</span></span>
 <span class="r-in"><span>                cum_hazard <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">TTE_mod2_baseline</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $M</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $model_type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "survival"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $coefs</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Age      SexM Smoking_Status  Diabetes  Creatine</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.02089659 0.2038455      0.5118238 0.1457449 0.3938243</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $coef_names</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Age"            "SexM"           "Smoking_Status" "Diabetes"      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "Creatine"      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $formula</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Formula: </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~Age + SexM + Smoking_Status + Diabetes + Creatine</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x55c3c050af68&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x559cb584eab0&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $cum_hazard</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   time     hazard</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1 0.03852082</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    2 0.07920059</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    3 0.11893439</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    4 0.16022177</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    5 0.20209623</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $model_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Coefficients: </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          Age      SexM Smoking_Status  Diabetes  Creatine</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.02089659 0.2038455      0.5118238 0.1457449 0.3938243</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "predinfo_survival" "predinfo"         </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#Example 3 - Input information about multiple models</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">pred_input_info</span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span></span>
