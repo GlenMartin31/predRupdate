@@ -29,6 +29,8 @@ test_that("pred_update() has correct outputs", {
                               new_data = SYNPM$ValidationData,
                               binary_outcome = "Y")
 
+  expect_output(summary(refit_model1))
+
   expect_s3_class(intupdate_model1, c("predUpdate", "predinfo_logistic", "predinfo"))
   expect_s3_class(recalibrated_model1, c("predUpdate", "predinfo_logistic", "predinfo"))
   expect_s3_class(refit_model1, c("predUpdate", "predinfo_logistic", "predinfo"))

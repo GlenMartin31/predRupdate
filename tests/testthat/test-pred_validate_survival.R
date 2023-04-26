@@ -12,9 +12,9 @@ test_that("output of pred_validate is as expected - single models", {
   expect_type(val_results, type = "list")
   expect_equal(names(val_results),
                c("OE_ratio", "OE_ratio_SE", "CalSlope", "CalSlope_SE", "harrell_C",
-                 "harrell_C_SE"))
+                 "harrell_C_SE", "M"))
 
-  expect_snapshot(print(val_results))
+  expect_snapshot(summary(val_results))
 })
 
 test_that("output of pred_validate is as expected - multiple models", {
@@ -32,11 +32,14 @@ test_that("output of pred_validate is as expected - multiple models", {
                               cal_plot = FALSE)
 
   expect_type(val_results, type = "list")
-  expect_equal(length(val_results), model2$M)
+  expect_equal(length(val_results), model2$M + 1)
 
-  expect_s3_class(val_results[[1]], c("predvalidate_survival", "predvalidate"))
-  expect_type(val_results[[1]], type = "list")
-  expect_equal(names(val_results[[1]]),
-               c("OE_ratio", "OE_ratio_SE", "CalSlope", "CalSlope_SE", "harrell_C",
-                 "harrell_C_SE"))
+  expect_s3_class(val_results, c("predvalidate_survival", "predvalidate"))
+
+  for(m in 1:model2$M) {
+    expect_type(val_results[[m]], type = "list")
+    expect_equal(names(val_results[[m]]),
+                 c("OE_ratio", "OE_ratio_SE", "CalSlope", "CalSlope_SE", "harrell_C",
+                   "harrell_C_SE"))
+  }
 })
