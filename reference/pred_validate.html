@@ -126,8 +126,17 @@ below.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A list of performance metrics, estimated by applying the existing
-prediction model to the new_data.</p>
+<p><code>pred_validate</code> returns an object of class
+"<code>predvalidate</code>", with child classes per <code>model_type</code>. This is a
+list of performance metrics, estimated by applying the existing prediction
+model to the new_data. An object of class "<code>predvalidate</code>" is a list
+containing relevant calibration and discrimination measures. For logistic
+regression models, this will include calibration-intercept, calibration
+slope, area under the ROC curve, R-squared, and Brier Score. For survival
+models, this will include observed:expected ratio (if <code>cum_hazard</code> is
+provided to <code>x</code>), calibration slope, and Harrell's C-statistic.
+Optionally, a flexible calibration plot is also produced, along with a
+histogram of the predicted risk distribution.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
