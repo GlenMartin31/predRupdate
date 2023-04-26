@@ -206,41 +206,40 @@ taken from the original development of the model) and <span class="math inline">
 regression coefficients and predictor variables is the linear predictor
 of the model.</p>
 <p>To obtain a flexible calibration plot of this model within the
-validation data, <code><a href="../reference/pred_validate.html">predRupdate::pred_validate()</a></code> fits the
-following model to the validation data:</p>
+validation data, <code><a href="../reference/pred_validate.html">pred_validate()</a></code> fits the following model
+to the validation data:</p>
 <p><span class="math display">\[
 \log\left(\frac{\pi_i}{1-\pi_i}\right) = \alpha_0 + s(LP_i)
 \]</span></p>
 <p>where <span class="math inline">\(s(.)\)</span> is some smooth
-function; in <code><a href="../reference/pred_validate.html">predRupdate::pred_validate()</a></code> this is a natural
-cubic spline. This model is then used to obtain observed probabilities
-for each individual in the validation dataset, which are plotted against
-the corresponding predicted risks obtained from the CPM. A resulting
-curve close to the diagonal (y=x line) indicates that predicted risks
+function; in <code><a href="../reference/pred_validate.html">pred_validate()</a></code> this is a natural cubic
+spline. This model is then used to obtain observed probabilities for
+each individual in the validation dataset, which are plotted against the
+corresponding predicted risks obtained from the CPM. A resulting curve
+close to the diagonal (y=x line) indicates that predicted risks
 correspond well to observed proportions. In
-<code><a href="../reference/pred_validate.html">predRupdate::pred_validate()</a></code>, a histogram of the predicted
-risk distribution is overlaid with the calibration plot, to visually
+<code><a href="../reference/pred_validate.html">pred_validate()</a></code>, a histogram of the predicted risk
+distribution is overlaid with the calibration plot, to visually
 summarise the probability distribution.</p>
 <p>If validating an existing time-to-event CPM,
-<code><a href="../reference/pred_validate.html">predRupdate::pred_validate()</a></code> produces the flexible
-calibration plot using methods similar to those described above for
-logistic regression models. Here, the observed probabilities are
-obtained by fitting a Cox proportional hazards model to regress the
-linear predictor of the model (under natural cubic spline) against the
-time-to-event outcome in the validation dataset. A time horizon must
-also be specified (i.e., the time during follow-up in which to assess
-calibration). Such a plot can only be produced for an existing
-time-to-event CPM if the cumulative baseline hazard of the model is
-supplied.</p>
-<p>Alongside flexible calibration plots,
-<code><a href="../reference/pred_validate.html">predRupdate::pred_validate()</a></code> also calculates the
-calibration slope. The calibration slope (ideal value 1) indicates the
-level of over-fitting of the model, with values less than 1 indicating
-more over-fitting. In <code><a href="../reference/pred_validate.html">predRupdate::pred_validate()</a></code> this is
-estimated by fitting a logistic regression model (if the existing CPM is
-a logistic model) or Cox proportion hazards model (if the existing CPM
-is a survival model) to the observed outcomes in the validation dataset
-with the linear predictor from the CPM as the only covariate.</p>
+<code><a href="../reference/pred_validate.html">pred_validate()</a></code> produces the flexible calibration plot
+using methods similar to those described above for logistic regression
+models. Here, the observed probabilities are obtained by fitting a Cox
+proportional hazards model to regress the linear predictor of the model
+(under natural cubic spline) against the time-to-event outcome in the
+validation dataset. A time horizon must also be specified (i.e., the
+time during follow-up in which to assess calibration). Such a plot can
+only be produced for an existing time-to-event CPM if the cumulative
+baseline hazard of the model is supplied.</p>
+<p>Alongside flexible calibration plots, <code><a href="../reference/pred_validate.html">pred_validate()</a></code>
+also calculates the calibration slope. The calibration slope (ideal
+value 1) indicates the level of over-fitting of the model, with values
+less than 1 indicating more over-fitting. In
+<code><a href="../reference/pred_validate.html">pred_validate()</a></code> this is estimated by fitting a logistic
+regression model (if the existing CPM is a logistic model) or Cox
+proportion hazards model (if the existing CPM is a survival model) to
+the observed outcomes in the validation dataset with the linear
+predictor from the CPM as the only covariate.</p>
 <p>Finally, calibration-in-the-large summarises how close the mean
 predicted risk is to the mean outcome proportion in the validation
 dataset. If validating a logistic regression CPM, this is quantified
@@ -264,21 +263,21 @@ those who experience the outcome from those who do not; i.e., does the
 model estimate a higher predicted risk, on average, for those who
 experience the outcome, compared to those who do not experience the
 outcome. For validating logistic regression CPMs,
-<code><a href="../reference/pred_validate.html">predRupdate::pred_validate()</a></code> calculates the area under the
-receiver operating characteristic curve (AUC) of the CPM. For validating
-time-to-event (survival) CPMs, <code><a href="../reference/pred_validate.html">predRupdate::pred_validate()</a></code>
-calculates Harrell’s C-statistic. An AUC/ C-statistic of 0.5 would
-indicate discrimination no better than chance, whereas a value of 1
-indicates perfect calibration.</p>
+<code><a href="../reference/pred_validate.html">pred_validate()</a></code> calculates the area under the receiver
+operating characteristic curve (AUC) of the CPM. For validating
+time-to-event (survival) CPMs, <code><a href="../reference/pred_validate.html">pred_validate()</a></code> calculates
+Harrell’s C-statistic. An AUC/ C-statistic of 0.5 would indicate
+discrimination no better than chance, whereas a value of 1 indicates
+perfect calibration.</p>
 </div>
 <div class="section level3">
 <h3 id="overall-accuracy">Overall Accuracy<a class="anchor" aria-label="anchor" href="#overall-accuracy"></a>
 </h3>
 <p>For validating a logistic regression model,
-<code><a href="../reference/pred_validate.html">predRupdate::pred_validate()</a></code> also produces two additional
-metrics of overall accuracy of the model. The first is the Cox-Snell and
-Nagelkerke R-squared values. Here, higher R-squared values indicate
-better overall performance of the model.</p>
+<code><a href="../reference/pred_validate.html">pred_validate()</a></code> also produces two additional metrics of
+overall accuracy of the model. The first is the Cox-Snell and Nagelkerke
+R-squared values. Here, higher R-squared values indicate better overall
+performance of the model.</p>
 <p>The Cox-Snell R-squared is estimated by</p>
 <p><span class="math display">\[
 R^{2}_{CS} = 1 - \exp\left(\frac{-LR}{n}\right)
@@ -311,9 +310,9 @@ model updating depends on the issues identified during model
 validation.</p>
 <p>If the model validation identifies that the CPM has poor
 calibration-in-the-large, then a simple updating strategy is “intercept
-update”. For a logistic regression CPM,
-<code><a href="../reference/pred_update.html">predRupdate::pred_update()</a></code> fits the following model in the
-new dataset using maximum likelihood estimation:</p>
+update”. For a logistic regression CPM, <code><a href="../reference/pred_update.html">pred_update()</a></code> fits
+the following model in the new dataset using maximum likelihood
+estimation:</p>
 <p><span class="math display">\[
 \log\left(\frac{\pi_i}{1-\pi_i}\right) = \alpha_0 + LP_i = \alpha_0 +
 (\hat{\beta}_0 + \hat{\beta}_1X_{i,1} + ... + \hat{\beta}_PX_{i,P})
@@ -327,9 +326,9 @@ the same as originally published.</p>
 <p>Often, the original model will also demonstrate elements of
 over-fitting (i.e., the calibration slope of the model is &lt;1 in the
 validation data). In such a case, the model can be re-calibrated in the
-new dataset. For a logistic regression CPM,
-<code><a href="../reference/pred_update.html">predRupdate::pred_update()</a></code> fits the following model in the
-new dataset using maximum likelihood estimation:</p>
+new dataset. For a logistic regression CPM, <code><a href="../reference/pred_update.html">pred_update()</a></code>
+fits the following model in the new dataset using maximum likelihood
+estimation:</p>
 <p><span class="math display">\[
 \log\left(\frac{\pi_i}{1-\pi_i}\right) = \alpha_0 + \alpha_1LP_i =
 \alpha_0 + \alpha_1(\hat{\beta}_0 + \hat{\beta}_1X_{i,1} + ... +
@@ -382,9 +381,8 @@ developed across different countries). Here, model aggregation methods
 can be used to pool these existing CPMs into a single model in the new
 data. Various methods exist for this (Martin et al. 2017), with
 <strong>predRupdate</strong> currently implementing stacked regression
-(Debray et al. 2014) through
-<code><a href="../reference/pred_stacked_regression.html">predRupdate::pred_stacked_regression()</a></code>. More methods will
-be added in the future.</p>
+(Debray et al. 2014) through <code><a href="../reference/pred_stacked_regression.html">pred_stacked_regression()</a></code>.
+More methods will be added in the future.</p>
 <p>Specifically, suppose there are a collection of <span class="math inline">\(M\)</span> existing logistic regression CPMs,
 which all aim to predict the same binary outcome, <span class="math inline">\(Y\)</span>, but where developed in different
 populations <span class="math inline">\(j=1,...,M\)</span>. The models
@@ -399,9 +397,9 @@ predictor (LP) given by</p>
 then the corresponding <span class="math inline">\(\beta\)</span> is
 equal to zero. One can then apply these models to each observation <span class="math inline">\(i\)</span> in the validation set to calculate the
 set of <span class="math inline">\(M\)</span> linear predictors.
-<code><a href="../reference/pred_stacked_regression.html">predRupdate::pred_stacked_regression()</a></code> then applies stacked
-regression by regressing these set of linear predictors against the
-observed outcome in the validation dataset as</p>
+<code><a href="../reference/pred_stacked_regression.html">pred_stacked_regression()</a></code> then applies stacked regression
+by regressing these set of linear predictors against the observed
+outcome in the validation dataset as</p>
 <p><span class="math display">\[
 \log\left(\frac{\pi_i}{1-\pi_i}\right) = \gamma_0 + \gamma_1LP_{i,1} +
 ... + \gamma_MLP_{i,M}
@@ -413,14 +411,13 @@ predict the same outcome, there could be a high level of co-linearity in
 the set of <span class="math inline">\(M\)</span> linear predictors.
 Therefore, there have been suggestions to fit the above stacked
 regression model under the constraint that all of <span class="math inline">\(\gamma_1,...\gamma_M\)</span> should be
-non-negative. <code><a href="../reference/pred_stacked_regression.html">predRupdate::pred_stacked_regression()</a></code>
-implements stacked regression with and without this constraint.</p>
-<p><code><a href="../reference/pred_stacked_regression.html">predRupdate::pred_stacked_regression()</a></code> can also
-implement stacked regression for <span class="math inline">\(M\)</span>
-existing time-to-event (survival) CPMs. The technical details are
-similar to those described above for logistic models, with the exception
-that the underlying model is changed to a Cox proportional hazards
-model.</p>
+non-negative. <code><a href="../reference/pred_stacked_regression.html">pred_stacked_regression()</a></code> implements stacked
+regression with and without this constraint.</p>
+<p><code><a href="../reference/pred_stacked_regression.html">pred_stacked_regression()</a></code> can also implement stacked
+regression for <span class="math inline">\(M\)</span> existing
+time-to-event (survival) CPMs. The technical details are similar to
+those described above for logistic models, with the exception that the
+underlying model is changed to a Cox proportional hazards model.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>

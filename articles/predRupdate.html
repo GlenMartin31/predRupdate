@@ -179,8 +179,8 @@ prediction model</caption>
 model is to input the model information. We start by creating a
 data.frame of the model coefficients, with the columns being the
 predictor variable names. This information is then passed into the
-“pred_input_info()” function to input the information about the existing
-model. See the help file of “pred_input_info()” for details.</p>
+<code><a href="../reference/pred_input_info.html">pred_input_info()</a></code> function to input the information about
+the existing model. See <code><a href="../reference/pred_input_info.html">pred_input_info()</a></code> for details.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
 <span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.995</span>, <span class="co">#the intercept needs to be named exactly as given here</span></span>
@@ -207,7 +207,8 @@ model. See the help file of “pred_input_info()” for details.</p>
 <p>Next we wish to apply this model to our dataset to calculate the
 predicted risks for each individual, and then compare these predictions
 with the observed outcomes to calculate predictive performance. This can
-all be achieved with the “pred_validate()” function, as follows:</p>
+all be achieved with the <code><a href="../reference/pred_validate.html">pred_validate()</a></code> function, as
+follows:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_Logistic_Model</span>,</span>
 <span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
@@ -326,12 +327,12 @@ discrete times of months 1-5 post surgery:</p>
 </tr>
 </tbody>
 </table>
-<p>We can then use the “pred_validate()” function to validate this model
-at 1, 2, 3, 4 or 5 months follow-up in the new dataset. To achieve this,
-one follows a similar syntax to above for the logistic model. The main
-difference is that one needs to specify a time during follow-up that
-we’d like to validate the model against - this time must also be
-available in the baseline cumulative hazard provided.</p>
+<p>We can then use the <code><a href="../reference/pred_validate.html">pred_validate()</a></code> function to validate
+this model at 1, 2, 3, 4 or 5 months follow-up in the new dataset. To
+achieve this, one follows a similar syntax to above for the logistic
+model. The main difference is that one needs to specify a time during
+follow-up that we’d like to validate the model against - this time must
+also be available in the baseline cumulative hazard provided.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
 <span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.007</span>,</span>
@@ -457,7 +458,7 @@ technical discussion of these methods.</p>
 <p>To illustrate how to achieve this with <strong>predRupdate</strong>,
 we here choose to apply model re-calibration to the existing logistic
 regression model shown in Example 1 above. Within
-<strong>predRupdate</strong>, we use the “pred_update()” function:</p>
+<strong>predRupdate</strong>, we use <code><a href="../reference/pred_update.html">pred_update()</a></code>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
 <span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.995</span>, </span>
@@ -476,11 +477,11 @@ regression model shown in Example 1 above. Within
 <span>                             update_type <span class="op">=</span> <span class="st">"recalibration"</span>,</span>
 <span>                             new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
 <span>                             binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
-<p>One could then validate this updated model using “pred_validate()”,
-but given we have updated the model in the new data, then in-practice
-any such performance estimates would need to be adjusted for in-sample
-optimism (e.g., using cross-validation or bootstrap internal
-validation):</p>
+<p>One could then validate this updated model using
+<code><a href="../reference/pred_validate.html">pred_validate()</a></code>, but given we have updated the model in the
+new data, then in-practice any such performance estimates would need to
+be adjusted for in-sample optimism (e.g., using cross-validation or
+bootstrap internal validation):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">Updated_model</span>, </span>
 <span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
@@ -527,9 +528,10 @@ single model in the new data; see
 discussion of these methods.</p>
 <p>To implement these methods within <strong>predRupdate</strong>, we
 first need to input the information about the multiple existing models
-into “pred_input_info()”. Each row of the model_info parameter should be
-the coefficients of an existing CPM; any parameter that is not included
-in a given CPM should have value NA, as shown below:</p>
+into <code><a href="../reference/pred_input_info.html">pred_input_info()</a></code>. Each row of the model_info
+parameter should be the coefficients of an existing CPM; any parameter
+that is not included in a given CPM should have value NA, as shown
+below:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.995</span>,</span>
 <span>                                  <span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.012</span>,</span>
@@ -574,9 +576,9 @@ in a given CPM should have value NA, as shown below:</p>
 <span><span class="co">#&gt; Model 1: Age + SexM + Smoking_Status + Diabetes + Creatine</span></span>
 <span><span class="co">#&gt; Model 2: SexM + Smoking_Status + Diabetes + Creatine</span></span>
 <span><span class="co">#&gt; Model 3: Smoking_Status + Diabetes + Creatine</span></span></code></pre></div>
-<p>We can then use “pred_stacked_regression()” function to apply stacked
-regression to aggregate these models into a single model for the new
-dataset:</p>
+<p>We can then use <code><a href="../reference/pred_stacked_regression.html">pred_stacked_regression()</a></code> to apply
+stacked regression to aggregate these models into a single model for the
+new dataset:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">SR</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_stacked_regression.html">pred_stacked_regression</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">multiple_mods</span>,</span>
 <span>                              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
@@ -592,11 +594,11 @@ dataset:</p>
 <span><span class="co">#&gt; Model Functional Form </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt; Age + SexM + Smoking_Status + Diabetes + Creatine</span></span></code></pre></div>
-<p>One could then validate this updated model using “pred_validate()”,
-but given we have updated the model in the new data, then in-practice
-any such performance estimates would need to be adjusted for in-sample
-optimism (e.g., using cross-validation or bootstrap internal
-validation):</p>
+<p>One could then validate this updated model using
+<code><a href="../reference/pred_validate.html">pred_validate()</a></code>, but given we have updated the model in the
+new data, then in-practice any such performance estimates would need to
+be adjusted for in-sample optimism (e.g., using cross-validation or
+bootstrap internal validation):</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">SR</span>, </span>
 <span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
@@ -635,21 +637,25 @@ validation):</p>
 </h2>
 <p>As shown above, the workflow within <strong>predRupdate</strong> is
 broadly in two main stages: (i) input information about the existing
-CPM(s) using “pred_input_info()”, and then (ii) apply validation,
-updating or model aggregation methods using “pred_validate()”,
-“pred_update()” or “pred_stacked_regression()”, respectively. Stage (i)
-requires specification of the ‘model_info’ parameter (which contains the
+CPM(s) using <code><a href="../reference/pred_input_info.html">pred_input_info()</a></code>, and then (ii) make
+predictions, perform validation, perform model updating or conduct model
+aggregation methods using <code><a href="../reference/pred_predict.html">pred_predict()</a></code>
+<code><a href="../reference/pred_validate.html">pred_validate()</a></code>, <code><a href="../reference/pred_update.html">pred_update()</a></code> or
+<code><a href="../reference/pred_stacked_regression.html">pred_stacked_regression()</a></code>, respectively. Stage (i) requires
+specification of the ‘model_info’ parameter (which contains the
 information of the model parameters), and stage (ii) requires
 specification of the ‘new_data’ on which one wishes to apply the
 existing CPM(s). It is a requirement that there is consistency between
 the parameter/coefficient names given in the ‘model_info’ parameter of
-“pred_input_info()” and the names of variables in “new_data”.
+<code><a href="../reference/pred_input_info.html">pred_input_info()</a></code> and the names of variables in “new_data”
+of <code><a href="../reference/pred_predict.html">pred_predict()</a></code> <code><a href="../reference/pred_validate.html">pred_validate()</a></code>,
+<code><a href="../reference/pred_update.html">pred_update()</a></code> or <code><a href="../reference/pred_stacked_regression.html">pred_stacked_regression()</a></code>.
 Specifically, each coefficient named in ‘model_info’ should also be a
 column of ‘new_data’.</p>
 <p>For example, the following results in an error, because the smoking
-variable passed through model_info in “pred_input_info()” no longer
-matches the name of the smoking variable in ‘new_data’ passed to
-“pred_validate()”.</p>
+variable passed through model_info in <code><a href="../reference/pred_input_info.html">pred_input_info()</a></code>
+does not match a name of the smoking variable in ‘new_data’ passed to
+<code><a href="../reference/pred_predict.html">pred_predict()</a></code>.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
 <span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.995</span>, </span>
@@ -658,9 +664,8 @@ matches the name of the smoking variable in ‘new_data’ passed to
 <span><span class="co">#pass this into pred_input_info()</span></span>
 <span><span class="va">Existing_Logistic_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span>
 <span>                                           model_info <span class="op">=</span> <span class="va">coefs_table</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">Existing_Logistic_Model</span>, </span>
-<span>                  new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
-<span>                  binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="../reference/pred_predict.html">pred_predict</a></span><span class="op">(</span><span class="va">Existing_Logistic_Model</span>, </span>
+<span>                 new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Error in map_newdata.predinfo_logistic(x = x, new_data = new_data, binary_outcome = binary_outcome,  : </span></span>
 <span><span class="co">#&gt;   new_data does not contain some of the predictor variables for the model(s) specified within the pminfo object</span></span>
 <span></span>
@@ -673,11 +678,11 @@ new_data:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">new_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Sex"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"M"</span>, <span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"F"</span>, <span class="st">"M"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                     <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Here, <code>new_df</code> has Sex recorded as a factor variable with
-levels “M” and “F”. Before working with functions in
-<strong>predRupdate</strong>, one must first convert any factor
-variables to indicator/dummy variables. We provide “dummy_vars()” within
-<strong>predRupdate</strong> to assist with this. For example:</p>
+<p>Here, Sex is recorded as a factor variable with levels “M” and “F”.
+Before working with functions in <strong>predRupdate</strong>, one must
+first convert any factor variables to indicator/dummy variables. We
+provide <code><a href="../reference/dummy_vars.html">dummy_vars()</a></code> within <strong>predRupdate</strong> to
+assist with this. For example:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.4</span>,</span>
 <span>                          <span class="st">"Sex_M"</span> <span class="op">=</span> <span class="fl">0.306</span>,</span>
