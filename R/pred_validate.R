@@ -162,9 +162,8 @@ pred_validate.predinfo_logistic <- function(x,
                                      ...)
   } else{
     performance <- vector(mode = "list", length = x$M)
-    names(performance) <- paste("Model_",1:x$M, sep = "")
     for (m in 1:x$M) {
-      performance[[paste("Model_",m, sep = "")]] <-
+      performance[[m]] <-
         validate_logistic(ObservedOutcome = predictions[[m]]$Outcomes,
                           Prob = predictions[[m]]$PredictedRisk,
                           LP = predictions[[m]]$LinearPredictor,
@@ -172,6 +171,8 @@ pred_validate.predinfo_logistic <- function(x,
                           ...)
     }
   }
+  performance$M <- x$M
+  class(performance) <- c("predvalidate_logistic", "predvalidate")
   performance
 }
 
@@ -216,9 +217,8 @@ pred_validate.predinfo_survival <- function(x,
                                      ...)
   } else{
     performance <- vector(mode = "list", length = x$M)
-    names(performance) <- paste("Model_",1:x$M, sep = "")
     for (m in 1:x$M) {
-      performance[[paste("Model_",m, sep = "")]] <-
+      performance[[m]] <-
         validate_survival(ObservedOutcome = predictions[[m]]$Outcomes,
                           Prob = predictions[[m]]$PredictedRisk,
                           LP = predictions[[m]]$LinearPredictor,
@@ -227,397 +227,127 @@ pred_validate.predinfo_survival <- function(x,
                           ...)
     }
   }
+  performance$M <- x$M
+  class(performance) <- c("predvalidate_survival", "predvalidate")
   performance
 }
 
 
 
 #' @export
-print.predvalidate_logistic <- function(x, ...) {
-  cat("Calibration Measures \n",
-      "================================= \n", sep = "")
-  results <- matrix(NA, ncol = 4, nrow = 2)
-  colnames(results) <- c("Estimate",
-                         "Std. Err",
-                         "Lower 95% Confidence Interval",
-                         "Upper 95% Confidence Interval")
-  rownames(results) <- c("Calibration-in-the-large",
-                         "Calibration Slope")
-  results[1,] <- c(round(x$CITL, 4),
-                   round(x$CITL_SE, 4),
-                   round((x$CITL - (stats::qnorm(0.975)*x$CITL_SE)), 4),
-                   round((x$CITL + (stats::qnorm(0.975)*x$CITL_SE)), 4))
-  results[2,] <- c(round(x$CalSlope, 4),
-                   round(x$CalSlope_SE, 4),
-                   round((x$CalSlope - (stats::qnorm(0.975)*x$CalSlope_SE)), 4),
-                   round((x$CalSlope + (stats::qnorm(0.975)*x$CalSlope_SE)), 4))
-  print(results)
-  cat("\n Also examine the calibration plot, if produced. \n")
-  cat("\nDiscrimination Measures \n",
-      "================================= \n", sep = "")
-  results <- matrix(NA, ncol = 4, nrow = 1)
-  colnames(results) <- c("Estimate",
-                         "Std. Err",
-                         "Lower 95% Confidence Interval",
-                         "Upper 95% Confidence Interval")
-  rownames(results) <- c("AUC")
-  results[1,] <- c(round(x$AUC, 4),
-                   round(x$AUC_SE, 4),
-                   round((x$AUC - (stats::qnorm(0.975)*x$AUC_SE)), 4),
-                   round((x$AUC + (stats::qnorm(0.975)*x$AUC_SE)), 4))
-  print(results)
-  cat("\n")
-  cat("\nOverall Performance Measures \n",
-      "================================= \n", sep = "")
-  cat("Cox-Snell R-squared: ", round(x$R2_CoxSnell, 4), "\n", sep = "")
-  cat("Nagelkerke R-squared: ", round(x$R2_Nagelkerke, 4), "\n", sep = "")
-  cat("Brier Score: ", round(x$BrierScore, 4), "\n", sep = "")
-
-  cat("\n Also examine the histogram of predicted risks. \n")
+summary.predvalidate_logistic <- function(object, ...) {
+  if(object$M == 1){
+    predvalidatesummary.fnc(object = object,
+                            model_type = "logistic")
+  } else{
+    for(m in 1:object$M) {
+      cat(paste("\nPerformance Results for Model", m, "\n", sep = " "))
+      cat("================================= \n")
+      predvalidatesummary.fnc(object = object[[m]],
+                              model_type = "logistic")
+    }
+  }
 }
 
 
 
 #' @export
-print.predvalidate_survival <- function(x, ...) {
-  cat("Calibration Measures \n",
-      "================================= \n", sep = "")
-  results <- matrix(NA, ncol = 4, nrow = 2)
-  colnames(results) <- c("Estimate",
-                         "Std. Err",
-                         "Lower 95% Confidence Interval",
-                         "Upper 95% Confidence Interval")
-  rownames(results) <- c("Observed:Expected Ratio", "Calibration Slope")
-  results[1,] <- c(round(x$OE_ratio, 4),
-                   round(x$OE_ratio_SE, 4),
-                   round((x$OE_ratio * exp(-stats::qnorm(0.975) * x$OE_ratio_SE)), 4),
-                   round((x$OE_ratio * exp(stats::qnorm(0.975) * x$OE_ratio_SE)), 4),
-                   round((x$CITL + (stats::qnorm(0.975)*x$CITL_SE)), 4))
-  results[2,] <- c(round(x$CalSlope, 4),
-                   round(x$CalSlope_SE, 4),
-                   round((x$CalSlope - (stats::qnorm(0.975)*x$CalSlope_SE)), 4),
-                   round((x$CalSlope + (stats::qnorm(0.975)*x$CalSlope_SE)), 4))
-  print(results)
-  cat("\n Also examine the calibration plot, if produced. \n")
-  cat("\nDiscrimination Measures \n",
-      "================================= \n", sep = "")
-  results <- matrix(NA, ncol = 4, nrow = 1)
-  colnames(results) <- c("Estimate",
-                         "Std. Err",
-                         "Lower 95% Confidence Interval",
-                         "Upper 95% Confidence Interval")
-  rownames(results) <- c("Harrell C")
-  results[1,] <- c(round(x$harrell_C, 4),
-                   round(x$harrell_C_SE, 4),
-                   round((x$harrell_C - (stats::qnorm(0.975)*x$harrell_C_SE)), 4),
-                   round((x$harrell_C + (stats::qnorm(0.975)*x$harrell_C_SE)), 4))
-  print(results)
-
-  cat("\n Also examine the histogram of predicted risks. \n")
-}
-
-
-# Internal functions for pred_validate.predinfo_logistic() ---------------------
-validate_logistic <- function(ObservedOutcome,
-                              Prob,
-                              LP,
-                              cal_plot,
-                              xlab = "Predicted Probability",
-                              ylab = "Observed Probability",
-                              xlim = c(0,1),
-                              ylim = c(0,1)) {
-
-  # Test for 0 and 1 probabilities
-  n_inf <- sum(is.infinite(LP))
-  if (n_inf > 0) {
-    id <- which(is.infinite(LP))
-    ObservedOutcome <- ObservedOutcome[-id]
-    LP <- LP[-id]
-    Prob <- Prob[-id]
-    warning(paste(n_inf,
-                  'observations deleted due to predicted risks being 0 and 1'))
-  }
-
-
-  #Estimate calibration intercept (i.e. calibration-in-the-large)
-  CITL_mod <- stats::glm(ObservedOutcome ~ 1,
-                         family = stats::binomial(link = "logit"),
-                         offset = LP)
-  CITL <- as.numeric(stats::coef(CITL_mod)[1])
-  CITLSE <- sqrt(stats::vcov(CITL_mod)[1,1])
-
-
-  #Estimate calibration slope
-  CalSlope_mod <- stats::glm(ObservedOutcome ~ LP,
-                             family = stats::binomial(link = "logit"))
-  CalSlope <- as.numeric(stats::coef(CalSlope_mod)[2])
-  CalSlopeSE <- sqrt(stats::vcov(CalSlope_mod)[2,2])
-
-
-  #Discrimination
-  roc_curve <- pROC::roc(response = ObservedOutcome,
-                         predictor = Prob,
-                         direction = "<",
-                         levels = c(0,1),
-                         ci = TRUE)
-  AUC <- as.numeric(roc_curve$auc)
-  AUCSE <- sqrt(pROC::var(roc_curve))
-
-
-  #R-squared metrics
-  R2_mod <- stats::glm(ObservedOutcome ~ -1,
-                       family = stats::binomial(link = "logit"),
-                       offset = LP)
-  E <- sum(ObservedOutcome) #number of events in the validation data
-  N <- length(ObservedOutcome) #number of observations in the validation data
-  L_Null <- (E*log(E/N)) + ((N-E)*log(1 - (E/N)))
-  LR <- -2 * (L_Null - as.numeric(stats::logLik(R2_mod)))
-  MaxR2 <- 1 - exp((2*L_Null) / length(ObservedOutcome))
-  R2_coxsnell <- 1 - exp(-LR / length(ObservedOutcome))
-  R2_Nagelkerke <- R2_coxsnell / MaxR2
-
-
-  #Brier Score
-  BrierScore <- 1/N * (sum((Prob - ObservedOutcome)^2))
-
-  # If not creating a calibration plot, then at least produce histogram of
-  # predicted risks; otherwise this is embedded into the calibration plot
-  if (cal_plot == FALSE){
-    plot_df <- data.frame("Prob" = Prob)
-    print(ggplot2::ggplot(plot_df,
-                          ggplot2::aes(x = .data$Prob)) +
-            ggplot2::geom_histogram(bins = 30,
-                                    colour = "black") +
-            ggplot2::ggtitle("Histogram of the Probability Distribution") +
-            ggplot2::xlab(xlab) +
-            ggplot2::theme_bw(base_size = 12))
-
+summary.predvalidate_survival <- function(object, ...) {
+  if(object$M == 1){
+    predvalidatesummary.fnc(object = object,
+                            model_type = "survival")
   } else{
-    # otherwise produce calibration plot
-    flex_calplot(model_type = "logistic",
-                 ObservedOutcome = ObservedOutcome,
-                 Prob = Prob,
-                 LP = LP,
-                 xlim = xlim,
-                 ylim = ylim,
-                 xlab = xlab,
-                 ylab = ylab)
-  }
-
-  #Return results
-  out <- list("CITL" = CITL,
-              "CITL_SE" = CITLSE,
-              "CalSlope" = CalSlope,
-              "CalSlope_SE" = CalSlopeSE,
-              "AUC" = AUC,
-              "AUC_SE" = AUCSE,
-              "R2_CoxSnell" = R2_coxsnell,
-              "R2_Nagelkerke" = R2_Nagelkerke,
-              "BrierScore" = BrierScore)
-  class(out) <- c("predvalidate_logistic", "predvalidate")
-  out
-}
-
-
-
-
-
-# Internal functions for pred_validate.predinfo_survival() ---------------------
-validate_survival <- function(ObservedOutcome,
-                              Prob,
-                              LP,
-                              cal_plot,
-                              time_horizon,
-                              xlab = "Predicted Probability",
-                              ylab = "Observed Probability",
-                              xlim = c(0,1),
-                              ylim = c(0,1)) {
-
-  # Test if max observed survival time in validation data is less than
-  # time_horizon that performance metrics as requested for:
-  if(max(ObservedOutcome[,1]) < time_horizon) {
-    stop("Maximum observed survival time in validation data is less than time_horizon",
-         call. = FALSE)
-  }
-
-  # Test for 0 and 1 probabilities
-  n_inf <- sum(Prob == 0 | Prob == 1)
-  if (n_inf > 0) {
-    id <- which(Prob == 0 | Prob == 1)
-    ObservedOutcome <- ObservedOutcome[-id]
-    LP <- LP[-id]
-    Prob <- Prob[-id]
-    warning(paste(n_inf,
-                  'observations deleted due to predicted risks being 0 and 1'))
-  }
-
-  #Test Discrimination
-  harrell_C <- survival::concordance(ObservedOutcome ~ LP,
-                                     reverse = TRUE)
-  harrell_C_est <- harrell_C$concordance
-  harrell_C_SE <- sqrt(harrell_C$var)
-
-  #Estimate calibration slope
-  CalSlope_mod <- survival::coxph(ObservedOutcome ~ LP)
-  CalSlope <- as.numeric(CalSlope_mod$coefficients[1])
-  CalSlopeSE <- sqrt(stats::vcov(CalSlope_mod)[1,1])
-
-  # Check if predicted risks are available for stronger calibration assessments
-  if (is.null(Prob)) {
-    warning("Predicted risks are not available for some models: limited calibration metrics returned and no calibration plot produced",
-            call. = FALSE)
-
-    OE_ratio <- NA
-    OE_ratio_SE <- NA
-
-  } else{
-    #Estimate calibration-in-the-large: observed-expected ratio
-    KM_observed <- summary(survival::survfit(ObservedOutcome ~ 1),
-                           times = time_horizon)
-    OE_ratio <- (1 - KM_observed$surv) / mean(Prob)
-    OE_ratio_SE <- sqrt(1 / KM_observed$n.event)
-
-    # If not creating a calibration plot, then at least produce histogram of
-    # predicted risks; otherwise this is embedded into the calibration plot
-    if (cal_plot == FALSE){
-      plot_df <- data.frame("Prob" = Prob)
-      print(ggplot2::ggplot(plot_df,
-                            ggplot2::aes(x = .data$Prob)) +
-              ggplot2::geom_histogram(bins = 30,
-                                      colour = "black") +
-              ggplot2::ggtitle("Histogram of the Probability Distribution") +
-              ggplot2::xlab(xlab) +
-              ggplot2::theme_bw(base_size = 12))
-
-    } else{
-      # otherwise produce calibration plot
-      flex_calplot(model_type = "survival",
-                   ObservedOutcome = ObservedOutcome,
-                   Prob = Prob,
-                   LP = LP,
-                   xlim = xlim,
-                   ylim = ylim,
-                   xlab = xlab,
-                   ylab = ylab,
-                   time_horizon = time_horizon)
+    for(m in 1:object$M) {
+      cat(paste("\nPerformance Results for Model", m, "\n", sep = " "))
+      cat("================================= \n")
+      predvalidatesummary.fnc(object = object[[m]],
+                              model_type = "survival")
     }
   }
-
-  #Return results
-  out <- list("OE_ratio" = OE_ratio,
-              "OE_ratio_SE" = OE_ratio_SE,
-              "CalSlope" = CalSlope,
-              "CalSlope_SE" = CalSlopeSE,
-              "harrell_C" = harrell_C_est,
-              "harrell_C_SE" = harrell_C_SE)
-  class(out) <- c("predvalidate_survival", "predvalidate")
-  out
 }
 
 
 
-# Internal functions for creating flexible calibration plots ---------------------
-flex_calplot <- function(model_type = c("logistic", "survival"),
-                         ObservedOutcome,
-                         Prob,
-                         LP,
-                         xlim,
-                         ylim,
-                         xlab,
-                         ylab,
-                         time_horizon = NULL) {
-
-  model_type <- as.character(match.arg(model_type))
-
-  #test supplied xlims to ensure not cutting-off Prob range
-  if(xlim[1] > min(Prob)){
-    xlim[1] <- min(Prob)
-    warning("Altering xlim range: specified range inconsistent with predicted risk range")
-  }
-  if(xlim[2] < max(Prob)){
-    xlim[2] <- max(Prob)
-    warning("Altering xlim range: specified range inconsistent with predicted risk range")
-  }
-
+predvalidatesummary.fnc <- function(object, model_type) {
   if(model_type == "logistic") {
-    spline_model <- stats::glm(ObservedOutcome ~ splines::ns(LP, df = 3),
-                               family = stats::binomial(link = "logit"))
-    spline_preds <- stats::predict(spline_model, type = "response", se = T)
-    plot_df <- data.frame("p" = Prob,
-                          "o" = spline_preds$fit)
 
-    print(ggExtra::ggMarginal(ggplot2::ggplot(plot_df,
-                                              ggplot2::aes(x = .data$p,
-                                                           y = .data$o)) +
-                                ggplot2::geom_line(ggplot2::aes(linetype = "Calibration Curve",
-                                                                colour = "Calibration Curve")) +
-                                ggplot2::xlim(xlim) +
-                                ggplot2::ylim(ylim) +
-                                ggplot2::xlab(xlab) +
-                                ggplot2::ylab(ylab) +
-                                ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1,
-                                                                  linetype = "Reference",
-                                                                  colour = "Reference"),
-                                                     show.legend = FALSE) +
-                                ggplot2::geom_point(alpha = 0) +
-                                ggplot2::coord_fixed() +
-                                ggplot2::theme_bw(base_size = 12) +
-                                ggplot2::labs(color  = "Guide name", linetype = "Guide name") +
-                                ggplot2::scale_linetype_manual(values = c("dashed",
-                                                                          "solid"),
-                                                               breaks = c("Reference",
-                                                                          "Calibration Curve"),
-                                                               labels = c("Reference",
-                                                                          "Calibration Curve")) +
-                                ggplot2::scale_colour_manual(values = c("black",
-                                                                        "blue"),
-                                                             breaks = c("Reference",
-                                                                        "Calibration Curve")) +
-                                ggplot2::theme(legend.title=ggplot2::element_blank()),
-                              type = "histogram",
-                              margins = "x"))
+    cat("Calibration Measures \n",
+        "--------------------------------- \n", sep = "")
+    results <- matrix(NA, ncol = 4, nrow = 2)
+    colnames(results) <- c("Estimate",
+                           "Std. Err",
+                           "Lower 95% Confidence Interval",
+                           "Upper 95% Confidence Interval")
+    rownames(results) <- c("Calibration-in-the-large",
+                           "Calibration Slope")
+    results[1,] <- c(round(object$CITL, 4),
+                     round(object$CITL_SE, 4),
+                     round((object$CITL - (stats::qnorm(0.975)*object$CITL_SE)), 4),
+                     round((object$CITL + (stats::qnorm(0.975)*object$CITL_SE)), 4))
+    results[2,] <- c(round(object$CalSlope, 4),
+                     round(object$CalSlope_SE, 4),
+                     round((object$CalSlope - (stats::qnorm(0.975)*object$CalSlope_SE)), 4),
+                     round((object$CalSlope + (stats::qnorm(0.975)*object$CalSlope_SE)), 4))
+    print(results)
+    cat("\n Also examine the calibration plot, if produced. \n")
+    cat("\nDiscrimination Measures \n",
+        "--------------------------------- \n", sep = "")
+    results <- matrix(NA, ncol = 4, nrow = 1)
+    colnames(results) <- c("Estimate",
+                           "Std. Err",
+                           "Lower 95% Confidence Interval",
+                           "Upper 95% Confidence Interval")
+    rownames(results) <- c("AUC")
+    results[1,] <- c(round(object$AUC, 4),
+                     round(object$AUC_SE, 4),
+                     round((object$AUC - (stats::qnorm(0.975)*object$AUC_SE)), 4),
+                     round((object$AUC + (stats::qnorm(0.975)*object$AUC_SE)), 4))
+    print(results)
+    cat("\n")
+    cat("\nOverall Performance Measures \n",
+        "--------------------------------- \n", sep = "")
+    cat("Cox-Snell R-squared: ", round(object$R2_CoxSnell, 4), "\n", sep = "")
+    cat("Nagelkerke R-squared: ", round(object$R2_Nagelkerke, 4), "\n", sep = "")
+    cat("Brier Score: ", round(object$BrierScore, 4), "\n", sep = "")
 
-  } else {
-    cloglog <- log(-log(1 - Prob))
-    plot_df <- data.frame(ObservedOutcome,
-                          Prob,
-                          LP,
-                          cloglog)
-    vcal <- survival::coxph(ObservedOutcome ~ splines::ns(cloglog, df = 3),
-                            data = plot_df)
-    bh <- survival::basehaz(vcal)
-    plot_df$observed_risk <- 1 - (exp(-bh[(max(which(bh[,2] <= time_horizon))),1])^(exp(stats::predict(vcal, type = "lp"))))
+    cat("\n Also examine the histogram of predicted risks. \n")
 
-    print(ggExtra::ggMarginal(ggplot2::ggplot(plot_df,
-                                              ggplot2::aes(x = .data$Prob,
-                                                           y = .data$observed_risk)) +
-                                ggplot2::geom_line(ggplot2::aes(linetype = "Calibration Curve",
-                                                                colour = "Calibration Curve")) +
-                                ggplot2::xlim(xlim) +
-                                ggplot2::ylim(ylim) +
-                                ggplot2::xlab(xlab) +
-                                ggplot2::ylab(ylab) +
-                                ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1,
-                                                                  linetype = "Reference",
-                                                                  colour = "Reference"),
-                                                     show.legend = FALSE) +
-                                ggplot2::geom_point(alpha = 0) +
-                                ggplot2::coord_fixed() +
-                                ggplot2::theme_bw(base_size = 12) +
-                                ggplot2::labs(color  = "Guide name", linetype = "Guide name") +
-                                ggplot2::scale_linetype_manual(values = c("dashed",
-                                                                          "solid"),
-                                                               breaks = c("Reference",
-                                                                          "Calibration Curve"),
-                                                               labels = c("Reference",
-                                                                          "Calibration Curve")) +
-                                ggplot2::scale_colour_manual(values = c("black",
-                                                                        "blue"),
-                                                             breaks = c("Reference",
-                                                                        "Calibration Curve")) +
-                                ggplot2::theme(legend.title=ggplot2::element_blank()),
-                              type = "histogram",
-                              margins = "x"))
+  } else if(model_type == "survival"){
+
+    cat("Calibration Measures \n",
+        "--------------------------------- \n", sep = "")
+    results <- matrix(NA, ncol = 4, nrow = 2)
+    colnames(results) <- c("Estimate",
+                           "Std. Err",
+                           "Lower 95% Confidence Interval",
+                           "Upper 95% Confidence Interval")
+    rownames(results) <- c("Observed:Expected Ratio", "Calibration Slope")
+    results[1,] <- c(round(object$OE_ratio, 4),
+                     round(object$OE_ratio_SE, 4),
+                     round((object$OE_ratio * exp(-stats::qnorm(0.975) * object$OE_ratio_SE)), 4),
+                     round((object$OE_ratio * exp(stats::qnorm(0.975) * object$OE_ratio_SE)), 4),
+                     round((object$CITL + (stats::qnorm(0.975)*object$CITL_SE)), 4))
+    results[2,] <- c(round(object$CalSlope, 4),
+                     round(object$CalSlope_SE, 4),
+                     round((object$CalSlope - (stats::qnorm(0.975)*object$CalSlope_SE)), 4),
+                     round((object$CalSlope + (stats::qnorm(0.975)*object$CalSlope_SE)), 4))
+    print(results)
+    cat("\n Also examine the calibration plot, if produced. \n")
+    cat("\nDiscrimination Measures \n",
+        "--------------------------------- \n", sep = "")
+    results <- matrix(NA, ncol = 4, nrow = 1)
+    colnames(results) <- c("Estimate",
+                           "Std. Err",
+                           "Lower 95% Confidence Interval",
+                           "Upper 95% Confidence Interval")
+    rownames(results) <- c("Harrell C")
+    results[1,] <- c(round(object$harrell_C, 4),
+                     round(object$harrell_C_SE, 4),
+                     round((object$harrell_C - (stats::qnorm(0.975)*object$harrell_C_SE)), 4),
+                     round((object$harrell_C + (stats::qnorm(0.975)*object$harrell_C_SE)), 4))
+    print(results)
+
+    cat("\n Also examine the histogram of predicted risks. \n")
+
   }
-
 }

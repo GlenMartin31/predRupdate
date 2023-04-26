@@ -289,3 +289,21 @@ pred_stacked_regression.predinfo_survival <- function(x,
   class(SR_results) <- c("predSR", "predinfo_survival", "predinfo")
   SR_results
 }
+
+
+#' @export
+summary.predSR <- function(object, ...) {
+
+  cat("Existing models aggregated using stacked regression")
+  cat("\nThe model stacked regression weights are as follows: \n")
+  print(object$Stacked_Regression_Weights)
+
+  cat("\nUpdated Model Coefficients \n",
+      "================================= \n", sep = "")
+  print(object$coefs)
+
+  cat("\nModel Functional Form \n",
+      "================================= \n", sep = "")
+  cat(as.character(object$formula)[2])
+
+}

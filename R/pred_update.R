@@ -277,3 +277,33 @@ pred_update.predinfo_survival <- function(x,
   class(update_results) <- c("predUpdate", "predinfo_survival", "predinfo")
   update_results
 }
+
+
+#' @export
+summary.predUpdate <- function(object, ...) {
+
+  cat(paste("Original model was updated with type",
+            object$update_type, sep = " "))
+  if(object$model_type == "survival" &
+     object$update_type == "intercept_update"){
+    cat("\nThe new model baseline cumulative hazard is: \n")
+    if(nrow(object$cum_hazard) > 6){
+      print(utils::head(object$cum_hazard, 6))
+      cat("...\n")
+    }else{
+      print((object$cum_hazard))
+    }
+  } else{
+    cat("\nThe model updating results are as follows: \n")
+    print(object$model_update_results)
+  }
+
+  cat("\nUpdated Model Coefficients \n",
+      "================================= \n", sep = "")
+  print(object$coefs)
+
+  cat("\nModel Functional Form \n",
+      "================================= \n", sep = "")
+  cat(as.character(object$formula)[2])
+
+}
