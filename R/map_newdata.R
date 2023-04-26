@@ -150,7 +150,7 @@ map_newdata.predinfo_logistic <- function(x,
   if (is.null(binary_outcome)) {
     Outcomes <- NULL
   }else {
-    Outcomes <- new_data[,binary_outcome]
+    Outcomes <- new_data[[binary_outcome]]
   }
 
   ######################### RETURN RESULTS #############################
@@ -236,8 +236,8 @@ map_newdata.predinfo_survival <- function(x,
 
   ################# EXTRACT OUTCOMES FROM NEWDATA ######################
   if (!is.null(survival_time) & !is.null(event_indicator)) {
-    Outcomes <- survival::Surv(new_data[,survival_time],
-                               new_data[,event_indicator])
+    Outcomes <- survival::Surv(new_data[[survival_time]],
+                               new_data[[event_indicator]])
   } else{
     Outcomes <- NULL
   }
