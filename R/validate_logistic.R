@@ -75,8 +75,8 @@ validate_logistic <- function(ObservedOutcome,
 
   } else{
 
-    if(length(unique(Prob)) == 1) { #allows handling of intercept-only models
-      stop("Only 1 unique prediction - calplot not possible; call again with cal_plot = FALSE")
+    if(length(unique(Prob)) <= 10) { #allows handling of intercept-only models
+      stop("Very low unique predicted risks - calplot not possible; call again with cal_plot = FALSE")
     } else{
       flex_calplot(model_type = "logistic",
                    ObservedOutcome = ObservedOutcome,

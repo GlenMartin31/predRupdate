@@ -66,16 +66,21 @@ validate_survival <- function(ObservedOutcome,
               ggplot2::theme_bw(base_size = 12))
 
     } else{
-      # otherwise produce calibration plot
-      flex_calplot(model_type = "survival",
-                   ObservedOutcome = ObservedOutcome,
-                   Prob = Prob,
-                   LP = LP,
-                   xlim = xlim,
-                   ylim = ylim,
-                   xlab = xlab,
-                   ylab = ylab,
-                   time_horizon = time_horizon)
+
+      if(length(unique(Prob)) <= 10) {
+        stop("Very low unique predicted risks - calplot not possible; call again with cal_plot = FALSE")
+      } else{
+        flex_calplot(model_type = "survival",
+                     ObservedOutcome = ObservedOutcome,
+                     Prob = Prob,
+                     LP = LP,
+                     xlim = xlim,
+                     ylim = ylim,
+                     xlab = xlab,
+                     ylab = ylab,
+                     time_horizon = time_horizon)
+      }
+
     }
   }
 

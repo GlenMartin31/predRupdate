@@ -20,6 +20,13 @@ test_that("output of pred_validate is as expected - single models", {
 
   expect_snapshot(summary(val_results))
 
+  #test the error for few unique predicted risks:
+  expect_error(pred_validate(x = pred_input_info(model_type = "logistic",
+                                                 model_info = data.frame("Intercept" = -3.995,
+                                                                         "SexM" = 0.267)),
+                             new_data = SYNPM$ValidationData,
+                             binary_outcome = "Y"))
+
 })
 
 

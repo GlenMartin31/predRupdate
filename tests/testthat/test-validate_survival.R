@@ -45,3 +45,13 @@ test_that("survival validations through error if all observed survival times
 
 
 })
+
+test_that("catch for too few unique predicted risks", {
+  expect_error(pred_validate(pred_input_info(model_type = "survival",
+                                             model_info = data.frame("SexM" = 0.012),
+                                             cum_hazard = SYNPM$TTE_mod1_baseline),
+                             new_data = SYNPM$ValidationData,
+                             survival_time = "ETime",
+                             event_indicator = "Status",
+                             time_horizon = 5))
+})
