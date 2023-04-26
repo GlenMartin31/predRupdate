@@ -151,10 +151,15 @@ pred_update.predinfo_logistic <- function(x,
     rownames(param)[2] <- c("Slope")
     names(param) <- c("Estimate", "Std. Error")
 
-    #Update old coefficients
-    coef_table <- x$coefs
-    coef_table <- coef_table * param["Slope","Estimate"]
-    coef_table["Intercept"] <- coef_table["Intercept"] + param["(Intercept)","Estimate"]
+    if(is.na(param["Slope","Estimate"])) {
+      stop("Error occured in recalibration")
+    } else {
+      #Update old coefficients
+      coef_table <- x$coefs
+      coef_table <- coef_table * param["Slope","Estimate"]
+      coef_table["Intercept"] <- coef_table["Intercept"] + param["(Intercept)","Estimate"]
+    }
+
 
   } else if(update_type == "refit") {
     #Run model update
@@ -176,10 +181,8 @@ pred_update.predinfo_logistic <- function(x,
                          "model_type" = x$model_type,
                          "coefs" = data.frame(as.list(coef_table)),
                          "coef_names" = names(coef_table),
-                         "formula" = stats::as.formula(paste("~",
-                                                             paste(names(coef_table)[which(!is.na(coef_table))][-1],
-                                                             collapse = "+"),
-                                                             sep="")),
+                         "formula" = stats::as.formula(paste0(x$formula[1],
+                                                              x$formula[2])),
                          "model_info" = coef_table,
                          "model_update_results" = param,
                          "update_type" = update_type)
@@ -235,9 +238,13 @@ pred_update.predinfo_survival <- function(x,
     rownames(param)[1] <- c("Slope")
     names(param) <- c("Estimate", "Std. Error")
 
-    #Update old coefficients
-    coef_table <- x$coefs
-    coef_table <- coef_table * param["Slope","Estimate"]
+    if(is.na(param["Slope","Estimate"])) {
+      stop("Error occured in recalibration")
+    } else {
+      #Update old coefficients
+      coef_table <- x$coefs
+      coef_table <- coef_table * param["Slope","Estimate"]
+    }
 
     #obtain new baseline cumulative hazard
     BH <- survival::basehaz(fit, centered = FALSE)
@@ -264,10 +271,8 @@ pred_update.predinfo_survival <- function(x,
                          "model_type" = x$model_type,
                          "coefs" = data.frame(as.list(coef_table)),
                          "coef_names" = names(coef_table),
-                         "formula" = stats::as.formula(paste("~",
-                                                             paste(names(coef_table)[which(!is.na(coef_table))],
-                                                                   collapse = "+"),
-                                                             sep="")),
+                         "formula" = stats::as.formula(paste0(x$formula[1],
+                                                              x$formula[2])),
                          "cum_hazard" = data.frame("time" = BH$time,
                                                    "hazard" = BH$hazard),
                          "model_info" = coef_table,

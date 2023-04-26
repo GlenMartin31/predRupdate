@@ -20,7 +20,7 @@ pred_input_info_input_checks <- function(model_type,
     }
 
     #check that the intercept column is the first one
-    if (names(model_info)[1] != "Intercept"){
+    if (names(model_info)[[1]] != "Intercept"){
       stop("When model_type=logistic, then first column of 'model_info' should be 'Intercept'",
            call. = FALSE)
     }
@@ -73,8 +73,8 @@ pred_input_info_input_checks <- function(model_type,
           stop("baseline hazard should be a data.frame of two columns",
                call. = FALSE)
         }
-        if (names(cum_hazard)[1] != "time" |
-            names(cum_hazard)[2] != "hazard") {
+        if (names(cum_hazard)[[1]] != "time" |
+            names(cum_hazard)[[2]] != "hazard") {
           stop("baseline hazard should be a data.frame with columns being 'time' and 'hazard'",
                call. = FALSE)
         }

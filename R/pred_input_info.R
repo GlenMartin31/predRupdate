@@ -123,32 +123,36 @@ pred_input_info <- function(model_type = c("logistic", "survival"),
       vars <- vector(mode = "list", length = M)
       for (m in 1:M) {
         vars[[m]] <- names(model_info)[which(!is.na(model_info[m,]))]
-        form[[m]] <- stats::as.formula(paste("~",
-                                             paste(vars[[m]][-which(vars[[m]]=="Intercept")],
-                                                   collapse = "+"),
-                                             sep = ''))
-        existingcoefs[[m]] <- model_info[m, vars[[m]]]
+        if(all(vars[[m]]=="Intercept")){
+          form[[m]] <- stats::as.formula("~1")
+        } else{
+          form[[m]] <- stats::as.formula(paste("~",
+                                               paste(vars[[m]][-which(vars[[m]]=="Intercept")],
+                                                     collapse = "+"),
+                                               sep = ''))
+        }
+        existingcoefs[[m]] <- model_info[m, vars[[m]], drop = FALSE]
       }
-      info_vals <- list(M = M,
-                        model_type = model_type,
-                        coefs = existingcoefs,
-                        coef_names = lapply(existingcoefs, names),
-                        formula = form,
-                        model_info = model_info)
+
     } else {
       vars <- names(model_info)[which(!is.na(model_info[1,]))]
-      form <- stats::as.formula(paste("~",
-                                      paste(vars[-which(vars=="Intercept")],
-                                            collapse = "+"),
-                                      sep = ''))
-      existingcoefs <- model_info[1, vars]
-      info_vals <- list(M = M,
-                        model_type = model_type,
-                        coefs = existingcoefs,
-                        coef_names = names(existingcoefs),
-                        formula = form,
-                        model_info = model_info)
+      if(all(vars=="Intercept")){
+        form <- stats::as.formula("~1")
+      } else{
+        form <- stats::as.formula(paste("~",
+                                        paste(vars[-which(vars=="Intercept")],
+                                              collapse = "+"),
+                                        sep = ''))
+      }
+      existingcoefs <- model_info[1, vars, drop = FALSE]
+
     }
+    info_vals <- list(M = M,
+                      model_type = model_type,
+                      coefs = existingcoefs,
+                      coef_names = vars,
+                      formula = form,
+                      model_info = model_info)
     #Set the S3 class
     class(info_vals) <- c("predinfo_logistic", "predinfo")
 
@@ -162,30 +166,24 @@ pred_input_info <- function(model_type = c("logistic", "survival"),
         form[[m]] <- stats::as.formula(paste("~",
                                              paste(vars[[m]], collapse = "+"),
                                              sep = ''))
-        existingcoefs[[m]] <- model_info[m, vars[[m]]]
+        existingcoefs[[m]] <- model_info[m, vars[[m]], drop = FALSE]
       }
-      info_vals <- list(M = M,
-                        model_type = model_type,
-                        coefs = existingcoefs,
-                        coef_names = lapply(existingcoefs, names),
-                        formula = form,
-                        cum_hazard = cum_hazard,
-                        model_info = model_info)
+
     } else {
       vars <- names(model_info)[which(!is.na(model_info[1,]))]
       form <- stats::as.formula(paste("~",
                                       paste(vars, collapse = "+"),
                                       sep = ''))
-      existingcoefs <- model_info[1, vars]
-      info_vals <- list(M = M,
-                        model_type = model_type,
-                        coefs = existingcoefs,
-                        coef_names = names(existingcoefs),
-                        formula = form,
-                        cum_hazard = cum_hazard,
-                        model_info = model_info)
-    }
+      existingcoefs <- model_info[1, vars, drop = FALSE]
 
+    }
+    info_vals <- list(M = M,
+                      model_type = model_type,
+                      coefs = existingcoefs,
+                      coef_names = vars,
+                      formula = form,
+                      cum_hazard = cum_hazard,
+                      model_info = model_info)
     #Set the S3 class
     class(info_vals) <- c("predinfo_survival", "predinfo")
   }

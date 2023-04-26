@@ -74,15 +74,20 @@ validate_logistic <- function(ObservedOutcome,
             ggplot2::theme_bw(base_size = 12))
 
   } else{
-    # otherwise produce calibration plot
-    flex_calplot(model_type = "logistic",
-                 ObservedOutcome = ObservedOutcome,
-                 Prob = Prob,
-                 LP = LP,
-                 xlim = xlim,
-                 ylim = ylim,
-                 xlab = xlab,
-                 ylab = ylab)
+
+    if(length(unique(Prob)) == 1) { #allows handling of intercept-only models
+      stop("Only 1 unique prediction - calplot not possible; call again with cal_plot = FALSE")
+    } else{
+      flex_calplot(model_type = "logistic",
+                   ObservedOutcome = ObservedOutcome,
+                   Prob = Prob,
+                   LP = LP,
+                   xlim = xlim,
+                   ylim = ylim,
+                   xlab = xlab,
+                   ylab = ylab)
+    }
+
   }
 
   #Return results
