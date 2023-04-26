@@ -105,32 +105,31 @@ vignette describing the methods underpinning the package, please see
 <p>The package is focused on the situation where there is an existing
 CPM (or multiple CPMs) that has been developed (e.g., a model published
 in the literature), and one wishes to apply this model to a new dataset.
-We foresee at least three use-cases: (1) where one wishes to externally
-validate the existing CPM on the new data to tests the model’s
-predictive performance, i.e., external validation; (2) where one wishes
-to apply model updating methods to the existing CPM to ‘tailor’ it to
-the new dataset; and (3) where there are multiple existing CPMs, and one
-wishes to apply model aggregation (meta-modelling) methods to pool these
-models into a single model for the new dataset. We therefore give three
+We foresee at least three use-cases: (1) where one wishes to validate
+the existing CPM on the new data to estimate the model’s predictive
+performance, i.e., external validation; (2) where one wishes to apply
+model updating methods to the existing CPM to ‘tailor’ it to the new
+dataset; and (3) where there are multiple existing CPMs, and one wishes
+to apply model aggregation (meta-modelling) methods to pool these models
+into a single model for the new dataset. We therefore give three
 examples below for each of these use cases.</p>
 </div>
 <div class="section level2">
 <h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
 </h2>
-<p>The data used throughout this vignette are available within the
-package, called <em>SYNPM</em>. These data are available to users of
-<strong>predRupdate</strong> after installing and loading the package.
-See “?SYNPM” for details of these data. In short, the data and models
-included in <em>SYNPM</em> are synthetic, but for the purposes of this
-vignette, we imagine that one is interested in predicting someone’s risk
-of mortality after surgery. Data are available on 20000 people, which
-records each individuals age, gender, smoking status, diabetes status,
-and Creatine value at the time of surgery. The data includes the
-outcomes of “ETime” representing the time (months) between surgery and
-either death or end-of-follow-up (5 months), whichever occurred first.
-The variable “Status” indicates if the patient died (1) or was
-right-censored (0), and Y denotes a binary variable indicating if the
-patient died within 1 month.</p>
+<p>The data, called <em>SYNPM</em>, used throughout this vignette are
+available within the <strong>predRupdate</strong> package. See “?SYNPM”
+for details of these data. In short, the data and models included in
+<em>SYNPM</em> are synthetic, but for the purposes of this vignette, we
+imagine that one is interested in predicting someone’s risk of mortality
+after surgery. Data are available on 20000 people, which records each
+individuals age, gender, smoking status, diabetes status, and Creatine
+value at the time of surgery. The data includes the outcomes of “ETime”
+representing the time (months) between surgery and either death or
+end-of-follow-up (5 months), whichever occurred first. The variable
+“Status” indicates if the patient died (1) or was right-censored (0),
+and Y denotes a binary variable indicating if the patient died within 1
+month.</p>
 </div>
 <div class="section level2">
 <h2 id="example-1-validating-an-existing-prediction-model-on-new-data">Example 1: validating an existing prediction model on new data<a class="anchor" aria-label="anchor" href="#example-1-validating-an-existing-prediction-model-on-new-data"></a>
@@ -184,11 +183,12 @@ predictor variable names. This information is then passed into the
 model. See the help file of “pred_input_info()” for details.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
-<span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.4</span>, <span class="co">#the intercept needs to be named exactly as given here</span></span>
-<span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.306</span>, </span>
-<span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.628</span>,</span>
-<span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.499</span>,</span>
-<span>                          <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.538</span><span class="op">)</span></span>
+<span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.995</span>, <span class="co">#the intercept needs to be named exactly as given here</span></span>
+<span>                          <span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.012</span>,</span>
+<span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.267</span>, </span>
+<span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.751</span>,</span>
+<span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.523</span>,</span>
+<span>                          <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.578</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#pass this into pred_input_info()</span></span>
 <span><span class="va">Existing_Logistic_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span>
@@ -198,12 +198,12 @@ model. See the help file of “pred_input_info()” for details.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Coefficients </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt;   Intercept  SexM Smoking_Status Diabetes Creatine</span></span>
-<span><span class="co">#&gt; 1      -3.4 0.306          0.628    0.499    0.538</span></span>
+<span><span class="co">#&gt;   Intercept   Age  SexM Smoking_Status Diabetes Creatine</span></span>
+<span><span class="co">#&gt; 1    -3.995 0.012 0.267          0.751    0.523    0.578</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Functional Form </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt; SexM + Smoking_Status + Diabetes + Creatine</span></span></code></pre></div>
+<span><span class="co">#&gt; Age + SexM + Smoking_Status + Diabetes + Creatine</span></span></code></pre></div>
 <p>Next we wish to apply this model to our dataset to calculate the
 predicted risks for each individual, and then compare these predictions
 with the observed outcomes to calculate predictive performance. This can
@@ -216,27 +216,27 @@ all be achieved with the “pred_validate()” function, as follows:</p>
 <pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;                          Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large   0.7548   0.0205                        0.7146</span></span>
-<span><span class="co">#&gt; Calibration Slope          0.7018   0.0506                        0.6026</span></span>
+<span><span class="co">#&gt; Calibration-in-the-large   0.7076   0.0206                        0.6673</span></span>
+<span><span class="co">#&gt; Calibration Slope          0.6496   0.0463                        0.5588</span></span>
 <span><span class="co">#&gt;                          Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large                        0.7950</span></span>
-<span><span class="co">#&gt; Calibration Slope                               0.8009</span></span>
+<span><span class="co">#&gt; Calibration-in-the-large                        0.7479</span></span>
+<span><span class="co">#&gt; Calibration Slope                               0.7403</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;     Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; AUC   0.5794   0.0058                        0.5681</span></span>
+<span><span class="co">#&gt; AUC   0.5816   0.0057                        0.5703</span></span>
 <span><span class="co">#&gt;     Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; AUC                        0.5908</span></span>
+<span><span class="co">#&gt; AUC                        0.5928</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Overall Performance Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt; Cox-Snell R-squared: -0.0504</span></span>
-<span><span class="co">#&gt; Nagelkerke R-squared: -0.0905</span></span>
-<span><span class="co">#&gt; Brier Score: 0.1251</span></span>
+<span><span class="co">#&gt; Cox-Snell R-squared: -0.0446</span></span>
+<span><span class="co">#&gt; Nagelkerke R-squared: -0.0801</span></span>
+<span><span class="co">#&gt; Brier Score: 0.1246</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre>
 <p>This produces a flexible calibration plot, along with outputting
@@ -334,11 +334,11 @@ we’d like to validate the model against - this time must also be
 available in the baseline cumulative hazard provided.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
-<span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.008</span>,</span>
-<span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.257</span>,</span>
-<span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.697</span>,</span>
-<span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.310</span>,</span>
-<span>                          <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.636</span><span class="op">)</span></span>
+<span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.007</span>,</span>
+<span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.225</span>,</span>
+<span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.685</span>,</span>
+<span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.425</span>,</span>
+<span>                          <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.587</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#pass this into pred_input_info()</span></span>
 <span><span class="va">Existing_TTE_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span>
@@ -355,51 +355,58 @@ available in the baseline cumulative hazard provided.</p>
 <pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;                         Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Observed:Expected Ratio   1.1420   0.0113                        1.1171</span></span>
-<span><span class="co">#&gt; Calibration Slope         0.7358   0.0280                        0.6810</span></span>
+<span><span class="co">#&gt; Observed:Expected Ratio   1.2211   0.0113                        1.1944</span></span>
+<span><span class="co">#&gt; Calibration Slope         0.7129   0.0281                        0.6580</span></span>
 <span><span class="co">#&gt;                         Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Observed:Expected Ratio                        1.1675</span></span>
-<span><span class="co">#&gt; Calibration Slope                              0.7907</span></span>
+<span><span class="co">#&gt; Observed:Expected Ratio                        1.2484</span></span>
+<span><span class="co">#&gt; Calibration Slope                              0.7679</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;           Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Harrell C   0.5819   0.0032                        0.5756</span></span>
+<span><span class="co">#&gt; Harrell C   0.5789   0.0032                        0.5726</span></span>
 <span><span class="co">#&gt;           Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Harrell C                        0.5882</span></span>
+<span><span class="co">#&gt; Harrell C                        0.5852</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre>
+<p>Here, we see that the existing model under-predicts the mean risk at
+5-months (observed:Expected Ratio greater than 1), and there is evidence
+of over-fitting (both from the calibration plot and the calibration
+slope being significantly different from 1). The model also has poor
+discrimination (Harrell C).</p>
 <div class="section level4">
 <h4 id="specifying-the-baseline-cumulative-hazard">Specifying the baseline cumulative hazard<a class="anchor" aria-label="anchor" href="#specifying-the-baseline-cumulative-hazard"></a>
 </h4>
-<p>In the above example, we assumed that the baseline cumulative hazard
-of the existing CPM was available at discrete follow-up times. In some
-situations, the entire baseline cumulative hazard curve may be
-presented, or indeed a parametric form of the baseline cumulative hazard
-may be provided. In such a situation, one should extract (from the plot)
-or calculate (from the parametric form) the baseline cumulative hazard
-at multiple follow-up times of interest (the times at which one wishes
-to validate the model at).</p>
-<p>Additionally, in some cases, the baseline cumulative hazard of an
-existing survival (time-to-event) CPM may not be reported/available. In
-such a situation, one can still use <strong>predRupdate</strong> to
-validate such a model. However, only a limited number of metrics will be
-produced (i.e., only those that require the linear predictor, not
-absolute risk predictions at a given follow-up time). Specifically, the
-observed:expected ratio and the calibration plot will not be
-produced.</p>
+<p>When validating an existing time-to-event model, the baseline
+cumulative hazard of the existing CPM should be reported (e.g., from the
+original model publication). In some cases, this might be reported at
+discrete follow-up times (like in the above example). Alternatively, the
+entire baseline cumulative hazard curve may be presented, or indeed a
+parametric form of the baseline cumulative hazard may be provided. In
+those situations, one should extract (from the plot) or calculate (from
+the parametric form) the baseline cumulative hazard at multiple
+follow-up times of interest (i.e., the follow-up times at which one
+wishes to validate the model against).</p>
+<p>However, in some cases, the baseline cumulative hazard of the
+existing time-to-event CPM may not be reported. In such a situation, one
+can still use <strong>predRupdate</strong> to validate such a model.
+However, only a limited number of metrics will be produced (i.e., only
+those metrics that require the linear predictor, not absolute risk
+predictions at a given follow-up time). Specifically, the
+observed:expected ratio and the calibration plot will not be produced if
+the baseline cumulative hazard is not provided.</p>
 <p>For example, suppose the baseline cumulative hazard for the above
 model was not available. We could validate this model using
 <strong>predRupdate</strong> as follows:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
-<span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.008</span>,</span>
-<span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.257</span>,</span>
-<span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.697</span>,</span>
-<span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.310</span>,</span>
-<span>                          <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.636</span><span class="op">)</span></span>
+<span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.007</span>,</span>
+<span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.225</span>,</span>
+<span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.685</span>,</span>
+<span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.425</span>,</span>
+<span>                          <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.587</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#pass this into pred_input_info()</span></span>
 <span><span class="va">Existing_TTE_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span>
@@ -418,19 +425,19 @@ model was not available. We could validate this model using
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;                         Estimate Std. Err Lower 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; Observed:Expected Ratio       NA       NA                            NA</span></span>
-<span><span class="co">#&gt; Calibration Slope         0.7358    0.028                         0.681</span></span>
+<span><span class="co">#&gt; Calibration Slope         0.7129   0.0281                         0.658</span></span>
 <span><span class="co">#&gt;                         Upper 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; Observed:Expected Ratio                            NA</span></span>
-<span><span class="co">#&gt; Calibration Slope                              0.7907</span></span>
+<span><span class="co">#&gt; Calibration Slope                              0.7679</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;           Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Harrell C   0.5819   0.0032                        0.5756</span></span>
+<span><span class="co">#&gt; Harrell C   0.5789   0.0032                        0.5726</span></span>
 <span><span class="co">#&gt;           Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Harrell C                        0.5882</span></span>
+<span><span class="co">#&gt; Harrell C                        0.5852</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre></div>
 <p>Here, we see that no calibration plot is produced, and the
@@ -444,17 +451,21 @@ this.</p>
 </h2>
 <p>In the validation of an existing logistic regression model in Example
 1 above, we found that the existing model was miscalibrated in the new
-data. One strategy to handle this is to apply model updating methods.
-See <code><a href="../articles/predRupdate_technical.html">vignette("predRupdate_technical")</a></code> for a technical
-discussion of these methods. We here choose to apply model
-re-calibration; to do so, we can use the “pred_update()” function:</p>
+data. One strategy to handle this is to apply a range of model updating
+methods; see <code><a href="../articles/predRupdate_technical.html">vignette("predRupdate_technical")</a></code> for a
+technical discussion of these methods.</p>
+<p>To illustrate how to achieve this with <strong>predRupdate</strong>,
+we here choose to apply model re-calibration to the existing logistic
+regression model shown in Example 1 above. Within
+<strong>predRupdate</strong>, we use the “pred_update()” function:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
-<span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.4</span>,</span>
-<span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.306</span>,</span>
-<span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.628</span>,</span>
-<span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.499</span>,</span>
-<span>                          <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.538</span><span class="op">)</span></span>
+<span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.995</span>, </span>
+<span>                          <span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.012</span>,</span>
+<span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.267</span>, </span>
+<span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.751</span>,</span>
+<span>                          <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.523</span>,</span>
+<span>                          <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.578</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#pass this into pred_input_info()</span></span>
 <span><span class="va">Existing_Logistic_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span>
@@ -466,9 +477,10 @@ re-calibration; to do so, we can use the “pred_update()” function:</p>
 <span>                             new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
 <span>                             binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
 <p>One could then validate this updated model using “pred_validate()”,
-but given we have updated the model in the new data, then any such
-performance estimates would need to be adjusted for in-sample optimism
-(e.g., using cross-validation or bootstrap internal validation):</p>
+but given we have updated the model in the new data, then in-practice
+any such performance estimates would need to be adjusted for in-sample
+optimism (e.g., using cross-validation or bootstrap internal
+validation):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">Updated_model</span>, </span>
 <span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
@@ -478,62 +490,65 @@ performance estimates would need to be adjusted for in-sample optimism
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;                          Estimate Std. Err Lower 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; Calibration-in-the-large        0   0.0204                       -0.0400</span></span>
-<span><span class="co">#&gt; Calibration Slope               1   0.0721                        0.8587</span></span>
+<span><span class="co">#&gt; Calibration Slope               1   0.0713                        0.8603</span></span>
 <span><span class="co">#&gt;                          Upper 95% Confidence Interval</span></span>
 <span><span class="co">#&gt; Calibration-in-the-large                        0.0400</span></span>
-<span><span class="co">#&gt; Calibration Slope                               1.1413</span></span>
+<span><span class="co">#&gt; Calibration Slope                               1.1397</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;     Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; AUC   0.5794   0.0058                        0.5681</span></span>
+<span><span class="co">#&gt; AUC   0.5816   0.0057                        0.5703</span></span>
 <span><span class="co">#&gt;     Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; AUC                        0.5908</span></span>
+<span><span class="co">#&gt; AUC                        0.5928</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Overall Performance Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt; Cox-Snell R-squared: 0.0094</span></span>
-<span><span class="co">#&gt; Nagelkerke R-squared: 0.0168</span></span>
+<span><span class="co">#&gt; Cox-Snell R-squared: 0.0095</span></span>
+<span><span class="co">#&gt; Nagelkerke R-squared: 0.0171</span></span>
 <span><span class="co">#&gt; Brier Score: 0.1203</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre>
-<p>Similar functionality is available for time-to-event models.</p>
+<p>Similar functionality is available for time-to-event models, using a
+similar syntax.</p>
 </div>
 <div class="section level2">
 <h2 id="example-3-model-aggregation-on-new-data">Example 3: model aggregation on new data<a class="anchor" aria-label="anchor" href="#example-3-model-aggregation-on-new-data"></a>
 </h2>
-<p>Sometimes, there are instances where multiple existing CPMs are
-available for the same prediction task (e.g., existing models developed
-across different countries). Here, model aggregation methods can be used
-to pool these existing CPMs into a single model in the new data. See
+<p>Sometimes, there might be multiple existing CPMs available for the
+same prediction task (e.g., existing models developed across different
+countries, each aiming to predict the same outcome). Here, model
+aggregation methods can be used to pool these existing CPMs into a
+single model in the new data; see
 <code><a href="../articles/predRupdate_technical.html">vignette("predRupdate_technical")</a></code> for a technical
 discussion of these methods.</p>
-<p>To implement this, we input the information about multiple models
-into “pred_input_info()”; each row of the model_info parameter should be
-the coefficients of the existing models. Any parameter that is not
-included in a given CPM should have value NA, as shown below:</p>
+<p>To implement these methods within <strong>predRupdate</strong>, we
+first need to input the information about the multiple existing models
+into “pred_input_info()”. Each row of the model_info parameter should be
+the coefficients of an existing CPM; any parameter that is not included
+in a given CPM should have value NA, as shown below:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.4</span>,</span>
-<span>                                  <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.306</span>,</span>
-<span>                                  <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.628</span>,</span>
-<span>                                  <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.499</span>,</span>
-<span>                                  <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.538</span>,</span>
-<span>                                  <span class="st">"Age"</span> <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span>,</span>
-<span>                                <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">4.748</span>,</span>
-<span>                                  <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.196</span>,</span>
-<span>                                  <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.492</span>,</span>
-<span>                                  <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.350</span>,</span>
-<span>                                  <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.555</span>,</span>
-<span>                                  <span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.049</span><span class="op">)</span>,</span>
-<span>                                <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.267</span>,</span>
+<code class="sourceCode R"><span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.995</span>,</span>
+<span>                                  <span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.012</span>,</span>
+<span>                                  <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.267</span>,</span>
+<span>                                  <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.751</span>,</span>
+<span>                                  <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.523</span>,</span>
+<span>                                  <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.578</span><span class="op">)</span>,</span>
+<span>                                <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">2.282</span>,</span>
+<span>                                  <span class="st">"Age"</span> <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>                                  <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.223</span>,</span>
+<span>                                  <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.528</span>,</span>
+<span>                                  <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="fl">0.200</span>,</span>
+<span>                                  <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.434</span><span class="op">)</span>,</span>
+<span>                                <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.013</span>,</span>
+<span>                                  <span class="st">"Age"</span> <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>                                  <span class="st">"SexM"</span> <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>                                  <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.477</span>,</span>
-<span>                                  <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>                                  <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.444</span>,</span>
-<span>                                  <span class="st">"Age"</span> <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>                                  <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.565</span>,</span>
+<span>                                  <span class="st">"Diabetes"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">0.122</span>,</span>
+<span>                                  <span class="st">"Creatine"</span> <span class="op">=</span> <span class="fl">0.731</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">multiple_mods</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span>
 <span>                                 model_info <span class="op">=</span> <span class="va">coefs_table</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">multiple_mods</span><span class="op">)</span></span>
@@ -542,25 +557,25 @@ included in a given CPM should have value NA, as shown below:</p>
 <span><span class="co">#&gt; Model Coefficients </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt; [[1]]</span></span>
-<span><span class="co">#&gt;   Intercept  SexM Smoking_Status Diabetes Creatine</span></span>
-<span><span class="co">#&gt; 1      -3.4 0.306          0.628    0.499    0.538</span></span>
+<span><span class="co">#&gt;   Intercept   Age  SexM Smoking_Status Diabetes Creatine</span></span>
+<span><span class="co">#&gt; 1    -3.995 0.012 0.267          0.751    0.523    0.578</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[2]]</span></span>
-<span><span class="co">#&gt;   Intercept  SexM Smoking_Status Diabetes Creatine   Age</span></span>
-<span><span class="co">#&gt; 2    -4.748 0.196          0.492     0.35    0.555 0.049</span></span>
+<span><span class="co">#&gt;   Intercept  SexM Smoking_Status Diabetes Creatine</span></span>
+<span><span class="co">#&gt; 2    -2.282 0.223          0.528      0.2    0.434</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[3]]</span></span>
-<span><span class="co">#&gt;   Intercept Smoking_Status Creatine</span></span>
-<span><span class="co">#&gt; 3    -3.267          0.477    0.444</span></span>
+<span><span class="co">#&gt;   Intercept Smoking_Status Diabetes Creatine</span></span>
+<span><span class="co">#&gt; 3    -3.013          0.565   -0.122    0.731</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Functional Form </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt; Model 1: SexM + Smoking_Status + Diabetes + Creatine</span></span>
-<span><span class="co">#&gt; Model 2: SexM + Smoking_Status + Diabetes + Creatine + Age</span></span>
-<span><span class="co">#&gt; Model 3: Smoking_Status + Creatine</span></span></code></pre></div>
+<span><span class="co">#&gt; Model 1: Age + SexM + Smoking_Status + Diabetes + Creatine</span></span>
+<span><span class="co">#&gt; Model 2: SexM + Smoking_Status + Diabetes + Creatine</span></span>
+<span><span class="co">#&gt; Model 3: Smoking_Status + Diabetes + Creatine</span></span></code></pre></div>
 <p>We can then use “pred_stacked_regression()” function to apply stacked
-regression to pool these models into a single model for the new
+regression to aggregate these models into a single model for the new
 dataset:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">SR</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_stacked_regression.html">pred_stacked_regression</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">multiple_mods</span>,</span>
@@ -571,16 +586,17 @@ dataset:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Coefficients </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt;   Intercept    SexM Smoking_Status  Diabetes  Creatine        Age</span></span>
-<span><span class="co">#&gt; 1 -5.283702 0.19404      0.3387584 0.3518871 0.4338846 0.05719899</span></span>
+<span><span class="co">#&gt;   Intercept         Age      SexM Smoking_Status Diabetes  Creatine</span></span>
+<span><span class="co">#&gt; 1 -2.696639 0.005778025 0.1573732      0.5233854 0.257464 0.4554285</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Functional Form </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt; SexM + Smoking_Status + Diabetes + Creatine + Age</span></span></code></pre></div>
+<span><span class="co">#&gt; Age + SexM + Smoking_Status + Diabetes + Creatine</span></span></code></pre></div>
 <p>One could then validate this updated model using “pred_validate()”,
-but given we have updated the model in the new data, then any such
-performance estimates would need to be adjusted for in-sample optimism
-(e.g., using cross-validation or bootstrap internal validation):</p>
+but given we have updated the model in the new data, then in-practice
+any such performance estimates would need to be adjusted for in-sample
+optimism (e.g., using cross-validation or bootstrap internal
+validation):</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">SR</span>, </span>
 <span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
@@ -589,30 +605,115 @@ performance estimates would need to be adjusted for in-sample optimism
 <pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;                          Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large        0   0.0204                       -0.0401</span></span>
-<span><span class="co">#&gt; Calibration Slope               1   0.0581                        0.8861</span></span>
+<span><span class="co">#&gt; Calibration-in-the-large        0   0.0204                       -0.0400</span></span>
+<span><span class="co">#&gt; Calibration Slope               1   0.0702                        0.8623</span></span>
 <span><span class="co">#&gt;                          Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large                        0.0401</span></span>
-<span><span class="co">#&gt; Calibration Slope                               1.1139</span></span>
+<span><span class="co">#&gt; Calibration-in-the-large                        0.0400</span></span>
+<span><span class="co">#&gt; Calibration Slope                               1.1377</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Discrimination Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
 <span><span class="co">#&gt;     Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; AUC   0.5956   0.0058                        0.5842</span></span>
+<span><span class="co">#&gt; AUC    0.583   0.0058                        0.5717</span></span>
 <span><span class="co">#&gt;     Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; AUC                        0.6069</span></span>
+<span><span class="co">#&gt; AUC                        0.5943</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Overall Performance Measures </span></span>
 <span><span class="co">#&gt; ================================= </span></span>
-<span><span class="co">#&gt; Cox-Snell R-squared: 0.0146</span></span>
-<span><span class="co">#&gt; Nagelkerke R-squared: 0.0262</span></span>
-<span><span class="co">#&gt; Brier Score: 0.1196</span></span>
+<span><span class="co">#&gt; Cox-Snell R-squared: 0.0098</span></span>
+<span><span class="co">#&gt; Nagelkerke R-squared: 0.0175</span></span>
+<span><span class="co">#&gt; Brier Score: 0.1203</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the histogram of predicted risks.</span></span></code></pre>
 <p>Similar functionality is available for time-to-event models.</p>
+</div>
+<div class="section level2">
+<h2 id="a-note-on-structure-of-new_data">A note on structure of new_data<a class="anchor" aria-label="anchor" href="#a-note-on-structure-of-new_data"></a>
+</h2>
+<p>As shown above, the workflow within <strong>predRupdate</strong> is
+broadly in two main stages: (i) input information about the existing
+CPM(s) using “pred_input_info()”, and then (ii) apply validation,
+updating or model aggregation methods using “pred_validate()”,
+“pred_update()” or “pred_stacked_regression()”, respectively. Stage (i)
+requires specification of the ‘model_info’ parameter (which contains the
+information of the model parameters), and stage (ii) requires
+specification of the ‘new_data’ on which one wishes to apply the
+existing CPM(s). It is a requirement that there is consistency between
+the parameter/coefficient names given in the ‘model_info’ parameter of
+“pred_input_info()” and the names of variables in “new_data”.
+Specifically, each coefficient named in ‘model_info’ should also be a
+column of ‘new_data’.</p>
+<p>For example, the following results in an error, because the smoking
+variable passed through model_info in “pred_input_info()” no longer
+matches the name of the smoking variable in ‘new_data’ passed to
+“pred_validate()”.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
+<span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.995</span>, </span>
+<span>                          <span class="st">"Smoking"</span> <span class="op">=</span> <span class="fl">0.751</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#pass this into pred_input_info()</span></span>
+<span><span class="va">Existing_Logistic_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span>
+<span>                                           model_info <span class="op">=</span> <span class="va">coefs_table</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">Existing_Logistic_Model</span>, </span>
+<span>                  new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
+<span>                  binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error in map_newdata.predinfo_logistic(x = x, new_data = new_data, binary_outcome = binary_outcome,  : </span></span>
+<span><span class="co">#&gt;   new_data does not contain some of the predictor variables for the model(s) specified within the pminfo object</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Age"            "SexM"           "Smoking_Status" "Diabetes"      </span></span>
+<span><span class="co">#&gt; [5] "Creatine"       "ETime"          "Status"         "Y"</span></span></code></pre></div>
+<p>Moreover, particular care should be given to any categorical/factor
+variables within new_data. For example, suppose we have the following
+new_data:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">new_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Sex"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"M"</span>, <span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"F"</span>, <span class="st">"M"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                     <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Here, <code>new_df</code> has Sex recorded as a factor variable with
+levels “M” and “F”. Before working with functions in
+<strong>predRupdate</strong>, one must first convert any factor
+variables to indicator/dummy variables. We provide “dummy_vars()” within
+<strong>predRupdate</strong> to assist with this. For example:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.4</span>,</span>
+<span>                          <span class="st">"Sex_M"</span> <span class="op">=</span> <span class="fl">0.306</span>,</span>
+<span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.628</span><span class="op">)</span></span>
+<span><span class="va">existing_Logistic_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"logistic"</span>,</span>
+<span>                                           model_info <span class="op">=</span> <span class="va">coefs_table</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#if we try to use functions within predRupdate using new_df it will give an error as Sex is a factor variable:</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="../reference/pred_predict.html">pred_predict</a></span><span class="op">(</span><span class="va">existing_Logistic_Model</span>, </span>
+<span>                 new_data <span class="op">=</span> <span class="va">new_df</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error in map_newdata.predinfo_logistic(x = x, new_data = new_data, binary_outcome = binary_outcome,  : </span></span>
+<span><span class="co">#&gt;   'new_data' contains factor variables - convert to dummy/indicator variables first </span></span>
+<span><span class="co">#&gt;  dummy_vars() can help with this</span></span>
+<span></span>
+<span><span class="co">#we must first turn into dummy variables:</span></span>
+<span><span class="va">new_df_indicatorvars</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dummy_vars.html">dummy_vars</a></span><span class="op">(</span><span class="va">new_df</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">new_df_indicatorvars</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   Smoking_Status Sex_F Sex_M</span></span>
+<span><span class="co">#&gt; 1              1     0     1</span></span>
+<span><span class="co">#&gt; 2              0     1     0</span></span>
+<span><span class="co">#&gt; 3              0     0     1</span></span>
+<span><span class="co">#&gt; 4              1     0     1</span></span>
+<span><span class="co">#&gt; 5              1     1     0</span></span>
+<span><span class="co">#&gt; 6              0     1     0</span></span>
+<span></span>
+<span><span class="co">#and then pass to functions within predRupdate; e.g.:</span></span>
+<span><span class="fu"><a href="../reference/pred_predict.html">pred_predict</a></span><span class="op">(</span><span class="va">existing_Logistic_Model</span>, </span>
+<span>             new_data <span class="op">=</span> <span class="va">new_df_indicatorvars</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $LinearPredictor</span></span>
+<span><span class="co">#&gt; [1] -2.466 -3.400 -3.094 -2.466 -2.772 -3.400 -2.466</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $PredictedRisk</span></span>
+<span><span class="co">#&gt; [1] 0.07827635 0.03229546 0.04335543 0.07827635 0.05885613 0.03229546 0.07827635</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Outcomes</span></span>
+<span><span class="co">#&gt; NULL</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
