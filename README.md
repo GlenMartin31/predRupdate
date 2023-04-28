@@ -23,11 +23,6 @@ The package can be installed from CRAN as follows:
 
 ``` r
 install.packages("predRupdate")
-#> Installing package into '/private/var/folders/08/3vqx_32d1dv68wdrqwpr0pch0000gn/T/RtmpQL7DSu/temp_libpatha41117f255d'
-#> (as 'lib' is unspecified)
-#> 
-#> The downloaded binary packages are in
-#>  /var/folders/08/3vqx_32d1dv68wdrqwpr0pch0000gn/T//Rtmp4RSvVW/downloaded_packages
 ```
 
 ## Development version

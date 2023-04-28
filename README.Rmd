@@ -25,14 +25,14 @@ The goal of predRupdate is to provide a suite of functions for validating a exis
 
 ## Installation
 The package can be installed from CRAN as follows:
-```{r}
+```{r, eval=FALSE}
 install.packages("predRupdate")
 ```
 
 
 ## Development version
 You can install the development version of predRupdate from [GitHub](https://github.com/) with::
-``` r
+```{r, eval = FALSE}
 # install.packages("devtools")
 devtools::install_github("GlenMartin31/predRupdate")
 ```
