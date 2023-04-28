@@ -8,7 +8,8 @@
 [![R-CMD-check](https://github.com/GlenMartin31/predRupdate/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/GlenMartin31/predRupdate/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/GlenMartin31/predRupdate/branch/master/graph/badge.svg)](https://app.codecov.io/gh/GlenMartin31/predRupdate?branch=master)
-<!-- [![CRAN status](https://www.r-pkg.org/badges/version/predRupdate)](https://CRAN.R-project.org/package=predRupdate) -->
+[![CRAN
+status](https://www.r-pkg.org/badges/version/predRupdate)](https://CRAN.R-project.org/package=predRupdate)
 <!-- badges: end -->
 
 The goal of predRupdate is to provide a suite of functions for
@@ -21,7 +22,12 @@ to an available dataset.
 The package can be installed from CRAN as follows:
 
 ``` r
-# install.packages("predRupdate")
+install.packages("predRupdate")
+#> Installing package into '/private/var/folders/08/3vqx_32d1dv68wdrqwpr0pch0000gn/T/RtmpQL7DSu/temp_libpatha41117f255d'
+#> (as 'lib' is unspecified)
+#> 
+#> The downloaded binary packages are in
+#>  /var/folders/08/3vqx_32d1dv68wdrqwpr0pch0000gn/T//Rtmp4RSvVW/downloaded_packages
 ```
 
 ## Development version
