@@ -10,8 +10,8 @@
 coverage](https://codecov.io/gh/GlenMartin31/predRupdate/branch/master/graph/badge.svg)](https://app.codecov.io/gh/GlenMartin31/predRupdate?branch=master)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/predRupdate)](https://CRAN.R-project.org/package=predRupdate)
-“[![metacran
-downloads](https://cranlogs.r-pkg.org/badges/grand-total/dplyr)](https://cran.r-project.org/package=dplyr)”
+[![metacran
+downloads](https://cranlogs.r-pkg.org/badges/grand-total/predRupdate)](https://cran.r-project.org/package=predRupdate)
 <!-- badges: end -->
 
 The goal of predRupdate is to provide a suite of functions for
