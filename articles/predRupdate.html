@@ -218,12 +218,14 @@ follows:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">validation_results</span><span class="op">)</span> <span class="co">#use summary() to obtain a tidy output summary of the model performance</span></span>
 <span><span class="co">#&gt; Calibration Measures </span></span>
 <span><span class="co">#&gt; --------------------------------- </span></span>
-<span><span class="co">#&gt;                          Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large   0.7076   0.0206                        0.6673</span></span>
-<span><span class="co">#&gt; Calibration Slope          0.6496   0.0463                        0.5588</span></span>
-<span><span class="co">#&gt;                          Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large                        0.7479</span></span>
-<span><span class="co">#&gt; Calibration Slope                               0.7403</span></span>
+<span><span class="co">#&gt;                         Estimate Std. Err Lower 95% Confidence Interval</span></span>
+<span><span class="co">#&gt; Observed:Expected Ratio   1.8583   0.0188                        1.7911</span></span>
+<span><span class="co">#&gt; Calibration Intercept     0.7076   0.0206                        0.6673</span></span>
+<span><span class="co">#&gt; Calibration Slope         0.6496   0.0463                        0.5588</span></span>
+<span><span class="co">#&gt;                         Upper 95% Confidence Interval</span></span>
+<span><span class="co">#&gt; Observed:Expected Ratio                        1.9281</span></span>
+<span><span class="co">#&gt; Calibration Intercept                          0.7479</span></span>
+<span><span class="co">#&gt; Calibration Slope                              0.7403</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
@@ -510,12 +512,14 @@ bootstrap internal validation):</p>
 <p><img src="predRupdate_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
 <pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
 <span><span class="co">#&gt; --------------------------------- </span></span>
-<span><span class="co">#&gt;                          Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large        0   0.0204                       -0.0400</span></span>
-<span><span class="co">#&gt; Calibration Slope               1   0.0713                        0.8603</span></span>
-<span><span class="co">#&gt;                          Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large                        0.0400</span></span>
-<span><span class="co">#&gt; Calibration Slope                               1.1397</span></span>
+<span><span class="co">#&gt;                         Estimate Std. Err Lower 95% Confidence Interval</span></span>
+<span><span class="co">#&gt; Observed:Expected Ratio        1   0.0188                        0.9638</span></span>
+<span><span class="co">#&gt; Calibration Intercept          0   0.0204                       -0.0400</span></span>
+<span><span class="co">#&gt; Calibration Slope              1   0.0713                        0.8603</span></span>
+<span><span class="co">#&gt;                         Upper 95% Confidence Interval</span></span>
+<span><span class="co">#&gt; Observed:Expected Ratio                        1.0375</span></span>
+<span><span class="co">#&gt; Calibration Intercept                          0.0400</span></span>
+<span><span class="co">#&gt; Calibration Slope                              1.1397</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>
@@ -630,12 +634,14 @@ bootstrap internal validation):</p>
 <p><img src="predRupdate_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
 <pre><code><span><span class="co">#&gt; Calibration Measures </span></span>
 <span><span class="co">#&gt; --------------------------------- </span></span>
-<span><span class="co">#&gt;                          Estimate Std. Err Lower 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large        0   0.0204                       -0.0400</span></span>
-<span><span class="co">#&gt; Calibration Slope               1   0.0702                        0.8623</span></span>
-<span><span class="co">#&gt;                          Upper 95% Confidence Interval</span></span>
-<span><span class="co">#&gt; Calibration-in-the-large                        0.0400</span></span>
-<span><span class="co">#&gt; Calibration Slope                               1.1377</span></span>
+<span><span class="co">#&gt;                         Estimate Std. Err Lower 95% Confidence Interval</span></span>
+<span><span class="co">#&gt; Observed:Expected Ratio        1   0.0188                        0.9638</span></span>
+<span><span class="co">#&gt; Calibration Intercept          0   0.0204                       -0.0400</span></span>
+<span><span class="co">#&gt; Calibration Slope              1   0.0702                        0.8623</span></span>
+<span><span class="co">#&gt;                         Upper 95% Confidence Interval</span></span>
+<span><span class="co">#&gt; Observed:Expected Ratio                        1.0375</span></span>
+<span><span class="co">#&gt; Calibration Intercept                          0.0400</span></span>
+<span><span class="co">#&gt; Calibration Slope                              1.1377</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
 <span><span class="co">#&gt; </span></span>

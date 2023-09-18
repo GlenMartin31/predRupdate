@@ -89,8 +89,10 @@ evaluated.</p></dd>
 
 <dt>binary_outcome</dt>
 <dd><p>Character variable giving the name of the column in
-<code>new_data</code> that represents the observed outcomes. Only relevant for
-<code>x$model_type</code>="logistic"; leave as <code>NULL</code> otherwise.</p></dd>
+<code>new_data</code> that represents the observed binary outcomes (should be
+coded 0 and 1 for non-event and event, respectively). Only relevant for
+<code>model_type</code>="logistic"; leave as <code>NULL</code> otherwise. Leave as
+<code>NULL</code> if <code>new_data</code> does not contain any outcomes.</p></dd>
 
 
 <dt>survival_time</dt>
@@ -216,6 +218,12 @@ calibration plot.</p>
 <span class="r-plt img"><img src="pred_validate-2.png" alt="" width="700" height="433"></span>
 <span class="r-plt img"><img src="pred_validate-3.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]$OE_ratio</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.900612</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]$OE_ratio_SE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01879779</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]$CITL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.7323461</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -245,6 +253,12 @@ calibration plot.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]$OE_ratio</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8945127</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]$OE_ratio_SE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01879779</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]$CITL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.1325477</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -274,6 +288,12 @@ calibration plot.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]$OE_ratio</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.594518</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]$OE_ratio_SE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01879779</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]$CITL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5323554</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
