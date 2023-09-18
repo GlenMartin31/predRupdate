@@ -19,8 +19,11 @@ validate_logistic <- function(ObservedOutcome,
                   'observations deleted due to predicted risks being 0 and 1'))
   }
 
+  #Estimate observed:expected ratio
+  OE_ratio <- mean(ObservedOutcome) / mean(Prob)
+  OE_ratio_SE <- sqrt(1 / sum(ObservedOutcome))
 
-  #Estimate calibration intercept (i.e. calibration-in-the-large)
+  #Estimate calibration intercept
   CITL_mod <- stats::glm(ObservedOutcome ~ 1,
                          family = stats::binomial(link = "logit"),
                          offset = LP)
@@ -91,7 +94,9 @@ validate_logistic <- function(ObservedOutcome,
   }
 
   #Return results
-  out <- list("CITL" = CITL,
+  out <- list("OE_ratio" = OE_ratio,
+              "OE_ratio_SE" = OE_ratio_SE,
+              "CITL" = CITL,
               "CITL_SE" = CITLSE,
               "CalSlope" = CalSlope,
               "CalSlope_SE" = CalSlopeSE,

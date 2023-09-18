@@ -13,8 +13,10 @@
 #' @param new_data data.frame upon which the prediction models should be
 #'   updated.
 #' @param binary_outcome Character variable giving the name of the column in
-#'   \code{new_data} that represents the observed outcomes. Only relevant for
-#'   \code{x$model_type}="logistic"; leave as \code{NULL} otherwise.
+#'   \code{new_data} that represents the observed binary outcomes (should be
+#'   coded 0 and 1 for non-event and event, respectively). Only relevant for
+#'   \code{model_type}="logistic"; leave as \code{NULL} otherwise. Leave as
+#'   \code{NULL} if \code{new_data} does not contain any outcomes.
 #' @param survival_time Character variable giving the name of the column in
 #'   \code{new_data} that represents the observed survival times. Only relevant
 #'   for \code{x$model_type}="survival"; leave as \code{NULL} otherwise.

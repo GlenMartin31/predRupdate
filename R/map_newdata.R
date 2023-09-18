@@ -9,7 +9,8 @@
 #' @param new_data data.frame upon which the prediction model should be applied
 #'   (for subsequent validation/model updating/model aggregation).
 #' @param binary_outcome Character variable giving the name of the column in
-#'   \code{new_data} that represents the observed outcomes. Only relevant for
+#'   \code{new_data} that represents the observed binary outcomes (should be
+#'   coded 0 and 1 for non-event and event, respectively). Only relevant for
 #'   \code{model_type}="logistic"; leave as \code{NULL} otherwise. Leave as
 #'   \code{NULL} if \code{new_data} does not contain any outcomes.
 #' @param survival_time Character variable giving the name of the column in
@@ -119,6 +120,9 @@ map_newdata.predinfo_logistic <- function(x,
     if(binary_outcome %in% names(new_data) == FALSE) {
       stop("'binary_outcome' not found in 'new_data'")
     }
+    if(all(unique(new_data[[binary_outcome]]) %in% c(0,1)) == FALSE){
+      stop("The 'binary_outcome' column of 'new_data' should only contain 0 and 1s")
+    }
   }
 
   # Check that all predictor variables specified in the pminfo object are also
@@ -205,6 +209,9 @@ map_newdata.predinfo_survival <- function(x,
     if(survival_time %in% names(new_data) == FALSE |
        event_indicator %in% names(new_data) == FALSE) {
       stop("'survival_time' and/or 'event_indicator' not found in 'new_data'")
+    }
+    if(all(unique(new_data[[event_indicator]]) %in% c(0,1)) == FALSE){
+      stop("The 'event_indicator' column of 'new_data' should only contain 0 and 1s")
     }
   }
 

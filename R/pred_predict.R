@@ -8,7 +8,8 @@
 #' @param new_data data.frame upon which predictions are obtained using the
 #'   prediction model.
 #' @param binary_outcome Character variable giving the name of the column in
-#'   \code{new_data} that represents the observed outcomes. Only relevant for
+#'   \code{new_data} that represents the observed binary outcomes (should be
+#'   coded 0 and 1 for non-event and event, respectively). Only relevant for
 #'   \code{model_type}="logistic"; leave as \code{NULL} otherwise. Leave as
 #'   \code{NULL} if \code{new_data} does not contain any outcomes.
 #' @param survival_time Character variable giving the name of the column in

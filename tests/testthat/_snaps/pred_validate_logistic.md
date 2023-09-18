@@ -5,12 +5,14 @@
     Output
       Calibration Measures 
       --------------------------------- 
-                               Estimate Std. Err Lower 95% Confidence Interval
-      Calibration-in-the-large   0.7323   0.0206                        0.6921
-      Calibration Slope          0.6484   0.0463                        0.5576
-                               Upper 95% Confidence Interval
-      Calibration-in-the-large                        0.7726
-      Calibration Slope                               0.7392
+                              Estimate Std. Err Lower 95% Confidence Interval
+      Observed:Expected Ratio   1.9006   0.0188                        1.8319
+      Calibration Intercept     0.7323   0.0206                        0.6921
+      Calibration Slope         0.6484   0.0463                        0.5576
+                              Upper 95% Confidence Interval
+      Observed:Expected Ratio                        1.9719
+      Calibration Intercept                          0.7726
+      Calibration Slope                              0.7392
       
        Also examine the calibration plot, if produced. 
       

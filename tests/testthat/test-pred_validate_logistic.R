@@ -15,8 +15,9 @@ test_that("output of pred_validate is as expected - single models", {
   expect_s3_class(val_results, c("predvalidate_logistic", "predvalidate"))
   expect_type(val_results, type = "list")
   expect_equal(names(val_results),
-               c("CITL", "CITL_SE", "CalSlope", "CalSlope_SE", "AUC",
-                 "AUC_SE", "R2_CoxSnell", "R2_Nagelkerke", "BrierScore", "M"))
+               c("OE_ratio", "OE_ratio_SE", "CITL", "CITL_SE", "CalSlope",
+                 "CalSlope_SE", "AUC", "AUC_SE", "R2_CoxSnell",
+                 "R2_Nagelkerke", "BrierScore", "M"))
 
   expect_snapshot(summary(val_results))
 
@@ -48,7 +49,8 @@ test_that("output of pred_validate is as expected - multiple models", {
   for(m in 1:model2$M) {
     expect_type(val_results[[m]], type = "list")
     expect_equal(names(val_results[[m]]),
-                 c("CITL", "CITL_SE", "CalSlope", "CalSlope_SE", "AUC",
-                   "AUC_SE", "R2_CoxSnell", "R2_Nagelkerke", "BrierScore"))
+                 c("OE_ratio", "OE_ratio_SE", "CITL", "CITL_SE", "CalSlope",
+                   "CalSlope_SE", "AUC", "AUC_SE", "R2_CoxSnell",
+                   "R2_Nagelkerke", "BrierScore"))
   }
 })

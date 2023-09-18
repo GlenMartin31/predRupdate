@@ -8,8 +8,10 @@
 #' @param new_data data.frame upon which the prediction model should be
 #'   evaluated.
 #' @param binary_outcome Character variable giving the name of the column in
-#'   \code{new_data} that represents the observed outcomes. Only relevant for
-#'   \code{x$model_type}="logistic"; leave as \code{NULL} otherwise.
+#'   \code{new_data} that represents the observed binary outcomes (should be
+#'   coded 0 and 1 for non-event and event, respectively). Only relevant for
+#'   \code{model_type}="logistic"; leave as \code{NULL} otherwise. Leave as
+#'   \code{NULL} if \code{new_data} does not contain any outcomes.
 #' @param survival_time Character variable giving the name of the column in
 #'   \code{new_data} that represents the observed survival times. Only relevant
 #'   for \code{x$model_type}="survival"; leave as \code{NULL} otherwise.
@@ -282,18 +284,23 @@ predvalidatesummary.fnc <- function(object, model_type) {
 
     cat("Calibration Measures \n",
         "--------------------------------- \n", sep = "")
-    results <- matrix(NA, ncol = 4, nrow = 2)
+    results <- matrix(NA, ncol = 4, nrow = 3)
     colnames(results) <- c("Estimate",
                            "Std. Err",
                            "Lower 95% Confidence Interval",
                            "Upper 95% Confidence Interval")
-    rownames(results) <- c("Calibration-in-the-large",
+    rownames(results) <- c("Observed:Expected Ratio",
+                           "Calibration Intercept",
                            "Calibration Slope")
-    results[1,] <- c(round(object$CITL, 4),
+    results[1,] <- c(round(object$OE_ratio, 4),
+                     round(object$OE_ratio_SE, 4),
+                     round((object$OE_ratio * exp(-stats::qnorm(0.975) * object$OE_ratio_SE)), 4),
+                     round((object$OE_ratio * exp(stats::qnorm(0.975) * object$OE_ratio_SE)), 4))
+    results[2,] <- c(round(object$CITL, 4),
                      round(object$CITL_SE, 4),
                      round((object$CITL - (stats::qnorm(0.975)*object$CITL_SE)), 4),
                      round((object$CITL + (stats::qnorm(0.975)*object$CITL_SE)), 4))
-    results[2,] <- c(round(object$CalSlope, 4),
+    results[3,] <- c(round(object$CalSlope, 4),
                      round(object$CalSlope_SE, 4),
                      round((object$CalSlope - (stats::qnorm(0.975)*object$CalSlope_SE)), 4),
                      round((object$CalSlope + (stats::qnorm(0.975)*object$CalSlope_SE)), 4))
@@ -334,8 +341,7 @@ predvalidatesummary.fnc <- function(object, model_type) {
     results[1,] <- c(round(object$OE_ratio, 4),
                      round(object$OE_ratio_SE, 4),
                      round((object$OE_ratio * exp(-stats::qnorm(0.975) * object$OE_ratio_SE)), 4),
-                     round((object$OE_ratio * exp(stats::qnorm(0.975) * object$OE_ratio_SE)), 4),
-                     round((object$CITL + (stats::qnorm(0.975)*object$CITL_SE)), 4))
+                     round((object$OE_ratio * exp(stats::qnorm(0.975) * object$OE_ratio_SE)), 4))
     results[2,] <- c(round(object$CalSlope, 4),
                      round(object$CalSlope_SE, 4),
                      round((object$CalSlope - (stats::qnorm(0.975)*object$CalSlope_SE)), 4),
