@@ -14,6 +14,8 @@ test_that("output of pred_validate is as expected - single models", {
                c("OE_ratio", "OE_ratio_SE", "CalSlope", "CalSlope_SE", "harrell_C",
                  "harrell_C_SE", "PR_dist", "flex_calibrationplot", "M"))
 
+  expect_no_error(print(val_results))
+  expect_no_error(plot(val_results))
   expect_snapshot(summary(val_results))
 })
 

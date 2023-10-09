@@ -20,6 +20,8 @@ test_that("output of pred_validate is as expected - single models", {
                  "R2_Nagelkerke", "BrierScore",
                  "PR_dist", "flex_calibrationplot", "M"))
 
+  expect_no_error(print(val_results))
+  expect_no_error(plot(val_results))
   expect_snapshot(summary(val_results))
 
   #test the error for few unique predicted risks:
