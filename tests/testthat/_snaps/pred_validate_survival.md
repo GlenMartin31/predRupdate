@@ -21,5 +21,5 @@
                 Upper 95% Confidence Interval
       Harrell C                        0.5932
       
-       Also examine the histogram of predicted risks. 
+       Also examine the distribution plot of predicted risks. 
 

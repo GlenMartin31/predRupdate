@@ -7,7 +7,8 @@ validate_survival <- function(ObservedOutcome,
                               xlab = "Predicted Probability",
                               ylab = "Observed Probability",
                               xlim = c(0,1),
-                              ylim = c(0,1)) {
+                              ylim = c(0,1),
+                              pred_rug = TRUE) {
 
   # Test if max observed survival time in validation data is less than
   # time_horizon that performance metrics as requested for:
@@ -45,6 +46,8 @@ validate_survival <- function(ObservedOutcome,
 
     OE_ratio <- NA
     OE_ratio_SE <- NA
+    PR_dist <- NULL
+    flex_calibrationplot <- NULL
 
   } else{
     #Estimate calibration-in-the-large: observed-expected ratio
@@ -53,34 +56,42 @@ validate_survival <- function(ObservedOutcome,
     OE_ratio <- (1 - KM_observed$surv) / mean(Prob)
     OE_ratio_SE <- sqrt(1 / KM_observed$n.event)
 
-    # If not creating a calibration plot, then at least produce histogram of
-    # predicted risks; otherwise this is embedded into the calibration plot
-    if (cal_plot == FALSE){
-      plot_df <- data.frame("Prob" = Prob)
-      print(ggplot2::ggplot(plot_df,
-                            ggplot2::aes(x = .data$Prob)) +
-              ggplot2::geom_histogram(bins = 30,
-                                      colour = "black") +
-              ggplot2::ggtitle("Histogram of the Probability Distribution") +
-              ggplot2::xlab(xlab) +
-              ggplot2::theme_bw(base_size = 12))
+    #Distribution of predicted risks:
+    plot_df <- data.frame("Prob" = Prob,
+                          "Outcome" = factor(ifelse(ObservedOutcome[,2] == 1 &
+                                                      ObservedOutcome[,1] <= time_horizon,
+                                                    paste("Event prior to time",
+                                                          time_horizon, sep = " "),
+                                                    paste("No Event/Censored prior to time",
+                                                          time_horizon, sep = " "))))
+    PR_dist <- ggplot2::ggplot(plot_df,
+                               ggplot2::aes(x = .data$Outcome,
+                                            y = .data$Prob)) +
+      ggplot2::geom_violin(position = ggplot2::position_dodge(width = .75),
+                           linewidth = 1) +
+      ggplot2::geom_boxplot(width = 0.1,
+                            outlier.shape = NA) +
+      ggplot2::ylab(xlab) +
+      ggplot2::theme_bw(base_size = 12)
 
-    } else{
-
-      if(length(unique(Prob)) <= 10) {
+    # Create flexible calibration plot:
+    if (cal_plot == TRUE){
+      if(length(unique(Prob)) <= 10) { #allows handling of intercept-only models
         stop("Very low unique predicted risks - calplot not possible; call again with cal_plot = FALSE")
       } else{
-        flex_calplot(model_type = "survival",
-                     ObservedOutcome = ObservedOutcome,
-                     Prob = Prob,
-                     LP = LP,
-                     xlim = xlim,
-                     ylim = ylim,
-                     xlab = xlab,
-                     ylab = ylab,
-                     time_horizon = time_horizon)
+        flex_calibrationplot <- flex_calplot(model_type = "survival",
+                                             ObservedOutcome = ObservedOutcome,
+                                             Prob = Prob,
+                                             LP = LP,
+                                             xlim = xlim,
+                                             ylim = ylim,
+                                             xlab = xlab,
+                                             ylab = ylab,
+                                             pred_rug = pred_rug,
+                                             time_horizon = time_horizon)
       }
-
+    } else {
+      flex_calibrationplot <- NULL
     }
   }
 
@@ -90,6 +101,8 @@ validate_survival <- function(ObservedOutcome,
               "CalSlope" = CalSlope,
               "CalSlope_SE" = CalSlopeSE,
               "harrell_C" = harrell_C_est,
-              "harrell_C_SE" = harrell_C_SE)
-  out
+              "harrell_C_SE" = harrell_C_SE,
+              "PR_dist" = PR_dist,
+              "flex_calibrationplot" = flex_calibrationplot)
+  return(out)
 }

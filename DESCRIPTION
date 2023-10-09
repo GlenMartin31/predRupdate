@@ -33,8 +33,8 @@ Imports:
     survival,
     pROC,
     ggplot2,
-    ggExtra,
-    rlang
+    rlang,
+    ggpubr
 Depends: 
     R (>= 2.10)
 VignetteBuilder: knitr

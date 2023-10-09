@@ -64,7 +64,18 @@ validation_results <- pred_validate(x = Existing_Logistic_Model,
 summary(validation_results) #use summary() to obtain a tidy output summary of the model performance
 ```
 
-This produces a flexible calibration plot, along with outputting various metrics of model calibration (e.g., calibration intercept and slope),  discrimination (e.g., area under the ROC curve) and overall performance (e.g., R-squared). We can see that this model has poor calibration (calibration plot deviating from the y=x line, with calibration intercept and slope significantly different from 0 and 1, respectively), and poor discrimination. One may wish to update this model to the new dataset - see Example 2 below.
+This produces an output of the various metrics of model calibration (e.g., calibration intercept and slope),  discrimination (e.g., area under the ROC curve) and overall performance (e.g., R-squared). We can see that this model has poor calibration (calibration intercept and slope significantly different from 0 and 1, respectively), and poor discrimination. We can also obtain the flexible calibration plot, as
+
+```{r, fig.height=6, fig.width=6}
+validation_results$flex_calibrationplot
+```
+
+The left-panel shows a box-plot and violin plot of the probability distributions, stratified by outcome, and the right-panel shows the flexible calibration plot. The package returns these plots as ggplot2 objects, so further modification of the plots can be made using ggplot2 statements. For example, one can change the theme of the plot as:
+```{r, fig.height=6, fig.width=6}
+validation_results$flex_calibrationplot + ggplot2::theme_classic()
+```
+
+One may wish to update this model to the new dataset - see Example 2 below.
 
 ## Survival analysis model
 The above example considered the validation of an existing CPM that was based on logistic regression. __predRupdate__ also contains functionality to validate CPMs that are based on time-to-event (survival) models (e.g. a Cox proportional hazards model). In such a case, the baseline cumulative hazard of the model should also be specified, along with the regression coefficients. 
@@ -107,37 +118,15 @@ validation_results <- pred_validate(x = Existing_TTE_Model,
 summary(validation_results)
 ```
 
-Here, we see that the existing model under-predicts the mean risk at 5-months (observed:Expected Ratio greater than 1), and there is evidence of over-fitting (both from the calibration plot and the calibration slope being significantly different from 1). The model also has poor discrimination (Harrell C).
+Here, we see that the existing model under-predicts the mean risk at 5-months (observed:Expected Ratio greater than 1), and there is evidence of over-fitting. The model also has poor discrimination (Harrell C). We can also see this from the plot of the distribution of predicted risks, and the calibration plot, as follows:
+```{r, fig.height=6, fig.width=10}
+plot(validation_results)
+```
 
 ### Specifying the baseline cumulative hazard
 When validating an existing time-to-event model, the baseline cumulative hazard of the existing CPM should be reported (e.g., from the original model publication). In some cases, this might be reported at discrete follow-up times (like in the above example). Alternatively, the entire baseline cumulative hazard curve may be presented, or indeed a parametric form of the baseline cumulative hazard may be provided. In those situations, one should extract (from the plot) or calculate (from the parametric form) the baseline cumulative hazard at multiple follow-up times of interest (i.e., the follow-up times at which one wishes to validate the model against).  
 
 However, in some cases, the baseline cumulative hazard of the existing time-to-event CPM may not be reported. In such a situation, one can still use __predRupdate__ to validate such a model. However, only a limited number of metrics will be produced (i.e., only those metrics that require the linear predictor, not absolute risk predictions at a given follow-up time). Specifically, the observed:expected ratio and the calibration plot will not be produced if the baseline cumulative hazard is not provided. 
-
-For example, suppose the baseline cumulative hazard for the above model was not available. We could validate this model using __predRupdate__ as follows:
-```{r}
-# create a data.frame of the model coefficients, with columns being variables
-coefs_table <- data.frame("Age" = 0.007,
-                          "SexM" = 0.225,
-                          "Smoking_Status" = 0.685,
-                          "Diabetes" = 0.425,
-                          "Creatine" = 0.587)
-
-#pass this into pred_input_info()
-Existing_TTE_Model <- pred_input_info(model_type = "survival",
-                                      model_info = coefs_table,
-                                      cum_hazard = NULL) #leave as NULL if the baseline not available
-
-#now validate against the time-to-event outcomes in the new dataset:
-validation_results <- pred_validate(x = Existing_TTE_Model,
-                                    new_data = SYNPM$ValidationData,
-                                    survival_time = "ETime",
-                                    event_indicator = "Status",
-                                    time_horizon = 5)
-summary(validation_results)
-```
-
-Here, we see that no calibration plot is produced, and the observed:expected ratio is NA. A warning message is given to highlight this.
 
 # Example 2: model updating on new data
 In the validation of an existing logistic regression model in Example 1 above, we found that the existing model was miscalibrated in the new data. One strategy to handle this is to apply a range of model updating methods; see `vignette("predRupdate_technical")` for a technical discussion of these methods. 

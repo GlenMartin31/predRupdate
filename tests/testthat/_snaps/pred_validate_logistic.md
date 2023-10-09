@@ -30,5 +30,5 @@
       Nagelkerke R-squared: -0.0863
       Brier Score: 0.1249
       
-       Also examine the histogram of predicted risks. 
+       Also examine the distribution plot of predicted risks. 
 
