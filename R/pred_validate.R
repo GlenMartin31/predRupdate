@@ -58,14 +58,15 @@
 #'   the observed risk and the predicted risks, across the full risk range) and
 #'   discrimination (ability of the model to distinguish between those who
 #'   develop the outcome and those who do not) are calculated. For calibration,
-#'   calibration-in-the-large (CITL) and calibration slopes are estimated. CITL
-#'   is estimated by fitting a logistic regression model to the observed binary
-#'   outcomes, with the linear predictor of the model as an offset. For
-#'   calibration slope, a logistic regression model is fit to the observed
-#'   binary outcome with the linear predictor from the model as the only
-#'   covariate. For discrimination, the function estimates the area under the
-#'   receiver operating characteristic curve (AUC). Various other metrics are
-#'   also calculated to assess overall accuracy (Brier score, Cox-Snell R2).
+#'   the observed-to-expected ratio, calibration intercept and calibration
+#'   slopes are estimated. The calibration intercept is estimated by fitting a
+#'   logistic regression model to the observed binary outcomes, with the linear
+#'   predictor of the model as an offset. For calibration slope, a logistic
+#'   regression model is fit to the observed binary outcome with the linear
+#'   predictor from the model as the only covariate. For discrimination, the
+#'   function estimates the area under the receiver operating characteristic
+#'   curve (AUC). Various other metrics are also calculated to assess overall
+#'   accuracy (Brier score, Cox-Snell R2).
 #'
 #'   In the case of validating a survival prediction model, this function
 #'   assesses the predictive performance of the linear predictor and
@@ -84,23 +85,29 @@
 #'   (TRUE), or not (FALSE). The calibration plot is produced by regressing the
 #'   observed outcomes against a cubic spline of the logit of predicted risks
 #'   (for a logistic model) or the complementary log-log of the predicted risks
-#'   (for a survival model). A histogram of the predicted risk distribution is
-#'   displayed on the top x-axis. Users can specify parameters to modify the
+#'   (for a survival model). Users can specify parameters to modify the
 #'   calibration plot. Specifically, one can specify: \code{xlab}, \code{ylab},
 #'   \code{xlim}, and \code{ylim} to change plotting characteristics for the
-#'   calibration plot.
+#'   calibration plot. A rug can be added to the x-axis of the plot by setting
+#'   \code{pred_rug} as TRUE; this can be used to show the predicted risk
+#'   distribution by outcome status.
 #'
 #' @return \code{\link{pred_validate}} returns an object of class
 #'   "\code{predvalidate}", with child classes per \code{model_type}. This is a
 #'   list of performance metrics, estimated by applying the existing prediction
 #'   model to the new_data. An object of class "\code{predvalidate}" is a list
 #'   containing relevant calibration and discrimination measures. For logistic
-#'   regression models, this will include calibration-intercept, calibration
-#'   slope, area under the ROC curve, R-squared, and Brier Score. For survival
-#'   models, this will include observed:expected ratio (if \code{cum_hazard} is
-#'   provided to \code{x}), calibration slope, and Harrell's C-statistic.
-#'   Optionally, a flexible calibration plot is also produced, along with a
-#'   histogram of the predicted risk distribution.
+#'   regression models, this will include observed:expected ratio,
+#'   calibration-intercept, calibration slope, area under the ROC curve,
+#'   R-squared, and Brier Score. For survival models, this will include
+#'   observed:expected ratio (if \code{cum_hazard} is provided to \code{x}),
+#'   calibration slope, and Harrell's C-statistic. Optionally, a flexible
+#'   calibration plot is also produced, along with a box-plot and violin plot of
+#'   the predicted risk distribution.
+#'
+#'   The \code{summary} function can be used to extract and print summary
+#'   performance results (calibration and discrimination metrics). The graphical
+#'   assessments of performance can be extracted using \code{plot}.
 #'
 #' @export
 #'
@@ -109,10 +116,11 @@
 #' #            an example dataset within the package
 #' model1 <- pred_input_info(model_type = "logistic",
 #'                           model_info = SYNPM$Existing_logistic_models)
-#' pred_validate(x = model1,
-#'              new_data = SYNPM$ValidationData,
-#'              binary_outcome = "Y",
-#'              cal_plot = FALSE)
+#' val_results <- pred_validate(x = model1,
+#'                              new_data = SYNPM$ValidationData,
+#'                              binary_outcome = "Y",
+#'                              cal_plot = FALSE)
+#' summary(val_results)
 #'
 #' @seealso \code{\link{pred_input_info}}
 pred_validate <- function(x,
@@ -244,6 +252,49 @@ pred_validate.predinfo_survival <- function(x,
 }
 
 
+#' @export
+print.predvalidate_logistic <- function(x, ...) {
+ if(x$M == 1){
+    print(list("OE_ratio" = x$OE_ratio,
+               "OE_ratio_SE" = x$OE_ratio_SE,
+               "CalInt" = x$CalInt,
+               "CalInt_SE" = x$CalInt_SE,
+               "CalSlope" = x$CalSlope,
+               "CalSlope_SE" = x$CalSlope_SE,
+               "AUC" = x$AUC,
+               "AUC_SE" = x$AUC_SE,
+               "R2_CoxSnell" = x$R2_CoxSnell,
+               "R2_Nagelkerke" = x$R2_Nagelkerke,
+               "BrierScore" = x$BrierScore))
+
+    if(!is.null(x$PR_dist)) {
+      print(x$PR_dist)}
+    if(!is.null(x$flex_calibrationplot)) {
+      print(x$flex_calibrationplot)}
+  } else{
+    for(m in 1:x$M) {
+      cat(paste("\nPerformance Results for Model", m, "\n", sep = " "))
+      cat("================================= \n")
+      print(list("OE_ratio" = x[[m]]$OE_ratio,
+                 "OE_ratio_SE" = x[[m]]$OE_ratio_SE,
+                 "CalInt" = x[[m]]$CalInt,
+                 "CalInt_SE" = x[[m]]$CalInt_SE,
+                 "CalSlope" = x[[m]]$CalSlope,
+                 "CalSlope_SE" = x[[m]]$CalSlope_SE,
+                 "AUC" = x[[m]]$AUC,
+                 "AUC_SE" = x[[m]]$AUC_SE,
+                 "R2_CoxSnell" = x[[m]]$R2_CoxSnell,
+                 "R2_Nagelkerke" = x[[m]]$R2_Nagelkerke,
+                 "BrierScore" = x[[m]]$BrierScore))
+
+      if(!is.null(x[[m]]$PR_dist)) {
+        print(x[[m]]$PR_dist)}
+      if(!is.null(x[[m]]$flex_calibrationplot)) {
+        print(x[[m]]$flex_calibrationplot)}
+    }
+  }
+}
+
 
 #' @export
 summary.predvalidate_logistic <- function(object, ...) {
@@ -261,12 +312,45 @@ summary.predvalidate_logistic <- function(object, ...) {
 }
 
 
+#' @export
+print.predvalidate_survival <- function(x, ...) {
+  if(x$M == 1){
+    print(list("OE_ratio" = x$OE_ratio,
+               "OE_ratio_SE" = x$OE_ratio_SE,
+               "CalSlope" = x$CalSlope,
+               "CalSlope_SE" = x$CalSlope_SE,
+               "harrell_C" = x$harrell_C,
+               "harrell_C_SE" = x$harrell_C_SE))
+    if(!is.null(x$PR_dist)) {
+      print(x$PR_dist)}
+    if(!is.null(x$flex_calibrationplot)) {
+      print(x$flex_calibrationplot)}
+  } else{
+    for(m in 1:x$M) {
+      cat(paste("\nPerformance Results for Model", m, "\n", sep = " "))
+      cat("================================= \n")
+      print(list("OE_ratio" = x[[m]]$OE_ratio,
+                 "OE_ratio_SE" = x[[m]]$OE_ratio_SE,
+                 "CalSlope" = x[[m]]$CalSlope,
+                 "CalSlope_SE" = x[[m]]$CalSlope_SE,
+                 "harrell_C" = x[[m]]$harrell_C,
+                 "harrell_C_SE" = x[[m]]$harrell_C_SE))
+      if(!is.null(x[[m]]$PR_dist)) {
+        print(x[[m]]$PR_dist)}
+      if(!is.null(x[[m]]$flex_calibrationplot)) {
+        print(x[[m]]$flex_calibrationplot)}
+    }
+  }
+}
+
+
 
 #' @export
 summary.predvalidate_survival <- function(object, ...) {
   if(object$M == 1){
     predvalidatesummary.fnc(object = object,
                             model_type = "survival")
+
   } else{
     for(m in 1:object$M) {
       cat(paste("\nPerformance Results for Model", m, "\n", sep = " "))
@@ -274,9 +358,45 @@ summary.predvalidate_survival <- function(object, ...) {
       predvalidatesummary.fnc(object = object[[m]],
                               model_type = "survival")
     }
+
   }
 }
 
+
+#' @export
+plot.predvalidate <- function(x, ...) {
+
+  if (x$M == 1){
+    if(!is.null(x$PR_dist) & !is.null(x$flex_calibrationplot)) {
+      print(ggpubr::ggarrange(x$PR_dist,
+                              x$flex_calibrationplot,
+                              nrow = 1,
+                              ncol = 2))
+    } else if(!is.null(x$PR_dist)) {
+      print(x$PR_dist)
+    } else if(!is.null(x$flex_calibrationplot)) {
+      print(x$flex_calibrationplot)
+    } else{
+      cat("No plots to print; re-run pred_validate with plotting options")
+    }
+  } else {
+    for (m in 1:x$M) {
+      if(!is.null(x[[m]]$PR_dist) & !is.null(x[[m]]$flex_calibrationplot)) {
+        print(ggpubr::ggarrange(x[[m]]$PR_dist,
+                                x[[m]]$flex_calibrationplot,
+                                nrow = 1,
+                                ncol = 2))
+      } else if(!is.null(x[[m]]$PR_dist)) {
+        print(x[[m]]$PR_dist)
+      } else if(!is.null(x[[m]]$flex_calibrationplot)) {
+        print(x[[m]]$flex_calibrationplot)
+      } else{
+        cat("No plots to print; re-run pred_validate with plotting options")
+      }
+    }
+  }
+
+}
 
 
 predvalidatesummary.fnc <- function(object, model_type) {
@@ -296,10 +416,10 @@ predvalidatesummary.fnc <- function(object, model_type) {
                      round(object$OE_ratio_SE, 4),
                      round((object$OE_ratio * exp(-stats::qnorm(0.975) * object$OE_ratio_SE)), 4),
                      round((object$OE_ratio * exp(stats::qnorm(0.975) * object$OE_ratio_SE)), 4))
-    results[2,] <- c(round(object$CITL, 4),
-                     round(object$CITL_SE, 4),
-                     round((object$CITL - (stats::qnorm(0.975)*object$CITL_SE)), 4),
-                     round((object$CITL + (stats::qnorm(0.975)*object$CITL_SE)), 4))
+    results[2,] <- c(round(object$CalInt, 4),
+                     round(object$CalInt_SE, 4),
+                     round((object$CalInt - (stats::qnorm(0.975)*object$CalInt_SE)), 4),
+                     round((object$CalInt + (stats::qnorm(0.975)*object$CalInt_SE)), 4))
     results[3,] <- c(round(object$CalSlope, 4),
                      round(object$CalSlope_SE, 4),
                      round((object$CalSlope - (stats::qnorm(0.975)*object$CalSlope_SE)), 4),
@@ -326,7 +446,7 @@ predvalidatesummary.fnc <- function(object, model_type) {
     cat("Nagelkerke R-squared: ", round(object$R2_Nagelkerke, 4), "\n", sep = "")
     cat("Brier Score: ", round(object$BrierScore, 4), "\n", sep = "")
 
-    cat("\n Also examine the histogram of predicted risks. \n")
+    cat("\n Also examine the distribution plot of predicted risks. \n")
 
   } else if(model_type == "survival"){
 
@@ -337,7 +457,8 @@ predvalidatesummary.fnc <- function(object, model_type) {
                            "Std. Err",
                            "Lower 95% Confidence Interval",
                            "Upper 95% Confidence Interval")
-    rownames(results) <- c("Observed:Expected Ratio", "Calibration Slope")
+    rownames(results) <- c("Observed:Expected Ratio",
+                           "Calibration Slope")
     results[1,] <- c(round(object$OE_ratio, 4),
                      round(object$OE_ratio_SE, 4),
                      round((object$OE_ratio * exp(-stats::qnorm(0.975) * object$OE_ratio_SE)), 4),
@@ -362,7 +483,7 @@ predvalidatesummary.fnc <- function(object, model_type) {
                      round((object$harrell_C + (stats::qnorm(0.975)*object$harrell_C_SE)), 4))
     print(results)
 
-    cat("\n Also examine the histogram of predicted risks. \n")
+    cat("\n Also examine the distribution plot of predicted risks. \n")
 
   }
 }

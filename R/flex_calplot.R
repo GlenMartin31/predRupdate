@@ -7,6 +7,7 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
                          ylim,
                          xlab,
                          ylab,
+                         pred_rug,
                          time_horizon = NULL) {
 
   model_type <- as.character(match.arg(model_type))
@@ -25,39 +26,39 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
     spline_model <- stats::glm(ObservedOutcome ~ splines::ns(LP, df = 3),
                                family = stats::binomial(link = "logit"))
     spline_preds <- stats::predict(spline_model, type = "response", se = T)
-    plot_df <- data.frame("p" = Prob,
+    plot_df <- data.frame("ObservedOutcome" = ObservedOutcome,
+                          "p" = Prob,
                           "o" = spline_preds$fit)
 
-    print(ggExtra::ggMarginal(ggplot2::ggplot(plot_df,
-                                              ggplot2::aes(x = .data$p,
-                                                           y = .data$o)) +
-                                ggplot2::geom_line(ggplot2::aes(linetype = "Calibration Curve",
-                                                                colour = "Calibration Curve")) +
-                                ggplot2::xlim(xlim) +
-                                ggplot2::ylim(ylim) +
-                                ggplot2::xlab(xlab) +
-                                ggplot2::ylab(ylab) +
-                                ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1,
-                                                                  linetype = "Reference",
-                                                                  colour = "Reference"),
-                                                     show.legend = FALSE) +
-                                ggplot2::geom_point(alpha = 0) +
-                                ggplot2::coord_fixed() +
-                                ggplot2::theme_bw(base_size = 12) +
-                                ggplot2::labs(color  = "Guide name", linetype = "Guide name") +
-                                ggplot2::scale_linetype_manual(values = c("dashed",
-                                                                          "solid"),
-                                                               breaks = c("Reference",
-                                                                          "Calibration Curve"),
-                                                               labels = c("Reference",
-                                                                          "Calibration Curve")) +
-                                ggplot2::scale_colour_manual(values = c("black",
-                                                                        "blue"),
-                                                             breaks = c("Reference",
-                                                                        "Calibration Curve")) +
-                                ggplot2::theme(legend.title=ggplot2::element_blank()),
-                              type = "histogram",
-                              margins = "x"))
+    calplot <- ggplot2::ggplot(plot_df,
+                               ggplot2::aes(x = .data$p,
+                                            y = .data$o)) +
+      ggplot2::geom_line(ggplot2::aes(linetype = "Calibration Curve",
+                                      colour = "Calibration Curve")) +
+      ggplot2::xlim(xlim) +
+      ggplot2::ylim(ylim) +
+      ggplot2::xlab(xlab) +
+      ggplot2::ylab(ylab) +
+      ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1,
+                                        linetype = "Reference",
+                                        colour = "Reference"),
+                           show.legend = FALSE) +
+      ggplot2::geom_point(alpha = 0) +
+      ggplot2::coord_fixed() +
+      ggplot2::theme_bw(base_size = 12) +
+      ggplot2::labs(color  = "Guide name", linetype = "Guide name") +
+      ggplot2::scale_linetype_manual(values = c("dashed",
+                                                "solid"),
+                                     breaks = c("Reference",
+                                                "Calibration Curve"),
+                                     labels = c("Reference",
+                                                "Calibration Curve")) +
+      ggplot2::scale_colour_manual(values = c("black",
+                                              "blue"),
+                                   breaks = c("Reference",
+                                              "Calibration Curve")) +
+      ggplot2::theme(legend.title=ggplot2::element_blank(),
+                     legend.position = "top")
 
   } else {
     cloglog <- log(-log(1 - Prob))
@@ -70,36 +71,41 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
     bh <- survival::basehaz(vcal)
     plot_df$observed_risk <- 1 - (exp(-bh[(max(which(bh[,2] <= time_horizon))),1])^(exp(stats::predict(vcal, type = "lp"))))
 
-    print(ggExtra::ggMarginal(ggplot2::ggplot(plot_df,
-                                              ggplot2::aes(x = .data$Prob,
-                                                           y = .data$observed_risk)) +
-                                ggplot2::geom_line(ggplot2::aes(linetype = "Calibration Curve",
-                                                                colour = "Calibration Curve")) +
-                                ggplot2::xlim(xlim) +
-                                ggplot2::ylim(ylim) +
-                                ggplot2::xlab(xlab) +
-                                ggplot2::ylab(ylab) +
-                                ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1,
-                                                                  linetype = "Reference",
-                                                                  colour = "Reference"),
-                                                     show.legend = FALSE) +
-                                ggplot2::geom_point(alpha = 0) +
-                                ggplot2::coord_fixed() +
-                                ggplot2::theme_bw(base_size = 12) +
-                                ggplot2::labs(color  = "Guide name", linetype = "Guide name") +
-                                ggplot2::scale_linetype_manual(values = c("dashed",
-                                                                          "solid"),
-                                                               breaks = c("Reference",
-                                                                          "Calibration Curve"),
-                                                               labels = c("Reference",
-                                                                          "Calibration Curve")) +
-                                ggplot2::scale_colour_manual(values = c("black",
-                                                                        "blue"),
-                                                             breaks = c("Reference",
-                                                                        "Calibration Curve")) +
-                                ggplot2::theme(legend.title=ggplot2::element_blank()),
-                              type = "histogram",
-                              margins = "x"))
+    calplot <- ggplot2::ggplot(plot_df,
+                               ggplot2::aes(x = .data$Prob,
+                                            y = .data$observed_risk)) +
+      ggplot2::geom_line(ggplot2::aes(linetype = "Calibration Curve",
+                                      colour = "Calibration Curve")) +
+      ggplot2::xlim(xlim) +
+      ggplot2::ylim(ylim) +
+      ggplot2::xlab(xlab) +
+      ggplot2::ylab(ylab) +
+      ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1,
+                                        linetype = "Reference",
+                                        colour = "Reference"),
+                           show.legend = FALSE) +
+      ggplot2::geom_point(alpha = 0) +
+      ggplot2::coord_fixed() +
+      ggplot2::theme_bw(base_size = 12) +
+      ggplot2::labs(color  = "Guide name", linetype = "Guide name") +
+      ggplot2::scale_linetype_manual(values = c("dashed",
+                                                "solid"),
+                                     breaks = c("Reference",
+                                                "Calibration Curve"),
+                                     labels = c("Reference",
+                                                "Calibration Curve")) +
+      ggplot2::scale_colour_manual(values = c("black",
+                                              "blue"),
+                                   breaks = c("Reference",
+                                              "Calibration Curve")) +
+      ggplot2::theme(legend.title=ggplot2::element_blank(),
+                     legend.position = "top")
   }
 
+  if(pred_rug == TRUE){
+    calplot <- calplot +
+      ggplot2::geom_rug(sides="b", alpha = 0.2)
+  }
+
+  return(calplot)
 }
