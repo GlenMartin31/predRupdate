@@ -3,7 +3,7 @@ test_that("survival validations work without baseline hazard", {
                             "SexM" = 0.225,
                             "Smoking_Status" = 0.685,
                             "Diabetes" = 0.425,
-                            "Creatine" = 0.587)
+                            "Creatinine" = 0.587)
 
   #pass this into pred_input_info()
   Existing_TTE_Model <- pred_input_info(model_type = "survival",
@@ -31,7 +31,7 @@ test_that("survival validations through error if all observed survival times
                             "SexM" = 0.225,
                             "Smoking_Status" = 0.685,
                             "Diabetes" = 0.425,
-                            "Creatine" = 0.587)
+                            "Creatinine" = 0.587)
 
   Existing_TTE_Model <- pred_input_info(model_type = "survival",
                                         model_info = coefs_table,

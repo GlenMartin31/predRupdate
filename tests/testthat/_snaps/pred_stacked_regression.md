@@ -10,10 +10,10 @@
       
       Updated Model Coefficients 
       ================================= 
-        Intercept         Age      SexM Smoking_Status  Diabetes  Creatine
-      1 -2.675134 0.005345728 0.1589948      0.5233706 0.2543348 0.4554044
+        Intercept         Age      SexM Smoking_Status  Diabetes Creatinine
+      1 -2.675134 0.005345728 0.1589948      0.5233706 0.2543348  0.4554044
       
       Model Functional Form 
       ================================= 
-      Age + SexM + Smoking_Status + Diabetes + Creatine
+      Age + SexM + Smoking_Status + Diabetes + Creatinine
 

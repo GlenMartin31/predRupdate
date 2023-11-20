@@ -21,7 +21,7 @@
 #'   \item{Smoking_Status}{Indicates whether the individual was or is a smoker
 #'   (1=previous/ current smoker, 0=non-smoker)} \item{Diabetes}{Indicates
 #'   whether the individual has diabetes (1=diabetic, 0=not diabetic)}
-#'   \item{Creatine}{The Creatine value for the individual (mg/dL)}
+#'   \item{Creatinine}{The Creatinine value for the individual (mg/dL)}
 #'   \item{ETime}{The time from baseline until either the event or censoring}
 #'   \item{Status}{Indicator of whether the patient experienced the event or was censored at ETime}
 #'   \item{Y}{Binary indicator of whether the individual experienced the event by 1 time-unit} } }

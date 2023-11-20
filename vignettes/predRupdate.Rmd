@@ -27,7 +27,7 @@ The __predRupdate__ package includes a set of functions to aid in the validation
 The package is focused on the situation where there is an existing CPM (or multiple CPMs) that has been developed (e.g., a model published in the literature), and one wishes to apply this model to a new dataset. We foresee at least three use-cases: (1) where one wishes to validate the existing CPM on the new data to estimate the model's predictive performance, i.e., external validation; (2) where one wishes to apply model updating methods to the existing CPM to 'tailor' it to the new dataset; and (3) where there are multiple existing CPMs, and one wishes to apply model aggregation (meta-modelling) methods to pool these models into a single model for the new dataset. We therefore give three examples below for each of these use cases. 
 
 # Data
-The data, called _SYNPM_, used throughout this vignette are available within the __predRupdate__ package. See "?SYNPM" for details of these data. In short, the data and models included in _SYNPM_ are synthetic, but for the purposes of this vignette, we imagine that one is interested in predicting someone's risk of mortality after surgery. Data are available on `r nrow(SYNPM$ValidationData)` people, which records each individuals age, gender, smoking status, diabetes status, and Creatine value at the time of surgery. The data includes the outcomes of "ETime" representing the time (months) between surgery and either death or end-of-follow-up (5 months), whichever occurred first. The variable "Status" indicates if the patient died (1) or was right-censored (0), and Y denotes a binary variable indicating if the patient died within 1 month. 
+The data, called _SYNPM_, used throughout this vignette are available within the __predRupdate__ package. See "?SYNPM" for details of these data. In short, the data and models included in _SYNPM_ are synthetic, but for the purposes of this vignette, we imagine that one is interested in predicting someone's risk of mortality after surgery. Data are available on `r nrow(SYNPM$ValidationData)` people, which records each individuals age, gender, smoking status, diabetes status, and Creatinine value at the time of surgery. The data includes the outcomes of "ETime" representing the time (months) between surgery and either death or end-of-follow-up (5 months), whichever occurred first. The variable "Status" indicates if the patient died (1) or was right-censored (0), and Y denotes a binary variable indicating if the patient died within 1 month. 
 
 # Example 1: validating an existing prediction model on new data
 In this first example, we take a situation where a CPM has previously been developed (in another dataset) to predict the risk of mortality within 1 month of surgery, and we wish to validate this model in our dataset to test the predictive performance (e.g., an external validation study). 
@@ -48,7 +48,7 @@ coefs_table <- data.frame("Intercept" = -3.995, #the intercept needs to be named
                           "SexM" = 0.267, 
                           "Smoking_Status" = 0.751,
                           "Diabetes" = 0.523,
-                          "Creatine" = 0.578)
+                          "Creatinine" = 0.578)
 
 #pass this into pred_input_info()
 Existing_Logistic_Model <- pred_input_info(model_type = "logistic",
@@ -102,7 +102,7 @@ coefs_table <- data.frame("Age" = 0.007,
                           "SexM" = 0.225,
                           "Smoking_Status" = 0.685,
                           "Diabetes" = 0.425,
-                          "Creatine" = 0.587)
+                          "Creatinine" = 0.587)
 
 #pass this into pred_input_info()
 Existing_TTE_Model <- pred_input_info(model_type = "survival",
@@ -139,7 +139,7 @@ coefs_table <- data.frame("Intercept" = -3.995,
                           "SexM" = 0.267, 
                           "Smoking_Status" = 0.751,
                           "Diabetes" = 0.523,
-                          "Creatine" = 0.578)
+                          "Creatinine" = 0.578)
 
 #pass this into pred_input_info()
 Existing_Logistic_Model <- pred_input_info(model_type = "logistic",
@@ -173,19 +173,19 @@ coefs_table <- data.frame(rbind(c("Intercept" = -3.995,
                                   "SexM" = 0.267,
                                   "Smoking_Status" = 0.751,
                                   "Diabetes" = 0.523,
-                                  "Creatine" = 0.578),
+                                  "Creatinine" = 0.578),
                                 c("Intercept" = -2.282,
                                   "Age" = NA,
                                   "SexM" = 0.223,
                                   "Smoking_Status" = 0.528,
                                   "Diabetes" = 0.200,
-                                  "Creatine" = 0.434),
+                                  "Creatinine" = 0.434),
                                 c("Intercept" = -3.013,
                                   "Age" = NA,
                                   "SexM" = NA,
                                   "Smoking_Status" = 0.565,
                                   "Diabetes" = -0.122,
-                                  "Creatine" = 0.731)))
+                                  "Creatinine" = 0.731)))
 multiple_mods <- pred_input_info(model_type = "logistic",
                                  model_info = coefs_table)
 summary(multiple_mods)
