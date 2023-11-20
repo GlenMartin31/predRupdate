@@ -31,6 +31,7 @@ Debray et al. 2014."><meta property="og:image" content="https://glenmartin31.git
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/predRupdate_splineIllustration.html">Example of Validating a Model that Includes Spline Terms</a>
     <a class="dropdown-item" href="../articles/predRupdate_technical.html">Technical Background to predRupdate</a>
   </div>
 </li>
@@ -184,12 +185,12 @@ multiple published prediction models. <em>Statistics in Medicine</em>, 33:
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Updated Model Coefficients </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Intercept         Age      SexM Smoking_Status  Diabetes  Creatine</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -2.675134 0.005345728 0.1589948      0.5233706 0.2543348 0.4554044</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Intercept         Age      SexM Smoking_Status  Diabetes Creatinine</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -2.675134 0.005345728 0.1589948      0.5233706 0.2543348  0.4554044</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model Functional Form </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Age + SexM + Smoking_Status + Diabetes + Creatine</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Age + SexM + Smoking_Status + Diabetes + Creatinine</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#Survival model example:</span></span></span>
 <span class="r-in"><span><span class="va">TTModels</span> <span class="op">&lt;-</span> <span class="fu"><a href="pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span></span>
@@ -219,12 +220,12 @@ multiple published prediction models. <em>Statistics in Medicine</em>, 33:
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Updated Model Coefficients </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Age      SexM Smoking_Status  Diabetes  Creatine</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.03363821 0.2725367      0.5354202 0.1595384 0.3142822</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Age      SexM Smoking_Status  Diabetes Creatinine</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.03363821 0.2725367      0.5354202 0.1595384  0.3142822</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model Functional Form </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Age + SexM + Smoking_Status + Diabetes + Creatine</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Age + SexM + Smoking_Status + Diabetes + Creatinine</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
