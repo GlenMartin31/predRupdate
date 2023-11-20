@@ -1,0 +1,95 @@
+---
+title: "Example of Validating a Model that Includes Spline Terms"
+author: Glen P. Martin, PhD; David Jenkins, PhD; Matthew Sperrin, PhD
+output: 
+  rmarkdown::html_vignette:
+    toc: yes
+vignette: >
+  %\VignetteIndexEntry{predRupdate_splineIllustration}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(predRupdate)
+```
+
+# Preamble
+A primary purpose of the __predRupdate__ package is to externally validate an existing (previously published) clinical prediction model (CPM) on a new dataset. Sometimes the existing CPMs will include spline terms as predictor variables for non-linear associations. The aim of this vignette is to overview how to use __predRupdate__ to validate such a model, and is intended to supplement other vignettes in the package (`vignette("predRupdate")`).  
+
+# Data
+The data, called _SYNPM_, used throughout this vignette are available within the __predRupdate__ package. See "?SYNPM" for details of these data. In short, the data and models included in _SYNPM_ are synthetic, but for the purposes of this vignette, we imagine that one is interested in predicting someone's risk of mortality after surgery. Data are available on `r nrow(SYNPM$ValidationData)` people, which records each individuals age, gender, smoking status, diabetes status, and Creatinine value at the time of surgery. The data includes a binary outcome, Y, indicating if the patient died within 1 month. 
+
+For this vignette, we imagine a situation where a CPM has previously been developed (in another dataset) to predict the risk of mortality within 1 month of surgery, and we wish to validate this model in our dataset to test the predictive performance (e.g., an external validation study). The existing model was a logistic regression model, with the following predictor variables and coefficients (log-odds ratios) reported:
+
+```{r, echo = FALSE}
+coefs_table <- data.frame("Coefficient" = c(-3.995, 
+                                            0.72918, 
+                                            0.06249, 
+                                            1.67003, 
+                                            0.75348, 
+                                            0.47859))
+row.names(coefs_table) <- c("(Intercept)", "Age spline1" , "Age spline2", "Age spline3", "Age spline4", "SexM")
+knitr::kable(coefs_table, caption = "Table of coefficients for the existing logistic regression prediction model")
+```
+
+The existing model included Age as a B-spline (of degree 3) with 4 degrees of freedom. The coefficient for each basis function is given in the table above. The existing model reported that the internal knot location was 50.09 years, with boundary knot locations of 36 and 64 years.
+
+We now show how one can use this reported information to externally validate the model in new data using __predRupdate__ package.
+
+# External Validation
+The first step in using __predRupdate__ to validate this model is to input the model information. We start by creating a data.frame of the model coefficients, with the columns being the predictor variable names. This information is then passed into the `pred_input_info()` function to input the information about the existing model. See `pred_input_info()` for details.
+```{r}
+# create a data.frame of the model coefficients, with columns being variables
+coefs_table <- data.frame("Intercept" = -3.995, #the intercept needs to be named exactly as given here
+                          "Age_spline1" = 0.72918,
+                          "Age_spline2" = 0.06249, 
+                          "Age_spline3" = 1.67003,
+                          "Age_spline4" = 0.75348,
+                          "SexM" = 0.47859)
+
+#pass this into pred_input_info()
+Existing_Logistic_Model <- pred_input_info(model_type = "logistic",
+                                           model_info = coefs_table)
+summary(Existing_Logistic_Model)
+```
+
+Next, we need to apply the B-spline function (exactly as originally published for the existing model under validation) to our dataset. We can do this in R using the __splines__ package, and passing in the knot locations as reported by the existing model development:
+```{r}
+Age_spline <- splines::bs(SYNPM$ValidationData$Age,
+                          knots = c(50.09),
+                          Boundary.knots = c(36, 64))
+
+head(Age_spline)
+```
+
+We can see that this creates the basis functions, which we add to out validation dataset (taking care to name these columns the same as how the corresponding coefficients for each basis function is specified in \code{coefs_table} above):
+```{r}
+ValidationData <- SYNPM$ValidationData
+ValidationData$Age_spline1 <- Age_spline[,1]
+ValidationData$Age_spline2 <- Age_spline[,2]
+ValidationData$Age_spline3 <- Age_spline[,3]
+ValidationData$Age_spline4 <- Age_spline[,4]
+```
+
+Now, we can validate this model in our validation dataset by using `pred_validate()` as normal (see `vignette("predRupdate")`):
+```{r}
+validation_results <- pred_validate(x = Existing_Logistic_Model,
+                                    new_data = ValidationData,
+                                    binary_outcome = "Y")
+summary(validation_results) #use summary() to obtain a tidy output summary of the model performance
+```
+
+```{r, fig.height=6, fig.width=6}
+validation_results$flex_calibrationplot
+```
+
+
+
