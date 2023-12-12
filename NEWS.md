@@ -1,5 +1,3 @@
-# predRupdate (development version)
-
 # predRupdate 0.1.1
 
 * Changed the naming of the calibration metrics in `summary.predvalidate` to rename "calibration-in-the-large"" for logistic models as being the "calibration intercept". 
