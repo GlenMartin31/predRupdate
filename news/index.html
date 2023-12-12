@@ -58,6 +58,15 @@
 <h2 class="pkg-version" data-toc-text="development version" id="predrupdate-development-version">predRupdate (development version)<a class="anchor" aria-label="anchor" href="#predrupdate-development-version"></a></h2>
 </div>
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.1" id="predrupdate-011">predRupdate 0.1.1<a class="anchor" aria-label="anchor" href="#predrupdate-011"></a></h2>
+<ul><li>Changed the naming of the calibration metrics in <code>summary.predvalidate</code> to rename “calibration-in-the-large”” for logistic models as being the “calibration intercept”.</li>
+<li>
+<code>predvalidate()</code> now calculates observed:expected ratio for validating logistic models, along with calibration intercept</li>
+<li>
+<code><a href="../reference/pred_validate.html">pred_validate()</a></code> now stores the calibration plots (ggplot) as part of the output (previous versions of the package just printed the plot without outputting the plot object). This facilitates users saving or further changing the style of the plot.</li>
+<li>Added a vignette to show how to validate an existing CPM that includes a spline term</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="predrupdate-010">predRupdate 0.1.0<a class="anchor" aria-label="anchor" href="#predrupdate-010"></a></h2><p class="text-muted">CRAN release: 2023-04-27</p>
 <ul><li>Initial release of predRupdate.</li>
 </ul></div>
