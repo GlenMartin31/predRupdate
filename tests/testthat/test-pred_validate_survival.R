@@ -33,6 +33,10 @@ test_that("output of pred_validate is as expected - multiple models", {
                               time_horizon = 5,
                               cal_plot = FALSE)
 
+  expect_no_error(print(val_results))
+  expect_no_error(summary(val_results))
+  expect_no_error(plot(val_results))
+
   expect_type(val_results, type = "list")
   expect_equal(length(val_results), model2$M + 1)
 

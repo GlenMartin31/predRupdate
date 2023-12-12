@@ -49,7 +49,7 @@ coefs_table <- data.frame("Intercept" = -3.4,
                           "SexM" = 0.306,
                           "Smoking_Status" = 0.628,
                           "Diabetes" = 0.499,
-                          "Creatine" = 0.538)
+                          "Creatinine" = 0.538)
 
 #pass this into pred_input_info()
 Existing_Logistic_Model <- pred_input_info(model_type = "logistic",
