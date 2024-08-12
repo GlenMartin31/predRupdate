@@ -114,6 +114,21 @@ pred_input_info <- function(model_type = c("logistic", "survival"),
 
   M <- nrow(model_info) #number of existing models
 
+  #Check for clean variable names in model_info data.frame
+  pattern <- paste(c("\\[", "\\]",
+                     "\\{", "\\}",
+                     "\\(", "\\)",
+                     "[^_^:[:^punct:]]",
+                     "\\s+",
+                     "\\h+"), collapse = "|")
+  if (any(base::grepl(pattern = pattern,
+                      x = names(model_info),
+                      perl = TRUE))) {
+    warning("Unclean variable names passed to model_info; attempt made to clean these.")
+    names(model_info) <- clean_variable_names(string_vector = names(model_info),
+                                              pattern = pattern)
+  }
+
 
   ############### EXTRACT INFORMATION BY MODEL TYPE ######################
   if (model_type == "logistic") {

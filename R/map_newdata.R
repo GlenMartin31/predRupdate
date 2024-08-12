@@ -83,13 +83,28 @@ map_newdata.predinfo_logistic <- function(x,
                                           new_data,
                                           binary_outcome = NULL,
                                           survival_time = NULL,
-                                          event_indicator = NULL){
+                                          event_indicator = NULL) {
 
   ########################## INPUT CHECKING #############################
   # double-check x object
   pred_input_info_input_checks(model_type = x$model_type,
                                model_info = x$model_info,
                                cum_hazard = NULL)
+
+  #Check for clean variable names in model_info data.frame
+  pattern <- paste(c("\\[", "\\]",
+                     "\\{", "\\}",
+                     "\\(", "\\)",
+                     "[^_^:[:^punct:]]",
+                     "\\s+",
+                     "\\h+"), collapse = "|")
+  if (any(base::grepl(pattern = pattern,
+                      x = names(new_data),
+                      perl = TRUE))) {
+    warning("Unclean variable names passed to new_data; attempt made to clean these.")
+    names(new_data) <- clean_variable_names(string_vector = names(new_data),
+                                            pattern = pattern)
+  }
 
   # Check that supplied 'new_data' is a data.frame
   if (inherits(new_data, "data.frame") == FALSE) {
@@ -169,13 +184,28 @@ map_newdata.predinfo_survival <- function(x,
                                           new_data,
                                           binary_outcome = NULL,
                                           survival_time = NULL,
-                                          event_indicator = NULL){
+                                          event_indicator = NULL) {
 
   ########################## INPUT CHECKING #############################
   # double-check x object
   pred_input_info_input_checks(model_type = x$model_type,
                                model_info = x$model_info,
                                cum_hazard = x$cum_hazard)
+
+  #Check for clean variable names in model_info data.frame
+  pattern <- paste(c("\\[", "\\]",
+                     "\\{", "\\}",
+                     "\\(", "\\)",
+                     "[^_^:[:^punct:]]",
+                     "\\s+",
+                     "\\h+"), collapse = "|")
+  if (any(base::grepl(pattern = pattern,
+                      x = names(new_data),
+                      perl = TRUE))) {
+    warning("Unclean variable names passed to new_data; attempt made to clean these.")
+    names(new_data) <- clean_variable_names(string_vector = names(new_data),
+                                            pattern = pattern)
+  }
 
   # Check that supplied 'new_data' is a data.frame
   if (inherits(new_data, "data.frame") == FALSE) {

@@ -54,3 +54,13 @@ test_that("pred_input_info() returns errors when input not correct", {
   ) #no specification of intercept in model_info
 
 })
+
+test_that("unclean variable names trigger a warning", {
+  expect_warning(pred_input_info(model_type = "logistic",
+                                 model_info = data.frame("Intercept" = -2,
+                                                         "Age (years)" = 5)))
+
+  expect_warning(pred_input_info(model_type = "survival",
+                                 model_info = data.frame("Age (years)" = 5)))
+
+})
