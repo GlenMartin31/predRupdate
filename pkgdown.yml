@@ -1,12 +1,11 @@
-pandoc: 2.19.2
-pkgdown: 2.0.7
+pandoc: 3.1.11
+pkgdown: 2.1.0
 pkgdown_sha: ~
 articles:
-  predRupdate: predRupdate.html
   predRupdate_splineIllustration: predRupdate_splineIllustration.html
   predRupdate_technical: predRupdate_technical.html
-last_built: 2024-02-09T08:57Z
+  predRupdate: predRupdate.html
+last_built: 2024-08-12T12:28Z
 urls:
   reference: https://glenmartin31.github.io/predRupdate/reference
   article: https://glenmartin31.github.io/predRupdate/articles
-
