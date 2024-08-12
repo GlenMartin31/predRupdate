@@ -22,7 +22,11 @@ test_that("pred_stacked_regression has expected output", {
   expect_s3_class(SR, "predinfo")
 
   expect_snapshot(summary(SR))
+})
 
+test_that("pred_stacked_regression works with positivity_constraint", {
+  LogisticModels <- pred_input_info(model_type = "logistic",
+                                    model_info = SYNPM$Existing_logistic_models)
   SR <- pred_stacked_regression(x = LogisticModels,
                                 new_data = SYNPM$ValidationData,
                                 binary_outcome = "Y",
@@ -32,10 +36,10 @@ test_that("pred_stacked_regression has expected output", {
   expect_s3_class(SR, "predSR")
   expect_s3_class(SR, "predinfo_logistic")
   expect_s3_class(SR, "predinfo")
+})
 
 
-
-
+test_that("pred_stacked_regression with survival model has expected output", {
   TTModels <- pred_input_info(model_type = "survival",
                               model_info = SYNPM$Existing_TTE_models,
                               cum_hazard = list(SYNPM$TTE_mod1_baseline,
@@ -55,3 +59,25 @@ test_that("pred_stacked_regression has expected output", {
   expect_s3_class(SR, "predinfo_survival")
   expect_s3_class(SR, "predinfo")
 })
+
+
+test_that("pred_stacked_regression of TTE models works with positivity_constraint", {
+  TTModels <- pred_input_info(model_type = "survival",
+                              model_info = SYNPM$Existing_TTE_models,
+                              cum_hazard = list(SYNPM$TTE_mod1_baseline,
+                                                SYNPM$TTE_mod2_baseline,
+                                                SYNPM$TTE_mod3_baseline))
+
+  SR <- pred_stacked_regression(x = TTModels,
+                                new_data = SYNPM$ValidationData,
+                                survival_time = "ETime",
+                                event_indicator = "Status",
+                                positivity_constraint = TRUE)
+  expect_type(SR, type = "list")
+  expect_equal(names(SR), c("M", "model_type", "coefs", "coef_names", "formula", "cum_hazard", "model_info", "Stacked_Regression_Weights"))
+  expect_s3_class(SR, "predSR")
+  expect_s3_class(SR, "predinfo_survival")
+  expect_s3_class(SR, "predinfo")
+})
+
+
