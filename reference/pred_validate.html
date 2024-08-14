@@ -54,6 +54,7 @@ performance against a new (validation) dataset.</p>
 <span>  survival_time <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  event_indicator <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  time_horizon <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  cal_plot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -98,6 +99,11 @@ leave as <code>NULL</code> otherwise.</p></dd>
 <dd><p>for survival models, an integer giving the time horizon
 (post baseline) at which a prediction is required. Currently, this must
 match a time in x$cum_hazard.</p></dd>
+
+
+<dt id="arg-level">level<a class="anchor" aria-label="anchor" href="#arg-level"></a></dt>
+<dd><p>the confidence level required for all performance metrics.
+Defaults at 95%. Must be a value between 0 and 1.</p></dd>
 
 
 <dt id="arg-cal-plot">cal_plot<a class="anchor" aria-label="anchor" href="#arg-cal-plot"></a></dt>
@@ -210,12 +216,12 @@ distribution by outcome status.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> --------------------------------- </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                         Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio   1.9006   0.0188                        1.8319</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Intercept     0.7323   0.0206                        0.6921</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope         0.6484   0.0463                        0.5576</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                         Estimate Lower 95% Confidence Interval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio   1.9006                        1.8368</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Intercept     0.7323                        0.6921</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope         0.6484                        0.5576</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                         Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio                        1.9719</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio                        1.9666</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Intercept                          0.7726</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope                              0.7392</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -223,17 +229,15 @@ distribution by outcome status.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Discrimination Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> --------------------------------- </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5814   0.0057                        0.5702</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC                        0.5927</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Estimate Lower 95% Confidence Interval Upper 95% Confidence Interval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5814                        0.5702                        0.5927</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Overall Performance Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> --------------------------------- </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cox-Snell R-squared: -0.0481</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Nagelkerke R-squared: -0.0863</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score: 0.1249</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score (CI): 0.1249 (0.1219, 0.1279)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the distribution plot of predicted risks. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -241,12 +245,12 @@ distribution by outcome status.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> --------------------------------- </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                         Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio   0.8945   0.0188                        0.8622</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Intercept    -0.1325   0.0204                       -0.1725</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope         0.9868   0.0704                        0.8489</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                         Estimate Lower 95% Confidence Interval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio   0.8945                        0.8645</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Intercept    -0.1325                       -0.1725</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope         0.9868                        0.8489</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                         Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio                        0.9281</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio                        0.9256</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Intercept                         -0.0926</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope                              1.1247</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -254,17 +258,15 @@ distribution by outcome status.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Discrimination Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> --------------------------------- </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5828   0.0058                        0.5716</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC                        0.5941</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Estimate Lower 95% Confidence Interval Upper 95% Confidence Interval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5828                        0.5716                        0.5941</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Overall Performance Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> --------------------------------- </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cox-Snell R-squared: 0.0074</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Nagelkerke R-squared: 0.0132</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score: 0.1206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score (CI): 0.1206 (0.1172, 0.124)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the distribution plot of predicted risks. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -272,12 +274,12 @@ distribution by outcome status.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ================================= </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> --------------------------------- </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                         Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio   1.5945   0.0188                        1.5368</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Intercept     0.5324   0.0204                        0.4923</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope         0.7212   0.0628                        0.5981</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                         Estimate Lower 95% Confidence Interval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio   1.5945                        1.5410</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Intercept     0.5324                        0.4923</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope         0.7212                        0.5981</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                         Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio                        1.6544</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Observed:Expected Ratio                        1.6499</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Intercept                          0.5724</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calibration Slope                              0.8443</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -285,17 +287,15 @@ distribution by outcome status.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Discrimination Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> --------------------------------- </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Estimate Std. Err Lower 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5613   0.0059                        0.5497</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Upper 95% Confidence Interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUC                        0.5728</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Estimate Lower 95% Confidence Interval Upper 95% Confidence Interval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AUC   0.5613                        0.5497                        0.5728</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Overall Performance Measures </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> --------------------------------- </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cox-Snell R-squared: -0.0249</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Nagelkerke R-squared: -0.0446</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score: 0.1234</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Brier Score (CI): 0.1234 (0.1202, 0.1266)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Also examine the distribution plot of predicted risks. </span>
 <span class="r-in"><span></span></span>
