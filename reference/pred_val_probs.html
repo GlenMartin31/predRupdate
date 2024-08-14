@@ -89,11 +89,38 @@ below.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class "<code>predvalidate</code>", which is a list containing
 relevant calibration and discrimination measures. See
-<code><a href="pred_validate.html">pred_validate</a></code> for details. This will include
-observed:expected ratio, calibration-intercept, calibration slope, area
-under the ROC curve, R-squared, and Brier Score. Optionally, a
-flexible calibration plot is also produced, along with a box-plot and
-violin plot of the predicted risk distribution.</p>
+<code><a href="pred_validate.html">pred_validate</a></code> for details.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>This function takes a vector of observed binary outcomes, and a
+corresponding vector of predicted risks (e.g. from a logistic regression
+CPM), and calculates measures of predictive performance. The function is
+intended as a standalone way of validating predicted risks against binary
+outcomes outside of the usual pred_input_info() -&gt; pred_validate() package
+workflow. See <code><a href="pred_validate.html">pred_validate</a></code> for the main validation function
+of this package.</p>
+<p>Various metrics of calibration (agreement between the observed risk and the
+predicted risks, across the full risk range) and discrimination (ability
+of the model to distinguish between those who develop the outcome and
+those who do not) are calculated. For calibration, the observed-to-expected
+ratio, calibration intercept and calibration slopes are estimated. The
+calibration intercept is estimated by fitting a logistic regression model
+to the observed binary outcomes, with the linear predictor of the model as
+an offset. For calibration slope, a logistic regression model is fit to the
+observed binary outcome with the linear predictor from the model as the
+only covariate. For discrimination, the function estimates the area under
+the receiver operating characteristic curve (AUC). Various other metrics
+are also calculated to assess overall accuracy (Brier score, Cox-Snell R2).</p>
+<p>A flexible calibration plot is produced. Specify parameter
+<code>cal_plot</code> to indicate whether a calibration plot should be produced
+(TRUE), or not (FALSE). The calibration plot is produced by regressing the
+observed outcomes against a cubic spline of the logit of predicted risks.
+Users can specify parameters to modify the calibration plot. Specifically,
+one can specify: <code>xlab</code>, <code>ylab</code>, <code>xlim</code>, and <code>ylim</code> to
+change plotting characteristics for the calibration plot. A rug can be
+added to the x-axis of the plot by setting <code>pred_rug</code> as TRUE; this
+can be used to show the predicted risk distribution by outcome status.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
