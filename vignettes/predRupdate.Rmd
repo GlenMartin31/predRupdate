@@ -79,6 +79,16 @@ validation_results$flex_calibrationplot +
 
 One may wish to update this model to the new dataset - see Example 2 below.
 
+By default, 95% CIs are calculated for each performance metric. This can be changed by specifying level, as follows:
+```{r}
+validation_results <- pred_validate(x = Existing_Logistic_Model,
+                                    new_data = SYNPM$ValidationData,
+                                    binary_outcome = "Y",
+                                    level = 0.90)
+summary(validation_results) #use summary() to obtain a tidy output summary of the model performance
+```
+
+
 ## Survival analysis model
 The above example considered the validation of an existing CPM that was based on logistic regression. __predRupdate__ also contains functionality to validate CPMs that are based on time-to-event (survival) models (e.g. a Cox proportional hazards model). In such a case, the baseline cumulative hazard of the model should also be specified, along with the regression coefficients. 
 
