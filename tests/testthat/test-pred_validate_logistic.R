@@ -15,9 +15,13 @@ test_that("output of pred_validate is as expected - single models", {
   expect_s3_class(val_results, c("predvalidate_logistic", "predvalidate"))
   expect_type(val_results, type = "list")
   expect_equal(names(val_results),
-               c("OE_ratio", "OE_ratio_SE", "CalInt", "CalInt_SE", "CalSlope",
-                 "CalSlope_SE", "AUC", "AUC_SE", "R2_CoxSnell",
-                 "R2_Nagelkerke", "BrierScore",
+               c("level",
+                 "OE_ratio", "OE_ratio_lower", "OE_ratio_upper",
+                 "CalInt", "CalInt_SE", "CalInt_lower", "CalInt_upper",
+                 "CalSlope", "CalSlope_SE", "CalSlope_lower", "CalSlope_upper",
+                 "AUC", "AUC_SE", "AUC_lower", "AUC_upper",
+                 "R2_CoxSnell", "R2_Nagelkerke",
+                 "BrierScore", "Brier_lower", "Brier_upper",
                  "PR_dist", "flex_calibrationplot", "M"))
 
   expect_no_error(print(val_results))
@@ -56,9 +60,13 @@ test_that("output of pred_validate is as expected - multiple models", {
   for(m in 1:model2$M) {
     expect_type(val_results[[m]], type = "list")
     expect_equal(names(val_results[[m]]),
-                 c("OE_ratio", "OE_ratio_SE", "CalInt", "CalInt_SE", "CalSlope",
-                   "CalSlope_SE", "AUC", "AUC_SE", "R2_CoxSnell",
-                   "R2_Nagelkerke", "BrierScore",
+                 c("level",
+                   "OE_ratio", "OE_ratio_lower", "OE_ratio_upper",
+                   "CalInt", "CalInt_SE", "CalInt_lower", "CalInt_upper",
+                   "CalSlope", "CalSlope_SE", "CalSlope_lower", "CalSlope_upper",
+                   "AUC", "AUC_SE", "AUC_lower", "AUC_upper",
+                   "R2_CoxSnell", "R2_Nagelkerke",
+                   "BrierScore", "Brier_lower", "Brier_upper",
                    "PR_dist", "flex_calibrationplot"))
   }
 })

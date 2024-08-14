@@ -5,12 +5,12 @@
     Output
       Calibration Measures 
       --------------------------------- 
-                              Estimate Std. Err Lower 95% Confidence Interval
-      Observed:Expected Ratio   1.9006   0.0188                        1.8319
-      Calibration Intercept     0.7323   0.0206                        0.6921
-      Calibration Slope         0.6484   0.0463                        0.5576
+                              Estimate Lower 95% Confidence Interval
+      Observed:Expected Ratio   1.9006                        1.8368
+      Calibration Intercept     0.7323                        0.6921
+      Calibration Slope         0.6484                        0.5576
                               Upper 95% Confidence Interval
-      Observed:Expected Ratio                        1.9719
+      Observed:Expected Ratio                        1.9666
       Calibration Intercept                          0.7726
       Calibration Slope                              0.7392
       
@@ -18,17 +18,15 @@
       
       Discrimination Measures 
       --------------------------------- 
-          Estimate Std. Err Lower 95% Confidence Interval
-      AUC   0.5814   0.0057                        0.5702
-          Upper 95% Confidence Interval
-      AUC                        0.5927
+          Estimate Lower 95% Confidence Interval Upper 95% Confidence Interval
+      AUC   0.5814                        0.5702                        0.5927
       
       
       Overall Performance Measures 
       --------------------------------- 
       Cox-Snell R-squared: -0.0481
       Nagelkerke R-squared: -0.0863
-      Brier Score: 0.1249
+      Brier Score (CI): 0.1249 (0.1219, 0.1279)
       
        Also examine the distribution plot of predicted risks. 
 

@@ -11,6 +11,7 @@ pred_validate(
   survival_time = NULL,
   event_indicator = NULL,
   time_horizon = NULL,
+  level = 0.95,
   cal_plot = TRUE,
   ...
 )
@@ -40,6 +41,9 @@ leave as \code{NULL} otherwise.}
 \item{time_horizon}{for survival models, an integer giving the time horizon
 (post baseline) at which a prediction is required. Currently, this must
 match a time in x$cum_hazard.}
+
+\item{level}{the confidence level required for all performance metrics.
+Defaults at 95\%. Must be a value between 0 and 1.}
 
 \item{cal_plot}{indicate if a flexible calibration plot should be produced
 (TRUE) or not (FALSE).}

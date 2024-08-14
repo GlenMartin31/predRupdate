@@ -11,8 +11,11 @@ test_that("output of pred_validate is as expected - single models", {
   expect_s3_class(val_results, c("predvalidate_survival", "predvalidate"))
   expect_type(val_results, type = "list")
   expect_equal(names(val_results),
-               c("OE_ratio", "OE_ratio_SE", "CalSlope", "CalSlope_SE", "harrell_C",
-                 "harrell_C_SE", "PR_dist", "flex_calibrationplot", "M"))
+               c("level",
+                 "OE_ratio", "OE_ratio_lower", "OE_ratio_upper",
+                 "CalSlope", "CalSlope_SE", "CalSlope_lower", "CalSlope_upper",
+                 "harrell_C", "harrell_C_SE", "harrell_C_lower", "harrell_C_upper",
+                 "PR_dist", "flex_calibrationplot", "M"))
 
   expect_no_error(print(val_results))
   expect_no_error(plot(val_results))
@@ -45,7 +48,10 @@ test_that("output of pred_validate is as expected - multiple models", {
   for(m in 1:model2$M) {
     expect_type(val_results[[m]], type = "list")
     expect_equal(names(val_results[[m]]),
-                 c("OE_ratio", "OE_ratio_SE", "CalSlope", "CalSlope_SE", "harrell_C",
-                   "harrell_C_SE", "PR_dist", "flex_calibrationplot"))
+                 c("level",
+                   "OE_ratio", "OE_ratio_lower", "OE_ratio_upper",
+                   "CalSlope", "CalSlope_SE", "CalSlope_lower", "CalSlope_upper",
+                   "harrell_C", "harrell_C_SE", "harrell_C_lower", "harrell_C_upper",
+                   "PR_dist", "flex_calibrationplot"))
   }
 })

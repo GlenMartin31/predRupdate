@@ -22,7 +22,8 @@ test_that("survival validations work without baseline hazard", {
                                       event_indicator = "Status",
                                       time_horizon = 5))
   expect_equal(validation_results$OE_ratio, NA)
-  expect_equal(validation_results$OE_ratio_SE, NA)
+  expect_equal(validation_results$OE_ratio_lower, NA)
+  expect_equal(validation_results$OE_ratio_upper, NA)
 })
 
 test_that("survival validations through error if all observed survival times
