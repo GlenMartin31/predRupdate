@@ -41,17 +41,14 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
       ggplot2::ylab(ylab) +
       ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1,
                                         linetype = "Reference",
-                                        colour = "Reference"),
-                           show.legend = FALSE) +
+                                        colour = "Reference")) +
       ggplot2::geom_point(alpha = 0) +
       ggplot2::coord_fixed() +
       ggplot2::theme_bw(base_size = 12) +
       ggplot2::labs(color  = "Guide name", linetype = "Guide name") +
-      ggplot2::scale_linetype_manual(values = c("dashed",
-                                                "solid"),
+      ggplot2::scale_linetype_manual(values = c("Reference" = "dashed",
+                                                "Calibration Curve" = "solid"),
                                      breaks = c("Reference",
-                                                "Calibration Curve"),
-                                     labels = c("Reference",
                                                 "Calibration Curve")) +
       ggplot2::scale_colour_manual(values = c("black",
                                               "blue"),
@@ -82,8 +79,7 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
       ggplot2::ylab(ylab) +
       ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1,
                                         linetype = "Reference",
-                                        colour = "Reference"),
-                           show.legend = FALSE) +
+                                        colour = "Reference")) +
       ggplot2::geom_point(alpha = 0) +
       ggplot2::coord_fixed() +
       ggplot2::theme_bw(base_size = 12) +
@@ -91,8 +87,6 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
       ggplot2::scale_linetype_manual(values = c("dashed",
                                                 "solid"),
                                      breaks = c("Reference",
-                                                "Calibration Curve"),
-                                     labels = c("Reference",
                                                 "Calibration Curve")) +
       ggplot2::scale_colour_manual(values = c("black",
                                               "blue"),
