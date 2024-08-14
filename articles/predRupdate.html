@@ -241,6 +241,40 @@ statements. For example, one can change the theme of the plot as:</p>
 <p><img src="predRupdate_files/figure-html/unnamed-chunk-6-1.png" width="576"></p>
 <p>One may wish to update this model to the new dataset - see Example 2
 below.</p>
+<p>By default, 95% CIs are calculated for each performance metric. This
+can be changed by specifying level, as follows:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">validation_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_Logistic_Model</span>,</span>
+<span>                                    new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
+<span>                                    binary_outcome <span class="op">=</span> <span class="st">"Y"</span>,</span>
+<span>                                    level <span class="op">=</span> <span class="fl">0.90</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">validation_results</span><span class="op">)</span> <span class="co">#use summary() to obtain a tidy output summary of the model performance</span></span>
+<span><span class="co">#&gt; Calibration Measures </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
+<span><span class="co">#&gt;                         Estimate Lower 90% Confidence Interval</span></span>
+<span><span class="co">#&gt; Observed:Expected Ratio   1.8583                        1.8058</span></span>
+<span><span class="co">#&gt; Calibration Intercept     0.7076                        0.6738</span></span>
+<span><span class="co">#&gt; Calibration Slope         0.6496                        0.5734</span></span>
+<span><span class="co">#&gt;                         Upper 90% Confidence Interval</span></span>
+<span><span class="co">#&gt; Observed:Expected Ratio                        1.9123</span></span>
+<span><span class="co">#&gt; Calibration Intercept                          0.7414</span></span>
+<span><span class="co">#&gt; Calibration Slope                              0.7257</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Also examine the calibration plot, if produced. </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Discrimination Measures </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
+<span><span class="co">#&gt;     Estimate Lower 90% Confidence Interval Upper 90% Confidence Interval</span></span>
+<span><span class="co">#&gt; AUC   0.5816                        0.5722                         0.591</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Overall Performance Measures </span></span>
+<span><span class="co">#&gt; --------------------------------- </span></span>
+<span><span class="co">#&gt; Cox-Snell R-squared: -0.0446</span></span>
+<span><span class="co">#&gt; Nagelkerke R-squared: -0.0801</span></span>
+<span><span class="co">#&gt; Brier Score (CI): 0.1246 (0.1221, 0.1272)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Also examine the distribution plot of predicted risks.</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="survival-analysis-model">Survival analysis model<a class="anchor" aria-label="anchor" href="#survival-analysis-model"></a>
 </h3>
@@ -326,7 +360,7 @@ achieve this, one follows a similar syntax to above for the logistic
 model. The main difference is that one needs to specify a time during
 follow-up that we’d like to validate the model against - this time must
 also be available in the baseline cumulative hazard provided.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
 <span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.007</span>,</span>
 <span>                          <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.225</span>,</span>
@@ -368,9 +402,9 @@ also be available in the baseline cumulative hazard provided.</p>
 of over-fitting. The model also has poor discrimination (Harrell C). We
 can also see this from the plot of the distribution of predicted risks,
 and the calibration plot, as follows:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">validation_results</span><span class="op">)</span></span></code></pre></div>
-<p><img src="predRupdate_files/figure-html/unnamed-chunk-10-1.png" width="960"></p>
+<p><img src="predRupdate_files/figure-html/unnamed-chunk-11-1.png" width="960"></p>
 <div class="section level4">
 <h4 id="specifying-the-baseline-cumulative-hazard">Specifying the baseline cumulative hazard<a class="anchor" aria-label="anchor" href="#specifying-the-baseline-cumulative-hazard"></a>
 </h4>
@@ -413,7 +447,7 @@ functions make no attempt at checking this consistency, and users are
 advised to ensure that the baseline cumulative hazard is consistent with
 the format of the new data that is being provided to validate the model.
 The below hypothetical example illustrates this point:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span></span>
 <span></span>
 <span><span class="va">cox_mod</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">coxph</a></span><span class="op">(</span><span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">ETime</span>, <span class="va">Status</span><span class="op">)</span> <span class="op">~</span> <span class="va">Age</span> <span class="op">+</span> <span class="va">Creatinine</span>, </span>
@@ -474,7 +508,7 @@ technical discussion of these methods.</p>
 we here choose to apply model re-calibration to the existing logistic
 regression model shown in Example 1 above. Within
 <strong>predRupdate</strong>, we use <code><a href="../reference/pred_update.html">pred_update()</a></code>:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
 <span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.995</span>, </span>
 <span>                          <span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.012</span>,</span>
@@ -513,7 +547,7 @@ regression model shown in Example 1 above. Within
 new data, then in-practice any such performance estimates would need to
 be adjusted for in-sample optimism (e.g., using cross-validation or
 bootstrap internal validation):</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">Updated_model</span>, </span>
 <span>                      new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
 <span>                      binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span><span class="op">)</span></span>
@@ -562,7 +596,7 @@ into <code><a href="../reference/pred_input_info.html">pred_input_info()</a></co
 parameter should be the coefficients of an existing CPM; any parameter
 that is not included in a given CPM should have value NA, as shown
 below:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.995</span>,</span>
 <span>                                  <span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0.012</span>,</span>
 <span>                                  <span class="st">"SexM"</span> <span class="op">=</span> <span class="fl">0.267</span>,</span>
@@ -609,7 +643,7 @@ below:</p>
 <p>We can then use <code><a href="../reference/pred_stacked_regression.html">pred_stacked_regression()</a></code> to apply
 stacked regression to aggregate these models into a single model for the
 new dataset:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">SR</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_stacked_regression.html">pred_stacked_regression</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">multiple_mods</span>,</span>
 <span>                              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>,</span>
 <span>                              binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span>
@@ -632,7 +666,7 @@ new dataset:</p>
 new data, then in-practice any such performance estimates would need to
 be adjusted for in-sample optimism (e.g., using cross-validation or
 bootstrap internal validation):</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span><span class="va">SR</span>, </span>
 <span>              new_data <span class="op">=</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span>, </span>
 <span>              binary_outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span><span class="op">)</span></span>
@@ -688,7 +722,7 @@ column of ‘new_data’.</p>
 variable passed through model_info in <code><a href="../reference/pred_input_info.html">pred_input_info()</a></code>
 does not match a name of the smoking variable in ‘new_data’ passed to
 <code><a href="../reference/pred_predict.html">pred_predict()</a></code>.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create a data.frame of the model coefficients, with columns being variables</span></span>
 <span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.995</span>, </span>
 <span>                          <span class="st">"Smoking"</span> <span class="op">=</span> <span class="fl">0.751</span><span class="op">)</span></span>
@@ -707,7 +741,7 @@ does not match a name of the smoking variable in ‘new_data’ passed to
 <p>Moreover, particular care should be given to any categorical/factor
 variables within new_data. For example, suppose we have the following
 new_data:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">new_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Sex"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"M"</span>, <span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"F"</span>, <span class="st">"M"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                     <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Here, Sex is recorded as a factor variable with levels “M” and “F”.
@@ -715,7 +749,7 @@ Before working with functions in <strong>predRupdate</strong>, one must
 first convert any factor variables to indicator/dummy variables. We
 provide <code><a href="../reference/dummy_vars.html">dummy_vars()</a></code> within <strong>predRupdate</strong> to
 assist with this. For example:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">3.4</span>,</span>
 <span>                          <span class="st">"Sex_M"</span> <span class="op">=</span> <span class="fl">0.306</span>,</span>
 <span>                          <span class="st">"Smoking_Status"</span> <span class="op">=</span> <span class="fl">0.628</span><span class="op">)</span></span>
