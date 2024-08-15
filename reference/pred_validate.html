@@ -188,13 +188,29 @@ models, the cumulative baseline hazard must be available in the
 (TRUE), or not (FALSE). The calibration plot is produced by regressing the
 observed outcomes against a cubic spline of the logit of predicted risks
 (for a logistic model) or the complementary log-log of the predicted risks
-(for a survival model). Users can specify parameters to modify the
-calibration plot. Specifically, one can specify: <code>xlab</code>, <code>ylab</code>,
-<code>xlim</code>, and <code>ylim</code> to change plotting characteristics for the
-calibration plot. A rug can be added to the x-axis of the plot by setting
-<code>pred_rug</code> as TRUE; this can be used to show the predicted risk
-distribution by outcome status.</p>
-    </div>
+(for a survival model). Users can specify the following additional
+parameters to <code>pred_validate</code> to modify the calibration plot:</p><ul><li><p><code>xlim</code> as a numeric vector of length 2, giving the lower and
+upper range of the x-axis scale - defaults at 0 and 1. Changes here should
+match changes to the <code>ylim</code> such that the plot remains 'square'.</p></li>
+<li><p><code>ylim</code> as a numeric vector of length 2, giving the lower and
+upper range of the y-axis scale - defaults at 0 and 1. Changes here should
+match changes to the <code>xlim</code> such that the plot remains 'square'.</p></li>
+<li><p><code>xlab</code> string giving the x-axis label. Defaults as
+"Predicted Probability".</p></li>
+<li><p><code>ylab</code> string giving the x-axis label. Defaults as
+"Observed Probability".</p></li>
+<li><p><code>pred_rug</code> TRUE/FALSE of whether a 'rug' should be placed
+along the x-axis of the calibration plot showing the distribution of
+predicted risks. Defaults as FALSE in favour of examining the
+box-plot/violin plot that is produced.</p></li>
+<li><p><code>cal_plot_n_sample</code> numeric value (less than nrow(new_data))
+giving a random subset of observations to render the calibration plot
+over. The calibration plot is always created using all data, but for
+rendering speed in large datasets, it can sometimes be useful to render
+the plot over a smaller (random) subset of observations.
+Final (e.g. publication-ready) plots should always show the full plot,
+so a warning is created if users enter a value of cal_plot_n_sample.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="pred_input_info.html">pred_input_info</a></code></p></div>

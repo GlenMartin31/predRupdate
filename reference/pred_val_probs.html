@@ -114,13 +114,8 @@ the receiver operating characteristic curve (AUC). Various other metrics
 are also calculated to assess overall accuracy (Brier score, Cox-Snell R2).</p>
 <p>A flexible calibration plot is produced. Specify parameter
 <code>cal_plot</code> to indicate whether a calibration plot should be produced
-(TRUE), or not (FALSE). The calibration plot is produced by regressing the
-observed outcomes against a cubic spline of the logit of predicted risks.
-Users can specify parameters to modify the calibration plot. Specifically,
-one can specify: <code>xlab</code>, <code>ylab</code>, <code>xlim</code>, and <code>ylim</code> to
-change plotting characteristics for the calibration plot. A rug can be
-added to the x-axis of the plot by setting <code>pred_rug</code> as TRUE; this
-can be used to show the predicted risk distribution by outcome status.</p>
+(TRUE), or not (FALSE). See <code><a href="pred_validate.html">pred_validate</a></code> for details on
+this plot, and details of optional plotting arguments.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
