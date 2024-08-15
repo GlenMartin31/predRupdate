@@ -57,13 +57,8 @@ are also calculated to assess overall accuracy (Brier score, Cox-Snell R2).
 
 A flexible calibration plot is produced. Specify parameter
 \code{cal_plot} to indicate whether a calibration plot should be produced
-(TRUE), or not (FALSE). The calibration plot is produced by regressing the
-observed outcomes against a cubic spline of the logit of predicted risks.
-Users can specify parameters to modify the calibration plot. Specifically,
-one can specify: \code{xlab}, \code{ylab}, \code{xlim}, and \code{ylim} to
-change plotting characteristics for the calibration plot. A rug can be
-added to the x-axis of the plot by setting \code{pred_rug} as TRUE; this
-can be used to show the predicted risk distribution by outcome status.
+(TRUE), or not (FALSE). See \code{\link{pred_validate}} for details on
+this plot, and details of optional plotting arguments.
 }
 \examples{
 # simulate some data for purposes of example illustration

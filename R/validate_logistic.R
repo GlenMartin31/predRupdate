@@ -8,7 +8,8 @@ validate_logistic <- function(ObservedOutcome,
                               ylab = "Observed Probability",
                               xlim = c(0,1),
                               ylim = c(0,1),
-                              pred_rug = TRUE) {
+                              pred_rug = FALSE,
+                              cal_plot_n_sample = NULL) {
 
   # Test for 0 and 1 probabilities
   n_inf <- sum(is.infinite(LP))
@@ -111,7 +112,8 @@ validate_logistic <- function(ObservedOutcome,
                                            ylim = ylim,
                                            xlab = xlab,
                                            ylab = ylab,
-                                           pred_rug = pred_rug)
+                                           pred_rug = pred_rug,
+                                           cal_plot_n_sample = cal_plot_n_sample)
     }
   } else {
     flex_calibrationplot <- NULL

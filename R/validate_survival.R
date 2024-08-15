@@ -9,7 +9,8 @@ validate_survival <- function(ObservedOutcome,
                               ylab = "Observed Probability",
                               xlim = c(0,1),
                               ylim = c(0,1),
-                              pred_rug = TRUE) {
+                              pred_rug = FALSE,
+                              cal_plot_n_sample = NULL) {
 
   # Test if max observed survival time in validation data is less than
   # time_horizon that performance metrics as requested for:
@@ -99,6 +100,7 @@ validate_survival <- function(ObservedOutcome,
                                              xlab = xlab,
                                              ylab = ylab,
                                              pred_rug = pred_rug,
+                                             cal_plot_n_sample = cal_plot_n_sample,
                                              time_horizon = time_horizon)
       }
     } else {
