@@ -75,6 +75,16 @@ pred_val_probs <- function(binary_outcome,
                            level = 0.95,
                            ...) {
 
+  #check binary_outcome is specified correctly
+  if(is.factor(binary_outcome) | is.character(binary_outcome)) {
+    stop("binary_outcome should be numeric of 0 and 1s",
+         call. = FALSE)
+  }
+  if (all(unique(binary_outcome) %in% c(0,1)) == FALSE) {
+    stop("binary_outcome should only contain 0 and 1s",
+         call. = FALSE)
+  }
+
   #Check length of binary_outcome and Prob agree
   if (length(binary_outcome) != length(Prob)) {
     stop("length of binary_outcome and length of Prob are not the same",

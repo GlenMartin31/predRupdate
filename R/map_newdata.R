@@ -135,6 +135,10 @@ map_newdata.predinfo_logistic <- function(x,
     if(binary_outcome %in% names(new_data) == FALSE) {
       stop("'binary_outcome' not found in 'new_data'")
     }
+    if(is.factor(new_data[[binary_outcome]]) | is.character(new_data[[binary_outcome]])) {
+      stop("The 'binary_outcome' column of 'new_data' should be numeric of 0 and 1s",
+           call. = FALSE)
+    }
     if(all(unique(new_data[[binary_outcome]]) %in% c(0,1)) == FALSE){
       stop("The 'binary_outcome' column of 'new_data' should only contain 0 and 1s")
     }
@@ -239,6 +243,10 @@ map_newdata.predinfo_survival <- function(x,
     if(survival_time %in% names(new_data) == FALSE |
        event_indicator %in% names(new_data) == FALSE) {
       stop("'survival_time' and/or 'event_indicator' not found in 'new_data'")
+    }
+    if(is.factor(new_data[[event_indicator]]) | is.character(new_data[[event_indicator]])) {
+      stop("The 'event_indicator' column of 'new_data' should be numeric of 0 and 1s",
+           call. = FALSE)
     }
     if(all(unique(new_data[[event_indicator]]) %in% c(0,1)) == FALSE){
       stop("The 'event_indicator' column of 'new_data' should only contain 0 and 1s")

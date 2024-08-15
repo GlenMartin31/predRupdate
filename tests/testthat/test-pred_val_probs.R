@@ -33,6 +33,9 @@ test_that("pred_val_probs returns expected outputs", {
   expect_error(pred_val_probs(binary_outcome = y[1001:1100],
                               Prob = pred_risk))
 
+  expect_error(pred_val_probs(binary_outcome = as.factor(y[1001:2000]),
+                              Prob = pred_risk))
+
   expect_error(pred_val_probs(binary_outcome = y[1001:2000],
                               Prob = pred_risk,
                               level = "hello"))
