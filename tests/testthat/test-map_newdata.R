@@ -171,3 +171,49 @@ test_that("test output format of map_newdata()", {
   expect_equal(length(mapped_data), 3)
   expect_equal(names(mapped_data), c("modelinfo", "PredictionData", "Outcomes"))
 })
+
+
+test_that("unclean variable names trigger a warning", {
+  model1 <- pred_input_info(model_type = "logistic",
+                            model_info = data.frame("Intercept" = -2,
+                                                    "Age_years" = 5))
+  expect_warning(map_newdata(x = model1,
+                             new_data = data.frame("Age years" = 50,
+                                                   "Y" = 1),
+                             binary_outcome = "Y"))
+
+  model2 <- pred_input_info(model_type = "survival",
+                            model_info = data.frame("Age_years" = 5))
+  expect_warning(map_newdata(x = model2,
+                             new_data = data.frame("Age years" = 50,
+                                                   "ETime" = 10,
+                                                   "Status" = 0),
+                             survival_time = "ETime",
+                             event_indicator = "Status"))
+
+})
+
+
+test_that("missing data in new_data generates warning", {
+  n_df <- SYNPM$ValidationData
+  n_df$Age[1] <- NA
+  model1 <- pred_input_info(model_type = "survival",
+                            model_info = SYNPM$Existing_TTE_models[1,])
+  expect_warning(map_newdata(x = model1,
+                             new_data = n_df,
+                             survival_time = "ETime",
+                             event_indicator = "Status"))
+  expect_equal(nrow(suppressWarnings(map_newdata(x = model1,
+                                                 new_data = n_df,
+                                                 survival_time = "ETime",
+                                                 event_indicator = "Status")$PredictionData)),
+               nrow(SYNPM$ValidationData)-1)
+
+
+  model2 <- pred_input_info(model_type = "logistic",
+                            model_info = SYNPM$Existing_logistic_models[1,])
+  expect_warning(map_newdata(x = model2,
+                             new_data = n_df,
+                             binary_outcome = "Y"))
+})
+

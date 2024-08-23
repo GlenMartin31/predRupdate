@@ -8,11 +8,21 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
                          xlab,
                          ylab,
                          pred_rug,
+                         cal_plot_n_sample,
                          time_horizon = NULL) {
 
   model_type <- as.character(match.arg(model_type))
 
   #test supplied xlims to ensure not cutting-off Prob range
+  if(length(xlim) != 2 | length(ylim) !=2) {
+    stop("xlim or ylim should be numeric vectors of length 2")
+  }
+  if(!is.numeric(xlim)) {
+    stop("xlim or ylim should be numeric vectors of length 2")
+  }
+  if(!is.numeric(ylim)) {
+    stop("xlim or ylim should be numeric vectors of length 2")
+  }
   if(xlim[1] > min(Prob)){
     xlim[1] <- min(Prob)
     warning("Altering xlim range: specified range inconsistent with predicted risk range")
@@ -20,6 +30,17 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
   if(xlim[2] < max(Prob)){
     xlim[2] <- max(Prob)
     warning("Altering xlim range: specified range inconsistent with predicted risk range")
+  }
+  if(!is.null(cal_plot_n_sample)) {
+    if(length(cal_plot_n_sample) > 1) {
+      stop("cal_plot_n_sample should be a single numeric value")
+    }
+    if(!is.numeric(cal_plot_n_sample)) {
+      stop("cal_plot_n_sample should be a single numeric value")
+    }
+    if(cal_plot_n_sample > length(ObservedOutcome)){
+      stop("cal_plot_n_sample should be less than the size of the data")
+    }
   }
 
   if(model_type == "logistic") {
@@ -29,6 +50,15 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
     plot_df <- data.frame("ObservedOutcome" = ObservedOutcome,
                           "p" = Prob,
                           "o" = spline_preds$fit)
+
+    if(!is.null(cal_plot_n_sample)) {
+      IDs <- seq(from = 1,
+                 to = nrow(plot_df),
+                 by = 1)
+      ID_samples <- sort(sample(IDs, size = cal_plot_n_sample, replace = FALSE))
+      plot_df <- plot_df[ID_samples, ]
+      warning("calibraion plot rendered over a sub-set of observations as per cal_plot_n_sample value")
+    }
 
     calplot <- ggplot2::ggplot(plot_df,
                                ggplot2::aes(x = .data$p,
@@ -41,17 +71,14 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
       ggplot2::ylab(ylab) +
       ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1,
                                         linetype = "Reference",
-                                        colour = "Reference"),
-                           show.legend = FALSE) +
+                                        colour = "Reference")) +
       ggplot2::geom_point(alpha = 0) +
       ggplot2::coord_fixed() +
       ggplot2::theme_bw(base_size = 12) +
       ggplot2::labs(color  = "Guide name", linetype = "Guide name") +
-      ggplot2::scale_linetype_manual(values = c("dashed",
-                                                "solid"),
+      ggplot2::scale_linetype_manual(values = c("Reference" = "dashed",
+                                                "Calibration Curve" = "solid"),
                                      breaks = c("Reference",
-                                                "Calibration Curve"),
-                                     labels = c("Reference",
                                                 "Calibration Curve")) +
       ggplot2::scale_colour_manual(values = c("black",
                                               "blue"),
@@ -71,6 +98,15 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
     bh <- survival::basehaz(vcal)
     plot_df$observed_risk <- 1 - (exp(-bh[(max(which(bh[,2] <= time_horizon))),1])^(exp(stats::predict(vcal, type = "lp"))))
 
+    if(!is.null(cal_plot_n_sample)) {
+      IDs <- seq(from = 1,
+                 to = nrow(plot_df),
+                 by = 1)
+      ID_samples <- sort(sample(IDs, size = cal_plot_n_sample, replace = FALSE))
+      plot_df <- plot_df[ID_samples, ]
+      warning("calibraion plot rendered over a sub-set of observations as per cal_plot_n_sample value")
+    }
+
     calplot <- ggplot2::ggplot(plot_df,
                                ggplot2::aes(x = .data$Prob,
                                             y = .data$observed_risk)) +
@@ -82,8 +118,7 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
       ggplot2::ylab(ylab) +
       ggplot2::geom_abline(ggplot2::aes(intercept = 0, slope = 1,
                                         linetype = "Reference",
-                                        colour = "Reference"),
-                           show.legend = FALSE) +
+                                        colour = "Reference")) +
       ggplot2::geom_point(alpha = 0) +
       ggplot2::coord_fixed() +
       ggplot2::theme_bw(base_size = 12) +
@@ -91,8 +126,6 @@ flex_calplot <- function(model_type = c("logistic", "survival"),
       ggplot2::scale_linetype_manual(values = c("dashed",
                                                 "solid"),
                                      breaks = c("Reference",
-                                                "Calibration Curve"),
-                                     labels = c("Reference",
                                                 "Calibration Curve")) +
       ggplot2::scale_colour_manual(values = c("black",
                                               "blue"),

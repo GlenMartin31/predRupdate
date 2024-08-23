@@ -4,11 +4,13 @@ validate_survival <- function(ObservedOutcome,
                               LP,
                               cal_plot,
                               time_horizon,
+                              level = 0.95,
                               xlab = "Predicted Probability",
                               ylab = "Observed Probability",
                               xlim = c(0,1),
                               ylim = c(0,1),
-                              pred_rug = TRUE) {
+                              pred_rug = FALSE,
+                              cal_plot_n_sample = NULL) {
 
   # Test if max observed survival time in validation data is less than
   # time_horizon that performance metrics as requested for:
@@ -28,16 +30,22 @@ validate_survival <- function(ObservedOutcome,
                   'observations deleted due to predicted risks being 0 and 1'))
   }
 
+  z_val <- stats::qnorm(1 - (1-level)/2)
+
   #Test Discrimination
   harrell_C <- survival::concordance(ObservedOutcome ~ LP,
                                      reverse = TRUE)
   harrell_C_est <- harrell_C$concordance
   harrell_C_SE <- sqrt(harrell_C$var)
+  harrell_C_lower <- harrell_C_est - (z_val*harrell_C_SE)
+  harrell_C_upper <- harrell_C_est + (z_val*harrell_C_SE)
 
   #Estimate calibration slope
   CalSlope_mod <- survival::coxph(ObservedOutcome ~ LP)
-  CalSlope <- as.numeric(CalSlope_mod$coefficients[1])
-  CalSlopeSE <- sqrt(stats::vcov(CalSlope_mod)[1,1])
+  CalSlope_est <- as.numeric(CalSlope_mod$coefficients[1])
+  CalSlope_SE <- sqrt(stats::vcov(CalSlope_mod)[1,1])
+  CalSlope_lower <- CalSlope_est - (z_val*CalSlope_SE)
+  CalSlope_upper <- CalSlope_est + (z_val*CalSlope_SE)
 
   # Check if predicted risks are available for stronger calibration assessments
   if (is.null(Prob)) {
@@ -45,7 +53,8 @@ validate_survival <- function(ObservedOutcome,
             call. = FALSE)
 
     OE_ratio <- NA
-    OE_ratio_SE <- NA
+    OE_ratio_lower <- NA
+    OE_ratio_upper <- NA
     PR_dist <- NULL
     flex_calibrationplot <- NULL
 
@@ -53,8 +62,11 @@ validate_survival <- function(ObservedOutcome,
     #Estimate calibration-in-the-large: observed-expected ratio
     KM_observed <- summary(survival::survfit(ObservedOutcome ~ 1),
                            times = time_horizon)
-    OE_ratio <- (1 - KM_observed$surv) / mean(Prob)
-    OE_ratio_SE <- sqrt(1 / KM_observed$n.event)
+    log_OE_ratio <- log(KM_observed$n.event) - log(mean(Prob)*length(Prob))
+    log_OE_ratio_SE <- sqrt(KM_observed$surv / KM_observed$n.event)
+    OE_ratio <- exp(log_OE_ratio)
+    OE_ratio_lower <- exp(log_OE_ratio - (z_val * log_OE_ratio_SE))
+    OE_ratio_upper <- exp(log_OE_ratio + (z_val * log_OE_ratio_SE))
 
     #Distribution of predicted risks:
     plot_df <- data.frame("Prob" = Prob,
@@ -88,6 +100,7 @@ validate_survival <- function(ObservedOutcome,
                                              xlab = xlab,
                                              ylab = ylab,
                                              pred_rug = pred_rug,
+                                             cal_plot_n_sample = cal_plot_n_sample,
                                              time_horizon = time_horizon)
       }
     } else {
@@ -96,12 +109,18 @@ validate_survival <- function(ObservedOutcome,
   }
 
   #Return results
-  out <- list("OE_ratio" = OE_ratio,
-              "OE_ratio_SE" = OE_ratio_SE,
-              "CalSlope" = CalSlope,
-              "CalSlope_SE" = CalSlopeSE,
+  out <- list("level" = level,
+              "OE_ratio" = OE_ratio,
+              "OE_ratio_lower" = OE_ratio_lower,
+              "OE_ratio_upper" = OE_ratio_upper,
+              "CalSlope" = CalSlope_est,
+              "CalSlope_SE" = CalSlope_SE,
+              "CalSlope_lower" = CalSlope_lower,
+              "CalSlope_upper" = CalSlope_upper,
               "harrell_C" = harrell_C_est,
               "harrell_C_SE" = harrell_C_SE,
+              "harrell_C_lower" = harrell_C_lower,
+              "harrell_C_upper" = harrell_C_upper,
               "PR_dist" = PR_dist,
               "flex_calibrationplot" = flex_calibrationplot)
   return(out)

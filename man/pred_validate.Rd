@@ -11,6 +11,7 @@ pred_validate(
   survival_time = NULL,
   event_indicator = NULL,
   time_horizon = NULL,
+  level = 0.95,
   cal_plot = TRUE,
   ...
 )
@@ -40,6 +41,9 @@ leave as \code{NULL} otherwise.}
 \item{time_horizon}{for survival models, an integer giving the time horizon
 (post baseline) at which a prediction is required. Currently, this must
 match a time in x$cum_hazard.}
+
+\item{level}{the confidence level required for all performance metrics.
+Defaults at 95\%. Must be a value between 0 and 1.}
 
 \item{cal_plot}{indicate if a flexible calibration plot should be produced
 (TRUE) or not (FALSE).}
@@ -128,12 +132,31 @@ models, the cumulative baseline hazard must be available in the
 (TRUE), or not (FALSE). The calibration plot is produced by regressing the
 observed outcomes against a cubic spline of the logit of predicted risks
 (for a logistic model) or the complementary log-log of the predicted risks
-(for a survival model). Users can specify parameters to modify the
-calibration plot. Specifically, one can specify: \code{xlab}, \code{ylab},
-\code{xlim}, and \code{ylim} to change plotting characteristics for the
-calibration plot. A rug can be added to the x-axis of the plot by setting
-\code{pred_rug} as TRUE; this can be used to show the predicted risk
-distribution by outcome status.
+(for a survival model). Users can specify the following additional
+parameters to \code{\link{pred_validate}} to modify the calibration plot:
+\itemize{
+\item {\code{xlim} as a numeric vector of length 2, giving the lower and
+upper range of the x-axis scale - defaults at 0 and 1. Changes here should
+match changes to the \code{ylim} such that the plot remains 'square'.}
+\item {\code{ylim} as a numeric vector of length 2, giving the lower and
+upper range of the y-axis scale - defaults at 0 and 1. Changes here should
+match changes to the \code{xlim} such that the plot remains 'square'.}
+\item {\code{xlab} string giving the x-axis label. Defaults as
+"Predicted Probability".}
+\item {\code{ylab} string giving the x-axis label. Defaults as
+"Observed Probability".}
+\item {\code{pred_rug} TRUE/FALSE of whether a 'rug' should be placed
+along the x-axis of the calibration plot showing the distribution of
+predicted risks. Defaults as FALSE in favour of examining the
+box-plot/violin plot that is produced.}
+\item {\code{cal_plot_n_sample} numeric value (less than nrow(new_data))
+giving a random subset of observations to render the calibration plot
+over. The calibration plot is always created using all data, but for
+rendering speed in large datasets, it can sometimes be useful to render
+the plot over a smaller (random) subset of observations.
+Final (e.g. publication-ready) plots should always show the full plot,
+so a warning is created if users enter a value of cal_plot_n_sample.}
+}
 }
 \examples{
 #Example 1 - multiple existing model, with outcome specified; uses

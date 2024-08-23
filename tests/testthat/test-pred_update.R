@@ -84,4 +84,6 @@ test_that("pred_update() has correct outputs", {
   expect_equal(names(refit_model2), c("M", "model_type", "coefs", "coef_names", "formula", "cum_hazard", "model_info", "model_update_results", "update_type"))
   expect_equal(refit_model2$update_type, "refit")
 
+  expect_output(summary(refit_model2))
+
 })

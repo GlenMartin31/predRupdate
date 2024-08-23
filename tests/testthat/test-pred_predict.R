@@ -37,6 +37,34 @@ test_that("output of pred_predict for survival model is correct", {
 })
 
 
+test_that("un-identified baseline hazard time is handled correctly", {
+  model2 <- pred_input_info(model_type = "survival",
+                            model_info = SYNPM$Existing_TTE_models[1,],
+                            cum_hazard = SYNPM$TTE_mod1_baseline)
+  expect_error(pred_predict(x = model2,
+                            new_data = SYNPM$ValidationData,
+                            survival_time = "ETime",
+                            event_indicator = "Status",
+                            time_horizon = 50))
+
+  model2 <- pred_input_info(model_type = "survival",
+                            model_info = SYNPM$Existing_TTE_models[1:2,],
+                            cum_hazard = list(SYNPM$TTE_mod1_baseline,
+                                              SYNPM$TTE_mod2_baseline))
+  expect_error(pred_predict(x = model2,
+                            new_data = SYNPM$ValidationData,
+                            survival_time = "ETime",
+                            event_indicator = "Status",
+                            time_horizon = 50))
+
+  expect_error(pred_predict(x = model2,
+                            new_data = SYNPM$ValidationData,
+                            survival_time = "ETime",
+                            event_indicator = "Status",
+                            time_horizon = c(5, 50)))
+})
+
+
 test_that("output of pred_predict for multiple logistic model passing", {
   model2 <- pred_input_info(model_type = "logistic",
                             model_info = SYNPM$Existing_logistic_models)

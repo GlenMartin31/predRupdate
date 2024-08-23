@@ -83,13 +83,28 @@ map_newdata.predinfo_logistic <- function(x,
                                           new_data,
                                           binary_outcome = NULL,
                                           survival_time = NULL,
-                                          event_indicator = NULL){
+                                          event_indicator = NULL) {
 
   ########################## INPUT CHECKING #############################
   # double-check x object
   pred_input_info_input_checks(model_type = x$model_type,
                                model_info = x$model_info,
                                cum_hazard = NULL)
+
+  #Check for clean variable names in model_info data.frame
+  pattern <- paste(c("\\[", "\\]",
+                     "\\{", "\\}",
+                     "\\(", "\\)",
+                     "[^_^:[:^punct:]]",
+                     "\\s+",
+                     "\\h+"), collapse = "|")
+  if (any(base::grepl(pattern = pattern,
+                      x = names(new_data),
+                      perl = TRUE))) {
+    warning("Unclean variable names passed to new_data; attempt made to clean these.")
+    names(new_data) <- clean_variable_names(string_vector = names(new_data),
+                                            pattern = pattern)
+  }
 
   # Check that supplied 'new_data' is a data.frame
   if (inherits(new_data, "data.frame") == FALSE) {
@@ -119,6 +134,10 @@ map_newdata.predinfo_logistic <- function(x,
     }
     if(binary_outcome %in% names(new_data) == FALSE) {
       stop("'binary_outcome' not found in 'new_data'")
+    }
+    if(is.factor(new_data[[binary_outcome]]) | is.character(new_data[[binary_outcome]])) {
+      stop("The 'binary_outcome' column of 'new_data' should be numeric of 0 and 1s",
+           call. = FALSE)
     }
     if(all(unique(new_data[[binary_outcome]]) %in% c(0,1)) == FALSE){
       stop("The 'binary_outcome' column of 'new_data' should only contain 0 and 1s")
@@ -169,13 +188,28 @@ map_newdata.predinfo_survival <- function(x,
                                           new_data,
                                           binary_outcome = NULL,
                                           survival_time = NULL,
-                                          event_indicator = NULL){
+                                          event_indicator = NULL) {
 
   ########################## INPUT CHECKING #############################
   # double-check x object
   pred_input_info_input_checks(model_type = x$model_type,
                                model_info = x$model_info,
                                cum_hazard = x$cum_hazard)
+
+  #Check for clean variable names in model_info data.frame
+  pattern <- paste(c("\\[", "\\]",
+                     "\\{", "\\}",
+                     "\\(", "\\)",
+                     "[^_^:[:^punct:]]",
+                     "\\s+",
+                     "\\h+"), collapse = "|")
+  if (any(base::grepl(pattern = pattern,
+                      x = names(new_data),
+                      perl = TRUE))) {
+    warning("Unclean variable names passed to new_data; attempt made to clean these.")
+    names(new_data) <- clean_variable_names(string_vector = names(new_data),
+                                            pattern = pattern)
+  }
 
   # Check that supplied 'new_data' is a data.frame
   if (inherits(new_data, "data.frame") == FALSE) {
@@ -209,6 +243,10 @@ map_newdata.predinfo_survival <- function(x,
     if(survival_time %in% names(new_data) == FALSE |
        event_indicator %in% names(new_data) == FALSE) {
       stop("'survival_time' and/or 'event_indicator' not found in 'new_data'")
+    }
+    if(is.factor(new_data[[event_indicator]]) | is.character(new_data[[event_indicator]])) {
+      stop("The 'event_indicator' column of 'new_data' should be numeric of 0 and 1s",
+           call. = FALSE)
     }
     if(all(unique(new_data[[event_indicator]]) %in% c(0,1)) == FALSE){
       stop("The 'event_indicator' column of 'new_data' should only contain 0 and 1s")

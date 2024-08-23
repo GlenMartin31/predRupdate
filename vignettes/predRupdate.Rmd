@@ -66,16 +66,28 @@ summary(validation_results) #use summary() to obtain a tidy output summary of th
 
 This produces an output of the various metrics of model calibration (e.g., calibration intercept and slope),  discrimination (e.g., area under the ROC curve) and overall performance (e.g., R-squared). We can see that this model has poor calibration (calibration intercept and slope significantly different from 0 and 1, respectively), and poor discrimination. We can also obtain the flexible calibration plot, as
 
-```{r, fig.height=6, fig.width=6}
-validation_results$flex_calibrationplot
+```{r, fig.height=6, fig.width=10}
+plot(validation_results)
 ```
 
-The left-panel shows a box-plot and violin plot of the probability distributions, stratified by outcome, and the right-panel shows the flexible calibration plot. The package returns these plots as ggplot2 objects, so further modification of the plots can be made using ggplot2 statements. For example, one can change the theme of the plot as:
+The left-panel shows a box-plot and violin-plot of the probability distributions, stratified by outcome, and the right-panel shows the flexible calibration plot. The package returns these plots as ggplot2 objects, so further modification of the plots can be made using ggplot2 statements. For example, one can change the theme of the plot as:
 ```{r, fig.height=6, fig.width=6}
-validation_results$flex_calibrationplot + ggplot2::theme_classic()
+validation_results$flex_calibrationplot + 
+  ggplot2::theme_classic() +
+  ggplot2::xlim(c(0,0.5)) + ggplot2:::ylim(c(0,0.5))
 ```
 
 One may wish to update this model to the new dataset - see Example 2 below.
+
+By default, 95% CIs are calculated for each performance metric. This can be changed by specifying level, as follows:
+```{r}
+validation_results <- pred_validate(x = Existing_Logistic_Model,
+                                    new_data = SYNPM$ValidationData,
+                                    binary_outcome = "Y",
+                                    level = 0.90)
+summary(validation_results) #use summary() to obtain a tidy output summary of the model performance
+```
+
 
 ## Survival analysis model
 The above example considered the validation of an existing CPM that was based on logistic regression. __predRupdate__ also contains functionality to validate CPMs that are based on time-to-event (survival) models (e.g. a Cox proportional hazards model). In such a case, the baseline cumulative hazard of the model should also be specified, along with the regression coefficients. 
@@ -124,9 +136,62 @@ plot(validation_results)
 ```
 
 ### Specifying the baseline cumulative hazard
-When validating an existing time-to-event model, the baseline cumulative hazard of the existing CPM should be reported (e.g., from the original model publication). In some cases, this might be reported at discrete follow-up times (like in the above example). Alternatively, the entire baseline cumulative hazard curve may be presented, or indeed a parametric form of the baseline cumulative hazard may be provided. In those situations, one should extract (from the plot) or calculate (from the parametric form) the baseline cumulative hazard at multiple follow-up times of interest (i.e., the follow-up times at which one wishes to validate the model against).  
+When validating an existing time-to-event model, the baseline cumulative hazard of the existing CPM should be reported (e.g., from the original model publication). In some cases, this might be reported at discrete follow-up times (like in the above example). Alternatively, the entire baseline cumulative hazard curve may be presented as a plot, or indeed a parametric form of the baseline cumulative hazard may be provided. In those situations, one should extract (from the plot) or calculate (from the parametric form) the baseline cumulative hazard at multiple follow-up times of interest (i.e., the follow-up times at which one wishes to validate the model against).  
 
 However, in some cases, the baseline cumulative hazard of the existing time-to-event CPM may not be reported. In such a situation, one can still use __predRupdate__ to validate such a model. However, only a limited number of metrics will be produced (i.e., only those metrics that require the linear predictor, not absolute risk predictions at a given follow-up time). Specifically, the observed:expected ratio and the calibration plot will not be produced if the baseline cumulative hazard is not provided. 
+
+#### A note on basehaz() in R
+If one has fit a Cox Proportional Hazards model in R (using coxph() from the survival package), and wishes to use __predRupdate__ to internally validate this model, then the cumulative baseline hazard of the model must be estimated, and this can be done using the basehaz() function of the survival package. In this situation, care must be taken with regards to centering the data. By default, coxph() internally scales and centers the data that the model is being fit on (see ?survival::coxph() for details). As such, users should either pass newdata to basehaz() with values of each model covariate set to give the baseline cumulative hazard (e.g., 0 for continuous covariates or reference category for categorical/factor covariates), or make use of the 'centrered=FALSE' option in basehaz(). Not doing this means that basehaz() will return the cumulative baseline hazard for centered and scaled covariate values (see ?survival::basehaz() for details;  specifically, the 'centered=TRUE' argument of that function). If one then passes the resulting baseline hazard into __predRupdate__ package functions, care must be taken to also scale and centre the new_data that are passed to __predRupdate__ functions. Our package functions make no attempt at checking this consistency, and users are advised to ensure that the baseline cumulative hazard is consistent with the format of the new data that is being provided to validate the model. 
+
+The below example code illustrates these points:
+```{r, eval=FALSE}
+df <- SYNPM$ValidationData
+
+cox_mod <- survival::coxph(survival::Surv(ETime, Status) ~ Age + Creatinine, 
+                           data = df)
+coefs_table <- data.frame("Age" = coef(cox_mod)["Age"],
+                          "Creatinine" = coef(cox_mod)["Creatinine"])
+
+#example of using basehaz() for uncentered/values:
+base_haz_zero <- survival::basehaz(cox_mod, 
+                                   newdata = data.frame("Age" = 0,
+                                                        "Creatinine" = 0))
+#or use centered=FALSE in survival::basehaz()
+#base_haz_zero <- survival::basehaz(cox_mod, centered = FALSE)
+
+Existing_TTE_Model <- pred_input_info(model_type = "survival",
+                                      model_info = coefs_table,
+                                      cum_hazard = data.frame("time" = base_haz_zero$time,
+                                                              "hazard" = base_haz_zero$hazard))
+
+pred_validate(x = Existing_TTE_Model,
+              new_data = data.frame("Age" = df$Age,
+                                    "Creatinine" = df$Creatinine,
+                                    "ETime" = df$ETime,
+                                    "Status" = df$Status),
+              survival_time = "ETime",
+              event_indicator = "Status",
+              time_horizon = 5)
+
+
+#Alternatively, the below code shows how to handle the scaled/centred baseline 
+# hazard, such that we need to also scale/centre the new_data:
+base_haz_centred <- survival::basehaz(cox_mod)
+Existing_TTE_Model <- pred_input_info(model_type = "survival",
+                                      model_info = coefs_table,
+                                      cum_hazard = data.frame("time" = base_haz_centred$time,
+                                                              "hazard" = base_haz_centred$hazard))
+
+pred_validate(x = Existing_TTE_Model,
+              new_data = data.frame("Age" = df$Age - mean(df$Age),
+                                    "Creatinine" = df$Creatinine - mean(df$Creatinine),
+                                    "ETime" = df$ETime,
+                                    "Status" = df$Status),
+              survival_time = "ETime",
+              event_indicator = "Status",
+              time_horizon = 5)
+#failing to mean-center new_data passed into pred_validate() would give erroneous results.
+```
 
 # Example 2: model updating on new data
 In the validation of an existing logistic regression model in Example 1 above, we found that the existing model was miscalibrated in the new data. One strategy to handle this is to apply a range of model updating methods; see `vignette("predRupdate_technical")` for a technical discussion of these methods. 

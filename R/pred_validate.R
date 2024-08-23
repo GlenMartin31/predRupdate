@@ -22,6 +22,8 @@
 #' @param time_horizon for survival models, an integer giving the time horizon
 #'   (post baseline) at which a prediction is required. Currently, this must
 #'   match a time in x$cum_hazard.
+#' @param level the confidence level required for all performance metrics.
+#'   Defaults at 95%. Must be a value between 0 and 1.
 #' @param cal_plot indicate if a flexible calibration plot should be produced
 #'   (TRUE) or not (FALSE).
 #' @param ... further plotting arguments for the calibration plot. See Details
@@ -85,12 +87,31 @@
 #'   (TRUE), or not (FALSE). The calibration plot is produced by regressing the
 #'   observed outcomes against a cubic spline of the logit of predicted risks
 #'   (for a logistic model) or the complementary log-log of the predicted risks
-#'   (for a survival model). Users can specify parameters to modify the
-#'   calibration plot. Specifically, one can specify: \code{xlab}, \code{ylab},
-#'   \code{xlim}, and \code{ylim} to change plotting characteristics for the
-#'   calibration plot. A rug can be added to the x-axis of the plot by setting
-#'   \code{pred_rug} as TRUE; this can be used to show the predicted risk
-#'   distribution by outcome status.
+#'   (for a survival model). Users can specify the following additional
+#'   parameters to \code{\link{pred_validate}} to modify the calibration plot:
+#'   \itemize{
+#'    \item {\code{xlim} as a numeric vector of length 2, giving the lower and
+#'    upper range of the x-axis scale - defaults at 0 and 1. Changes here should
+#'    match changes to the \code{ylim} such that the plot remains 'square'.}
+#'    \item {\code{ylim} as a numeric vector of length 2, giving the lower and
+#'    upper range of the y-axis scale - defaults at 0 and 1. Changes here should
+#'    match changes to the \code{xlim} such that the plot remains 'square'.}
+#'    \item {\code{xlab} string giving the x-axis label. Defaults as
+#'    "Predicted Probability".}
+#'    \item {\code{ylab} string giving the x-axis label. Defaults as
+#'    "Observed Probability".}
+#'    \item {\code{pred_rug} TRUE/FALSE of whether a 'rug' should be placed
+#'    along the x-axis of the calibration plot showing the distribution of
+#'    predicted risks. Defaults as FALSE in favour of examining the
+#'    box-plot/violin plot that is produced.}
+#'    \item {\code{cal_plot_n_sample} numeric value (less than nrow(new_data))
+#'    giving a random subset of observations to render the calibration plot
+#'    over. The calibration plot is always created using all data, but for
+#'    rendering speed in large datasets, it can sometimes be useful to render
+#'    the plot over a smaller (random) subset of observations.
+#'    Final (e.g. publication-ready) plots should always show the full plot,
+#'    so a warning is created if users enter a value of cal_plot_n_sample.}
+#'   }
 #'
 #' @return \code{\link{pred_validate}} returns an object of class
 #'   "\code{predvalidate}", with child classes per \code{model_type}. This is a
@@ -129,6 +150,7 @@ pred_validate <- function(x,
                           survival_time = NULL,
                           event_indicator = NULL,
                           time_horizon = NULL,
+                          level = 0.95,
                           cal_plot = TRUE,
                           ...) {
   UseMethod("pred_validate")
@@ -142,6 +164,7 @@ pred_validate.default <- function(x,
                                   survival_time = NULL,
                                   event_indicator = NULL,
                                   time_horizon = NULL,
+                                  level = 0.95,
                                   cal_plot = TRUE, ...) {
   stop("'x' is not of class 'predinfo'",
        call. = FALSE)
@@ -156,11 +179,25 @@ pred_validate.predinfo_logistic <- function(x,
                                             survival_time = NULL,
                                             event_indicator = NULL,
                                             time_horizon = NULL,
+                                            level = 0.95,
                                             cal_plot = TRUE, ...){
 
   #Check outcomes were inputted (needed to validate the model)
   if (is.null(binary_outcome)) {
     stop("binary_outcome must be supplied to validate the existing model(s)",
+         call. = FALSE)
+  }
+
+  #ensure level is specified correctly
+  if (!is.numeric(level)) {
+    stop("level specified incorrectly; must be a value between 0 and 1",
+         call. = FALSE)
+  }
+  if (level > 1 |
+      level < 0 |
+      is.na(level) |
+      is.null(level)) {
+    stop("level specified incorrectly; must be a value between 0 and 1",
          call. = FALSE)
   }
 
@@ -177,6 +214,7 @@ pred_validate.predinfo_logistic <- function(x,
     performance <- validate_logistic(ObservedOutcome = predictions$Outcomes,
                                      Prob = predictions$PredictedRisk,
                                      LP = predictions$LinearPredictor,
+                                     level = level,
                                      cal_plot = cal_plot,
                                      ...)
   } else{
@@ -186,6 +224,7 @@ pred_validate.predinfo_logistic <- function(x,
         validate_logistic(ObservedOutcome = predictions[[m]]$Outcomes,
                           Prob = predictions[[m]]$PredictedRisk,
                           LP = predictions[[m]]$LinearPredictor,
+                          level = level,
                           cal_plot = cal_plot,
                           ...)
     }
@@ -204,6 +243,7 @@ pred_validate.predinfo_survival <- function(x,
                                             survival_time = NULL,
                                             event_indicator = NULL,
                                             time_horizon = NULL,
+                                            level = 0.95,
                                             cal_plot = TRUE, ...){
 
   #Check outcomes were inputted (needed to validate the model)
@@ -216,6 +256,19 @@ pred_validate.predinfo_survival <- function(x,
   #ensure that a time_horizon is supplied - needed for validating time-to-event models:
   if (is.null(time_horizon)) {
     stop("time_horizon must be supplied to validate time-to-event models")
+  }
+
+  #ensure level is specified correctly
+  if (!is.numeric(level)) {
+    stop("level specified incorrectly; must be a value between 0 and 1",
+         call. = FALSE)
+  }
+  if (level > 1 |
+      level < 0 |
+      is.na(level) |
+      is.null(level)) {
+    stop("level specified incorrectly; must be a value between 0 and 1",
+         call. = FALSE)
   }
 
   #Make predictions within new_data using the existing prediction model(s)
@@ -232,6 +285,7 @@ pred_validate.predinfo_survival <- function(x,
                                      Prob = predictions$PredictedRisk,
                                      LP = predictions$LinearPredictor,
                                      time_horizon = predictions$TimeHorizon,
+                                     level = level,
                                      cal_plot = cal_plot,
                                      ...)
   } else{
@@ -242,6 +296,7 @@ pred_validate.predinfo_survival <- function(x,
                           Prob = predictions[[m]]$PredictedRisk,
                           LP = predictions[[m]]$LinearPredictor,
                           time_horizon = predictions[[m]]$TimeHorizon,
+                          level = level,
                           cal_plot = cal_plot,
                           ...)
     }
@@ -256,16 +311,25 @@ pred_validate.predinfo_survival <- function(x,
 print.predvalidate_logistic <- function(x, ...) {
  if(x$M == 1){
     print(list("OE_ratio" = x$OE_ratio,
-               "OE_ratio_SE" = x$OE_ratio_SE,
+               "OE_ratio_lower" = x$OE_ratio_lower,
+               "OE_ratio_upper" = x$OE_ratio_upper,
                "CalInt" = x$CalInt,
-               "CalInt_SE" = x$CalInt_SE,
+               "CalInt_SE" = x$CalIntSE,
+               "CalInt_lower" = x$CalInt_lower,
+               "CalInt_upper" = x$CalInt_upper,
                "CalSlope" = x$CalSlope,
-               "CalSlope_SE" = x$CalSlope_SE,
+               "CalSlope_SE" = x$CalSlopeSE,
+               "CalSlope_lower" = x$CalSlope_lower,
+               "CalSlope_upper" = x$CalSlope_upper,
                "AUC" = x$AUC,
-               "AUC_SE" = x$AUC_SE,
-               "R2_CoxSnell" = x$R2_CoxSnell,
+               "AUC_SE" = x$AUCSE,
+               "AUC_lower" = x$AUC_lower,
+               "AUC_upper" = x$AUC_upper,
+               "R2_CoxSnell" = x$R2_coxsnell,
                "R2_Nagelkerke" = x$R2_Nagelkerke,
-               "BrierScore" = x$BrierScore))
+               "BrierScore" = x$BrierScore,
+               "Brier_lower" = x$Brier_lower,
+               "Brier_upper" = x$Brier_upper))
 
     if(!is.null(x$PR_dist)) {
       print(x$PR_dist)}
@@ -276,16 +340,25 @@ print.predvalidate_logistic <- function(x, ...) {
       cat(paste("\nPerformance Results for Model", m, "\n", sep = " "))
       cat("================================= \n")
       print(list("OE_ratio" = x[[m]]$OE_ratio,
-                 "OE_ratio_SE" = x[[m]]$OE_ratio_SE,
+                 "OE_ratio_lower" = x[[m]]$OE_ratio_lower,
+                 "OE_ratio_upper" = x[[m]]$OE_ratio_upper,
                  "CalInt" = x[[m]]$CalInt,
-                 "CalInt_SE" = x[[m]]$CalInt_SE,
+                 "CalInt_SE" = x[[m]]$CalIntSE,
+                 "CalInt_lower" = x[[m]]$CalInt_lower,
+                 "CalInt_upper" = x[[m]]$CalInt_upper,
                  "CalSlope" = x[[m]]$CalSlope,
-                 "CalSlope_SE" = x[[m]]$CalSlope_SE,
+                 "CalSlope_SE" = x[[m]]$CalSlopeSE,
+                 "CalSlope_lower" = x[[m]]$CalSlope_lower,
+                 "CalSlope_upper" = x[[m]]$CalSlope_upper,
                  "AUC" = x[[m]]$AUC,
-                 "AUC_SE" = x[[m]]$AUC_SE,
-                 "R2_CoxSnell" = x[[m]]$R2_CoxSnell,
+                 "AUC_SE" = x[[m]]$AUCSE,
+                 "AUC_lower" = x[[m]]$AUC_lower,
+                 "AUC_upper" = x[[m]]$AUC_upper,
+                 "R2_CoxSnell" = x[[m]]$R2_coxsnell,
                  "R2_Nagelkerke" = x[[m]]$R2_Nagelkerke,
-                 "BrierScore" = x[[m]]$BrierScore))
+                 "BrierScore" = x[[m]]$BrierScore,
+                 "Brier_lower" = x[[m]]$Brier_lower,
+                 "Brier_upper" = x[[m]]$Brier_upper))
 
       if(!is.null(x[[m]]$PR_dist)) {
         print(x[[m]]$PR_dist)}
@@ -316,11 +389,16 @@ summary.predvalidate_logistic <- function(object, ...) {
 print.predvalidate_survival <- function(x, ...) {
   if(x$M == 1){
     print(list("OE_ratio" = x$OE_ratio,
-               "OE_ratio_SE" = x$OE_ratio_SE,
+               "OE_ratio_lower" = x$OE_ratio_lower,
+               "OE_ratio_upper" = x$OE_ratio_upper,
                "CalSlope" = x$CalSlope,
                "CalSlope_SE" = x$CalSlope_SE,
+               "CalSlope_lower" = x$CalSlope_lower,
+               "CalSlope_upper" = x$CalSlope_upper,
                "harrell_C" = x$harrell_C,
-               "harrell_C_SE" = x$harrell_C_SE))
+               "harrell_C_SE" = x$harrell_C_SE,
+               "harrell_C_lower" = x$harrell_C_lower,
+               "harrell_C_upper" = x$harrell_C_upper))
     if(!is.null(x$PR_dist)) {
       print(x$PR_dist)}
     if(!is.null(x$flex_calibrationplot)) {
@@ -330,11 +408,16 @@ print.predvalidate_survival <- function(x, ...) {
       cat(paste("\nPerformance Results for Model", m, "\n", sep = " "))
       cat("================================= \n")
       print(list("OE_ratio" = x[[m]]$OE_ratio,
-                 "OE_ratio_SE" = x[[m]]$OE_ratio_SE,
+                 "OE_ratio_lower" = x[[m]]$OE_ratio_lower,
+                 "OE_ratio_upper" = x[[m]]$OE_ratio_upper,
                  "CalSlope" = x[[m]]$CalSlope,
                  "CalSlope_SE" = x[[m]]$CalSlope_SE,
+                 "CalSlope_lower" = x[[m]]$CalSlope_lower,
+                 "CalSlope_upper" = x[[m]]$CalSlope_upper,
                  "harrell_C" = x[[m]]$harrell_C,
-                 "harrell_C_SE" = x[[m]]$harrell_C_SE))
+                 "harrell_C_SE" = x[[m]]$harrell_C_SE,
+                 "harrell_C_lower" = x[[m]]$harrell_C_lower,
+                 "harrell_C_upper" = x[[m]]$harrell_C_upper))
       if(!is.null(x[[m]]$PR_dist)) {
         print(x[[m]]$PR_dist)}
       if(!is.null(x[[m]]$flex_calibrationplot)) {
@@ -404,47 +487,55 @@ predvalidatesummary.fnc <- function(object, model_type) {
 
     cat("Calibration Measures \n",
         "--------------------------------- \n", sep = "")
-    results <- matrix(NA, ncol = 4, nrow = 3)
+    results <- matrix(NA, ncol = 3, nrow = 3)
     colnames(results) <- c("Estimate",
-                           "Std. Err",
-                           "Lower 95% Confidence Interval",
-                           "Upper 95% Confidence Interval")
+                           paste("Lower ",
+                                 (object$level*100),
+                                 "% Confidence Interval", sep = ""),
+                           paste("Upper ",
+                                 (object$level*100),
+                                 "% Confidence Interval", sep = ""))
     rownames(results) <- c("Observed:Expected Ratio",
                            "Calibration Intercept",
                            "Calibration Slope")
     results[1,] <- c(round(object$OE_ratio, 4),
-                     round(object$OE_ratio_SE, 4),
-                     round((object$OE_ratio * exp(-stats::qnorm(0.975) * object$OE_ratio_SE)), 4),
-                     round((object$OE_ratio * exp(stats::qnorm(0.975) * object$OE_ratio_SE)), 4))
+                     round(object$OE_ratio_lower, 4),
+                     round(object$OE_ratio_upper, 4))
     results[2,] <- c(round(object$CalInt, 4),
-                     round(object$CalInt_SE, 4),
-                     round((object$CalInt - (stats::qnorm(0.975)*object$CalInt_SE)), 4),
-                     round((object$CalInt + (stats::qnorm(0.975)*object$CalInt_SE)), 4))
+                     round(object$CalInt_lower, 4),
+                     round(object$CalInt_upper, 4))
     results[3,] <- c(round(object$CalSlope, 4),
-                     round(object$CalSlope_SE, 4),
-                     round((object$CalSlope - (stats::qnorm(0.975)*object$CalSlope_SE)), 4),
-                     round((object$CalSlope + (stats::qnorm(0.975)*object$CalSlope_SE)), 4))
+                     round(object$CalSlope_lower, 4),
+                     round(object$CalSlope_upper, 4))
     print(results)
     cat("\n Also examine the calibration plot, if produced. \n")
     cat("\nDiscrimination Measures \n",
         "--------------------------------- \n", sep = "")
-    results <- matrix(NA, ncol = 4, nrow = 1)
+    results <- matrix(NA, ncol = 3, nrow = 1)
     colnames(results) <- c("Estimate",
-                           "Std. Err",
-                           "Lower 95% Confidence Interval",
-                           "Upper 95% Confidence Interval")
+                           paste("Lower ",
+                                 (object$level*100),
+                                 "% Confidence Interval", sep = ""),
+                           paste("Upper ",
+                                 (object$level*100),
+                                 "% Confidence Interval", sep = ""))
     rownames(results) <- c("AUC")
     results[1,] <- c(round(object$AUC, 4),
-                     round(object$AUC_SE, 4),
-                     round((object$AUC - (stats::qnorm(0.975)*object$AUC_SE)), 4),
-                     round((object$AUC + (stats::qnorm(0.975)*object$AUC_SE)), 4))
+                     round(object$AUC_lower, 4),
+                     round(object$AUC_upper, 4))
     print(results)
     cat("\n")
     cat("\nOverall Performance Measures \n",
         "--------------------------------- \n", sep = "")
     cat("Cox-Snell R-squared: ", round(object$R2_CoxSnell, 4), "\n", sep = "")
     cat("Nagelkerke R-squared: ", round(object$R2_Nagelkerke, 4), "\n", sep = "")
-    cat("Brier Score: ", round(object$BrierScore, 4), "\n", sep = "")
+    cat("Brier Score (CI): ",
+        round(object$BrierScore, 4),
+        " (",
+        round(object$Brier_lower, 4),
+        ", ",
+        round(object$Brier_upper, 4),
+        ")", "\n", sep = "")
 
     cat("\n Also examine the distribution plot of predicted risks. \n")
 
@@ -452,35 +543,38 @@ predvalidatesummary.fnc <- function(object, model_type) {
 
     cat("Calibration Measures \n",
         "--------------------------------- \n", sep = "")
-    results <- matrix(NA, ncol = 4, nrow = 2)
+    results <- matrix(NA, ncol = 3, nrow = 2)
     colnames(results) <- c("Estimate",
-                           "Std. Err",
-                           "Lower 95% Confidence Interval",
-                           "Upper 95% Confidence Interval")
+                           paste("Lower ",
+                                 (object$level*100),
+                                 "% Confidence Interval", sep = ""),
+                           paste("Upper ",
+                                 (object$level*100),
+                                 "% Confidence Interval", sep = ""))
     rownames(results) <- c("Observed:Expected Ratio",
                            "Calibration Slope")
     results[1,] <- c(round(object$OE_ratio, 4),
-                     round(object$OE_ratio_SE, 4),
-                     round((object$OE_ratio * exp(-stats::qnorm(0.975) * object$OE_ratio_SE)), 4),
-                     round((object$OE_ratio * exp(stats::qnorm(0.975) * object$OE_ratio_SE)), 4))
+                     round(object$OE_ratio_lower, 4),
+                     round(object$OE_ratio_upper, 4))
     results[2,] <- c(round(object$CalSlope, 4),
-                     round(object$CalSlope_SE, 4),
-                     round((object$CalSlope - (stats::qnorm(0.975)*object$CalSlope_SE)), 4),
-                     round((object$CalSlope + (stats::qnorm(0.975)*object$CalSlope_SE)), 4))
+                     round(object$CalSlope_lower, 4),
+                     round(object$CalSlope_upper, 4))
     print(results)
     cat("\n Also examine the calibration plot, if produced. \n")
     cat("\nDiscrimination Measures \n",
         "--------------------------------- \n", sep = "")
-    results <- matrix(NA, ncol = 4, nrow = 1)
+    results <- matrix(NA, ncol = 3, nrow = 1)
     colnames(results) <- c("Estimate",
-                           "Std. Err",
-                           "Lower 95% Confidence Interval",
-                           "Upper 95% Confidence Interval")
+                           paste("Lower ",
+                                 (object$level*100),
+                                 "% Confidence Interval", sep = ""),
+                           paste("Upper ",
+                                 (object$level*100),
+                                 "% Confidence Interval", sep = ""))
     rownames(results) <- c("Harrell C")
     results[1,] <- c(round(object$harrell_C, 4),
-                     round(object$harrell_C_SE, 4),
-                     round((object$harrell_C - (stats::qnorm(0.975)*object$harrell_C_SE)), 4),
-                     round((object$harrell_C + (stats::qnorm(0.975)*object$harrell_C_SE)), 4))
+                     round(object$harrell_C_lower, 4),
+                     round(object$harrell_C_upper, 4))
     print(results)
 
     cat("\n Also examine the distribution plot of predicted risks. \n")
