@@ -141,39 +141,24 @@ When validating an existing time-to-event model, the baseline cumulative hazard 
 However, in some cases, the baseline cumulative hazard of the existing time-to-event CPM may not be reported. In such a situation, one can still use __predRupdate__ to validate such a model. However, only a limited number of metrics will be produced (i.e., only those metrics that require the linear predictor, not absolute risk predictions at a given follow-up time). Specifically, the observed:expected ratio and the calibration plot will not be produced if the baseline cumulative hazard is not provided. 
 
 #### A note on basehaz() in R
-If one has fit a Cox Proportional Hazards model in R (using coxph() from the survival package), and wishes to use __predRupdate__ to internally validate this model, then the cumulative baseline hazard of the model can be estimated using the basehaz() function of the survival package. In this situation, care must be taken with regards to centering the data. By default, coxph() internally scales and centers the data that the model is being fit on (see ?survival::coxph() for details). This means that, by default, basehaz() returns the cumulative baseline hazard for mean covariate values (see ?survival::basehaz() for details;  specifically, the centered=TRUE argument of that function). If one then passes the resulting baseline hazard into __predRupdate__ package functions, care must be taken to also scale and centre the new_data that are passed to __predRupdate__ functions. Our package functions make no attempt at checking this consistency, and users are advised to ensure that the baseline cumulative hazard is consistent with the format of the new data that is being provided to validate the model. The below hypothetical example illustrates this point:
+If one has fit a Cox Proportional Hazards model in R (using coxph() from the survival package), and wishes to use __predRupdate__ to internally validate this model, then the cumulative baseline hazard of the model must be estimated, and this can be done using the basehaz() function of the survival package. In this situation, care must be taken with regards to centering the data. By default, coxph() internally scales and centers the data that the model is being fit on (see ?survival::coxph() for details). As such, users should either pass newdata to basehaz() with values of each model covariate set to give the baseline cumulative hazard (e.g., 0 for continuous covariates or reference category for categorical/factor covariates), or make use of the 'centrered=FALSE' option in basehaz(). Not doing this means that basehaz() will return the cumulative baseline hazard for centered and scaled covariate values (see ?survival::basehaz() for details;  specifically, the 'centered=TRUE' argument of that function). If one then passes the resulting baseline hazard into __predRupdate__ package functions, care must be taken to also scale and centre the new_data that are passed to __predRupdate__ functions. Our package functions make no attempt at checking this consistency, and users are advised to ensure that the baseline cumulative hazard is consistent with the format of the new data that is being provided to validate the model. 
+
+The below example code illustrates these points:
 ```{r, eval=FALSE}
 df <- SYNPM$ValidationData
 
 cox_mod <- survival::coxph(survival::Surv(ETime, Status) ~ Age + Creatinine, 
                            data = df)
-
-base_haz_centred <- survival::basehaz(cox_mod)
-base_haz_zero <- survival::basehaz(cox_mod, 
-                                   newdata = data.frame("Age" = 0,
-                                                        "Creatinine" = 0))
-
 coefs_table <- data.frame("Age" = coef(cox_mod)["Age"],
                           "Creatinine" = coef(cox_mod)["Creatinine"])
 
-#now validate the model using the scaled/centred baseline hazard, but 
-#we need to also scale/centre the new_data:
-Existing_TTE_Model <- pred_input_info(model_type = "survival",
-                                      model_info = coefs_table,
-                                      cum_hazard = data.frame("time" = base_haz_centred$time,
-                                                              "hazard" = base_haz_centred$hazard))
+#example of using basehaz() for uncentered/values:
+base_haz_zero <- survival::basehaz(cox_mod, 
+                                   newdata = data.frame("Age" = 0,
+                                                        "Creatinine" = 0))
+#or use centered=FALSE in survival::basehaz()
+#base_haz_zero <- survival::basehaz(cox_mod, centered = FALSE)
 
-pred_validate(x = Existing_TTE_Model,
-              new_data = data.frame("Age" = df$Age - mean(df$Age),
-                                    "Creatinine" = df$Creatinine - mean(df$Creatinine),
-                                    "ETime" = df$ETime,
-                                    "Status" = df$Status),
-              survival_time = "ETime",
-              event_indicator = "Status",
-              time_horizon = 5)
-
-
-#alternatively, using unscaled baseline hazard:
 Existing_TTE_Model <- pred_input_info(model_type = "survival",
                                       model_info = coefs_table,
                                       cum_hazard = data.frame("time" = base_haz_zero$time,
@@ -187,6 +172,25 @@ pred_validate(x = Existing_TTE_Model,
               survival_time = "ETime",
               event_indicator = "Status",
               time_horizon = 5)
+
+
+#Alternatively, the below code shows how to handle the scaled/centred baseline 
+# hazard, such that we need to also scale/centre the new_data:
+base_haz_centred <- survival::basehaz(cox_mod)
+Existing_TTE_Model <- pred_input_info(model_type = "survival",
+                                      model_info = coefs_table,
+                                      cum_hazard = data.frame("time" = base_haz_centred$time,
+                                                              "hazard" = base_haz_centred$hazard))
+
+pred_validate(x = Existing_TTE_Model,
+              new_data = data.frame("Age" = df$Age - mean(df$Age),
+                                    "Creatinine" = df$Creatinine - mean(df$Creatinine),
+                                    "ETime" = df$ETime,
+                                    "Status" = df$Status),
+              survival_time = "ETime",
+              event_indicator = "Status",
+              time_horizon = 5)
+#failing to mean-center new_data passed into pred_validate() would give erroneous results.
 ```
 
 # Example 2: model updating on new data
