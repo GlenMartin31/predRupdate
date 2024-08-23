@@ -1,6 +1,6 @@
 Package: predRupdate
 Title: Prediction Model Validation and Updating
-Version: 0.1.1.9000
+Version: 0.2.0
 Authors@R: c(person(given = "Glen P.", family = "Martin", role = c("aut", "cre", "cph"), email = "glen.martin31@gmail.com", comment = c(ORCID = "0000-0002-3410-9472")),
              person(given = "David", family = "Jenkins", role = c("aut", "cph"), email = "david.jenkins-5@manchester.ac.uk"),
              person(given = "Matthew", family = "Sperrin", role = c("aut", "cph"), email = "matthew.sperrin@manchester.ac.uk"))

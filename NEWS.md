@@ -1,4 +1,4 @@
-# predRupdate (development version)
+# predRupdate 0.2.0
 
 # predRupdate 0.2.0
 
