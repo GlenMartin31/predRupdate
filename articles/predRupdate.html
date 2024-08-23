@@ -432,37 +432,59 @@ the baseline cumulative hazard is not provided.</p>
 <p>If one has fit a Cox Proportional Hazards model in R (using coxph()
 from the survival package), and wishes to use
 <strong>predRupdate</strong> to internally validate this model, then the
-cumulative baseline hazard of the model can be estimated using the
-basehaz() function of the survival package. In this situation, care must
-be taken with regards to centering the data. By default, coxph()
-internally scales and centers the data that the model is being fit on
-(see ?survival::coxph() for details). This means that, by default,
-basehaz() returns the cumulative baseline hazard for mean covariate
-values (see ?survival::basehaz() for details; specifically, the
-centered=TRUE argument of that function). If one then passes the
-resulting baseline hazard into <strong>predRupdate</strong> package
-functions, care must be taken to also scale and centre the new_data that
-are passed to <strong>predRupdate</strong> functions. Our package
-functions make no attempt at checking this consistency, and users are
-advised to ensure that the baseline cumulative hazard is consistent with
-the format of the new data that is being provided to validate the model.
-The below hypothetical example illustrates this point:</p>
+cumulative baseline hazard of the model must be estimated, and this can
+be done using the basehaz() function of the survival package. In this
+situation, care must be taken with regards to centering the data. By
+default, coxph() internally scales and centers the data that the model
+is being fit on (see ?survival::coxph() for details). As such, users
+should either pass newdata to basehaz() with values of each model
+covariate set to give the baseline cumulative hazard (e.g., 0 for
+continuous covariates or reference category for categorical/factor
+covariates), or make use of the ‘centrered=FALSE’ option in basehaz().
+Not doing this means that basehaz() will return the cumulative baseline
+hazard for centered and scaled covariate values (see
+?survival::basehaz() for details; specifically, the ‘centered=TRUE’
+argument of that function). If one then passes the resulting baseline
+hazard into <strong>predRupdate</strong> package functions, care must be
+taken to also scale and centre the new_data that are passed to
+<strong>predRupdate</strong> functions. Our package functions make no
+attempt at checking this consistency, and users are advised to ensure
+that the baseline cumulative hazard is consistent with the format of the
+new data that is being provided to validate the model.</p>
+<p>The below example code illustrates these points:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">SYNPM</span><span class="op">$</span><span class="va">ValidationData</span></span>
 <span></span>
 <span><span class="va">cox_mod</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">coxph</a></span><span class="op">(</span><span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">ETime</span>, <span class="va">Status</span><span class="op">)</span> <span class="op">~</span> <span class="va">Age</span> <span class="op">+</span> <span class="va">Creatinine</span>, </span>
 <span>                           data <span class="op">=</span> <span class="va">df</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">base_haz_centred</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/basehaz.html" class="external-link">basehaz</a></span><span class="op">(</span><span class="va">cox_mod</span><span class="op">)</span></span>
-<span><span class="va">base_haz_zero</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/basehaz.html" class="external-link">basehaz</a></span><span class="op">(</span><span class="va">cox_mod</span>, </span>
-<span>                                   newdata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>                                                        <span class="st">"Creatinine"</span> <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
 <span><span class="va">coefs_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Age"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">cox_mod</span><span class="op">)</span><span class="op">[</span><span class="st">"Age"</span><span class="op">]</span>,</span>
 <span>                          <span class="st">"Creatinine"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">cox_mod</span><span class="op">)</span><span class="op">[</span><span class="st">"Creatinine"</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">#now validate the model using the scaled/centred baseline hazard, but </span></span>
-<span><span class="co">#we need to also scale/centre the new_data:</span></span>
+<span><span class="co">#example of using basehaz() for uncentered/values:</span></span>
+<span><span class="va">base_haz_zero</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/basehaz.html" class="external-link">basehaz</a></span><span class="op">(</span><span class="va">cox_mod</span>, </span>
+<span>                                   newdata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Age"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                                                        <span class="st">"Creatinine"</span> <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#or use centered=FALSE in survival::basehaz()</span></span>
+<span><span class="co">#base_haz_zero &lt;- survival::basehaz(cox_mod, centered = FALSE)</span></span>
+<span></span>
+<span><span class="va">Existing_TTE_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span>
+<span>                                      model_info <span class="op">=</span> <span class="va">coefs_table</span>,</span>
+<span>                                      cum_hazard <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"time"</span> <span class="op">=</span> <span class="va">base_haz_zero</span><span class="op">$</span><span class="va">time</span>,</span>
+<span>                                                              <span class="st">"hazard"</span> <span class="op">=</span> <span class="va">base_haz_zero</span><span class="op">$</span><span class="va">hazard</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_TTE_Model</span>,</span>
+<span>              new_data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Age"</span> <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">Age</span>,</span>
+<span>                                    <span class="st">"Creatinine"</span> <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">Creatinine</span>,</span>
+<span>                                    <span class="st">"ETime"</span> <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">ETime</span>,</span>
+<span>                                    <span class="st">"Status"</span> <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">Status</span><span class="op">)</span>,</span>
+<span>              survival_time <span class="op">=</span> <span class="st">"ETime"</span>,</span>
+<span>              event_indicator <span class="op">=</span> <span class="st">"Status"</span>,</span>
+<span>              time_horizon <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co">#Alternatively, the below code shows how to handle the scaled/centred baseline </span></span>
+<span><span class="co"># hazard, such that we need to also scale/centre the new_data:</span></span>
+<span><span class="va">base_haz_centred</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/basehaz.html" class="external-link">basehaz</a></span><span class="op">(</span><span class="va">cox_mod</span><span class="op">)</span></span>
 <span><span class="va">Existing_TTE_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span>
 <span>                                      model_info <span class="op">=</span> <span class="va">coefs_table</span>,</span>
 <span>                                      cum_hazard <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"time"</span> <span class="op">=</span> <span class="va">base_haz_centred</span><span class="op">$</span><span class="va">time</span>,</span>
@@ -476,22 +498,7 @@ The below hypothetical example illustrates this point:</p>
 <span>              survival_time <span class="op">=</span> <span class="st">"ETime"</span>,</span>
 <span>              event_indicator <span class="op">=</span> <span class="st">"Status"</span>,</span>
 <span>              time_horizon <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span></span>
-<span></span>
-<span><span class="co">#alternatively, using unscaled baseline hazard:</span></span>
-<span><span class="va">Existing_TTE_Model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pred_input_info.html">pred_input_info</a></span><span class="op">(</span>model_type <span class="op">=</span> <span class="st">"survival"</span>,</span>
-<span>                                      model_info <span class="op">=</span> <span class="va">coefs_table</span>,</span>
-<span>                                      cum_hazard <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"time"</span> <span class="op">=</span> <span class="va">base_haz_zero</span><span class="op">$</span><span class="va">time</span>,</span>
-<span>                                                              <span class="st">"hazard"</span> <span class="op">=</span> <span class="va">base_haz_zero</span><span class="op">$</span><span class="va">hazard</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/pred_validate.html">pred_validate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Existing_TTE_Model</span>,</span>
-<span>              new_data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"Age"</span> <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">Age</span>,</span>
-<span>                                    <span class="st">"Creatinine"</span> <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">Creatinine</span>,</span>
-<span>                                    <span class="st">"ETime"</span> <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">ETime</span>,</span>
-<span>                                    <span class="st">"Status"</span> <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">Status</span><span class="op">)</span>,</span>
-<span>              survival_time <span class="op">=</span> <span class="st">"ETime"</span>,</span>
-<span>              event_indicator <span class="op">=</span> <span class="st">"Status"</span>,</span>
-<span>              time_horizon <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#failing to mean-center new_data passed into pred_validate() would give erroneous results.</span></span></code></pre></div>
 </div>
 </div>
 </div>
