@@ -1,6 +1,8 @@
 # predRupdate (development version)
 
-# predRupdate 0.2.0
+# predRupdate 0.2.1
+
+* Fixes issue with internal tests for ggplot classes, after ggplot2 transitioned to S7 (#18)
 
 # predRupdate 0.2.0
 
