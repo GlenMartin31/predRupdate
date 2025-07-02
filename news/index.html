@@ -41,10 +41,11 @@
 <h2 class="pkg-version" data-toc-text="development version" id="predrupdate-development-version">predRupdate (development version)<a class="anchor" aria-label="anchor" href="#predrupdate-development-version"></a></h2>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.2.0" id="predrupdate-020">predRupdate 0.2.0<a class="anchor" aria-label="anchor" href="#predrupdate-020"></a></h2><p class="text-muted">CRAN release: 2024-08-23</p>
-</div>
+<h2 class="pkg-version" data-toc-text="0.2.1" id="predrupdate-021">predRupdate 0.2.1<a class="anchor" aria-label="anchor" href="#predrupdate-021"></a></h2>
+<ul><li>Fixes issue with internal tests for ggplot classes, after ggplot2 transitioned to S7 (<a href="https://github.com/GlenMartin31/predRupdate/issues/18" class="external-link">#18</a>)</li>
+</ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.2.0" id="predrupdate-020-1">predRupdate 0.2.0<a class="anchor" aria-label="anchor" href="#predrupdate-020-1"></a></h2><p class="text-muted">CRAN release: 2024-08-23</p>
+<h2 class="pkg-version" data-toc-text="0.2.0" id="predrupdate-020">predRupdate 0.2.0<a class="anchor" aria-label="anchor" href="#predrupdate-020"></a></h2><p class="text-muted">CRAN release: 2024-08-23</p>
 <ul><li>Added a new function, <code><a href="../reference/pred_val_probs.html">pred_val_probs()</a></code>, that allows users to validate a vector of binary outcomes against a corresponding vector of predicted risks. Acts as a standalone way of validating predicted risks against binary outcomes outside of the usual <code><a href="../reference/pred_input_info.html">pred_input_info()</a></code> -&gt; <code><a href="../reference/pred_validate.html">pred_validate()</a></code> workflow for logistic models.</li>
 <li>Added options to <code><a href="../reference/pred_validate.html">pred_validate()</a></code> to allow users to specify the confidence interval width of all performance metrics.</li>
 <li>Revised calculation of confidence intervals for O:E ratio, and added calculation of confidence intervals for Brier score.</li>
